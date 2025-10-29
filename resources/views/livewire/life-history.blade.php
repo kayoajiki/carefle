@@ -71,7 +71,7 @@
 
         {{-- motivation & ボタン --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div class="flex flex-col">
+            <div class="flex flex-col" x-data="{ localMotivation: @entangle('motivation') }">
                 <label class="text-xs font-medium text-[#00473e] mb-2">
                     当時のモチベーション（0〜100）
                 </label>
@@ -80,10 +80,11 @@
                         type="range"
                         min="0"
                         max="100"
-                        wire:model.defer="motivation"
+                        x-model="localMotivation"
+                        @input="localMotivation = $event.target.value"
                         class="w-full accent-[#faae2b]"
                     />
-                    <div class="text-sm font-semibold text-[#00473e] w-10 text-right">
+                    <div class="text-sm font-semibold text-[#00473e] w-10 text-right" x-text="localMotivation">
                         {{ $motivation }}
                     </div>
                 </div>
