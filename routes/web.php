@@ -5,6 +5,7 @@ use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
 use App\Livewire\ProfileSetup;
+use App\Livewire\LifeHistory;
 use App\Http\Controllers\DiagnosisController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -24,6 +25,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('diagnosis.start');
     Route::get('diagnosis/result/{id}', [DiagnosisController::class, 'result'])
         ->name('diagnosis.result');
+    Route::get('life-history', function () {
+        return view('life-history');
+    })->name('life-history');
 });
 
 Route::middleware(['auth'])->group(function () {
