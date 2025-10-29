@@ -4,6 +4,8 @@ use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
+use App\Livewire\ProfileSetup;
+use App\Http\Controllers\DiagnosisController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -14,6 +16,15 @@ Route::get('/', function () {
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('profile/setup', ProfileSetup::class)
+        ->name('profile.setup');
+    Route::get('diagnosis/start', [DiagnosisController::class, 'start'])
+        ->name('diagnosis.start');
+    Route::get('diagnosis/result/{id}', [DiagnosisController::class, 'result'])
+        ->name('diagnosis.result');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');

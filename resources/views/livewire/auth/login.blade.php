@@ -1,57 +1,99 @@
 <x-layouts.auth>
     <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+        <div class="flex w-full flex-col text-center mb-4">
+            <h1 class="text-2xl md:text-3xl font-bold brand-headline mb-2">ログイン</h1>
+            <p class="text-sm text-dim leading-relaxed">
+                メールアドレスとパスワードを入力してください
+            </p>
+        </div>
 
         <!-- Session Status -->
-        <x-auth-session-status class="text-center" :status="session('status')" />
+        <x-auth-session-status class="text-center text-sm text-red-600" :status="session('status')" />
 
-        <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">
+        <!-- Validation Errors -->
+        @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 text-red-800 text-sm p-3 rounded-md">
+                <ul class="list-disc list-inside space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-5">
             @csrf
 
             <!-- Email Address -->
-            <flux:input
-                name="email"
-                :label="__('Email address')"
-                type="email"
-                required
-                autofocus
-                autocomplete="email"
-                placeholder="email@example.com"
-            />
+            <div class="flex flex-col gap-2">
+                <label for="email" class="text-sm font-medium text-[#00473e]">
+                    メールアドレス
+                </label>
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    autofocus
+                    autocomplete="email"
+                    value="{{ old('email') }}"
+                    class="w-full px-4 py-3 rounded-lg border border-[#00473e]/20 bg-white text-[#00473e] focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    placeholder="email@example.com"
+                />
+            </div>
 
             <!-- Password -->
-            <div class="relative">
-                <flux:input
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <label for="password" class="text-sm font-medium text-[#00473e]">
+                        パスワード
+                    </label>
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" class="text-xs text-[#00473e] underline underline-offset-2 hover:text-[#faae2b] transition-colors" wire:navigate>
+                            パスワードをお忘れですか？
+                        </a>
+                    @endif
+                </div>
+                <input
+                    id="password"
                     name="password"
-                    :label="__('Password')"
                     type="password"
                     required
                     autocomplete="current-password"
-                    :placeholder="__('Password')"
-                    viewable
+                    class="w-full px-4 py-3 rounded-lg border border-[#00473e]/20 bg-white text-[#00473e] focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    placeholder="パスワードを入力"
                 />
-
-                @if (Route::has('password.request'))
-                    <flux:link class="absolute top-0 text-sm end-0" :href="route('password.request')" wire:navigate>
-                        {{ __('Forgot your password?') }}
-                    </flux:link>
-                @endif
             </div>
 
             <!-- Remember Me -->
-            <flux:checkbox name="remember" :label="__('Remember me')" :checked="old('remember')" />
-
-            <div class="flex items-center justify-end">
-                <flux:button variant="primary" type="submit" class="w-full" data-test="login-button">
-                    {{ __('Log in') }}
-                </flux:button>
+            <div class="flex items-center gap-2">
+                <input
+                    id="remember"
+                    name="remember"
+                    type="checkbox"
+                    class="w-4 h-4 text-[#faae2b] border-[#00473e]/20 rounded focus:ring-[#faae2b]"
+                    {{ old('remember') ? 'checked' : '' }}
+                />
+                <label for="remember" class="text-sm text-dim">
+                    ログイン状態を保持する
+                </label>
             </div>
+
+            <button
+                type="submit"
+                class="w-full px-6 py-3 rounded-lg font-semibold text-base accent-bg accent-text shadow-md hover:opacity-90 transition"
+                data-test="login-button"
+            >
+                ログイン
+            </button>
         </form>
 
         @if (Route::has('register'))
-            <div class="space-x-1 text-sm text-center rtl:space-x-reverse text-zinc-600 dark:text-zinc-400">
-                <span>{{ __('Don\'t have an account?') }}</span>
-                <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
+            <div class="text-sm text-center text-dim pt-4 border-t border-[#00473e]/10">
+                <span>アカウントをお持ちでない方は</span>
+                <a href="{{ route('register') }}" class="text-[#00473e] font-semibold underline underline-offset-2 hover:text-[#faae2b] transition-colors" wire:navigate>
+                    新規登録
+                </a>
             </div>
         @endif
     </div>
