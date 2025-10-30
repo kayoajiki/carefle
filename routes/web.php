@@ -7,6 +7,8 @@ use App\Livewire\Settings\TwoFactor;
 use App\Livewire\ProfileSetup;
 use App\Livewire\LifeHistory;
 use App\Livewire\LifeHistoryTimeline;
+use App\Livewire\WcmForm;
+use App\Livewire\WcmSheetShow;
 use App\Http\Controllers\DiagnosisController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -31,6 +33,10 @@ Route::middleware(['auth'])->group(function () {
     })->name('life-history');
     Route::get('life-history/timeline', LifeHistoryTimeline::class)
         ->name('life-history.timeline');
+
+    // WCM
+    Route::get('wcm/start', WcmForm::class)->name('wcm.start');
+    Route::get('wcm/sheet/{id}', WcmSheetShow::class)->name('wcm.sheet');
 });
 
 Route::middleware(['auth'])->group(function () {
