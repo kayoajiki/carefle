@@ -8,6 +8,28 @@ use Illuminate\Support\Facades\Auth;
 
 class LifeHistoryTimeline extends Component
 {
+    public function updateColor(int $eventId, string $color): void
+    {
+        if (!preg_match('/^#([A-Fa-f0-9]{6})$/', $color)) {
+            return;
+        }
+        LifeEvent::where('user_id', Auth::id())
+            ->where('id', $eventId)
+            ->update(['timeline_color' => $color]);
+
+        $this->dispatch('livewire:update');
+    }
+
+    public function updateLabel(int $eventId, string $label): void
+    {
+        $label = trim(mb_substr($label, 0, 32));
+        LifeEvent::where('user_id', Auth::id())
+            ->where('id', $eventId)
+            ->update(['timeline_label' => $label === '' ? null : $label]);
+
+        $this->dispatch('livewire:update');
+    }
+
     public function render()
     {
         // ログインユーザーのデータを年順で並べる

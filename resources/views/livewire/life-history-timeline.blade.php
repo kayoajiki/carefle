@@ -26,14 +26,6 @@
                     <div class="relative">
                         {{-- タイムライン --}}
                         <div class="relative">
-                            @php
-                                $yearColors = [
-                                    '#fa5246', '#faae2b', '#ffa8ba', '#faae2b',
-                                    '#4ecdc4', '#95e1d3', '#a8d8ea', '#ffd3a5',
-                                    '#ffaaa5', '#ff8b94', '#c44569', '#f8b500'
-                                ];
-                                $colorIndex = 0;
-                            @endphp
                             
                             @foreach($years as $year)
                                 @php
@@ -41,18 +33,59 @@
                                 @endphp
                                 
                                 @foreach($yearEvents as $event)
-                                    @php
-                                        $color = $yearColors[$colorIndex % count($yearColors)];
-                                        $colorIndex++;
-                                    @endphp
                                     
                                     <div class="relative mb-4">
                                         {{-- カラフルなセグメント --}}
                                         <div 
-                                            class="timeline-segment w-16 rounded-lg relative shadow-md"
+                                            class="timeline-segment w-16 rounded-lg relative shadow-md border border-[#e5e7eb] overflow-hidden"
                                             data-event-id="event-{{ $year }}-{{ $event->id }}"
-                                            style="background: {{ $color }};"
-                                        ></div>
+                                            style="background: {{ $event->timeline_color ?? '#FFFFFF' }};"
+                                        >
+                                            {{-- ラベル編集（縦書き） --}}
+                                            <div class="absolute inset-0 flex items-center justify-center p-1">
+                                                <div x-data="{ editing:false, localLabel: @js($event->timeline_label) }" class="w-full h-full">
+                                                    <template x-if="!editing">
+                                                        <button type="button"
+                                                            class="w-full h-full text-[#00473e] text-xs font-semibold"
+                                                            style="writing-mode: vertical-rl; text-orientation: mixed;"
+                                                            @click="editing = true; $nextTick(() => $refs.inp.focus())"
+                                                        >
+                                                            <span x-text="localLabel || '＋'" class="opacity-80"></span>
+                                                        </button>
+                                                    </template>
+                                                    <template x-if="editing">
+                                                        <input
+                                                            x-ref="inp"
+                                                            type="text"
+                                                            maxlength="32"
+                                                            class="w-full h-full bg-white/80 text-[#00473e] text-xs text-center rounded outline-none"
+                                                            style="writing-mode: vertical-rl; text-orientation: mixed;"
+                                                            x-model.trim="localLabel"
+                                                            @blur="editing=false; $wire.updateLabel({{ $event->id }}, localLabel)"
+                                                            @keydown.enter.prevent="$event.target.blur()"
+                                                        />
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {{-- カラーパレット（左側） --}}
+                                        <div class="absolute -left-8 top-0 h-full flex items-start">
+                                            <div class="flex flex-col gap-1 mt-1">
+                                                @php
+                                                    // パステル系5色 + 白（計6色）
+                                                    $palette = ['#FFFFFF', '#FFE4E6', '#FFD8A8', '#CDEAFE', '#D3F9D8', '#EBDCFB'];
+                                                @endphp
+                                                @foreach($palette as $pcolor)
+                                                    <button type="button"
+                                                            class="w-3.5 h-3.5 rounded-full border border-[#e5e7eb]"
+                                                            style="background: {{ $pcolor }};"
+                                                            onclick="setTimelineSegmentColor('event-{{ $year }}-{{ $event->id }}','{{ $pcolor }}')"
+                                                            wire:click="updateColor({{ $event->id }}, '{{ $pcolor }}')"
+                                                            title="{{ $pcolor }}"
+                                                    ></button>
+                                                @endforeach
+                                            </div>
+                                        </div>
                                         
                                         {{-- セグメント間の矢印（最後の出来事以外） --}}
                                         @if(!($loop->parent->last && $loop->last))
@@ -129,6 +162,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 segment.style.height = cardHeight + 'px';
             }
         });
+    }
+
+    // 色変更用ヘルパー（非永続）
+    window.setTimelineSegmentColor = function(eventId, color) {
+        const seg = document.querySelector('[data-event-id="' + eventId + '"]');
+        if (seg) {
+            seg.style.backgroundColor = color;
+            seg.style.borderColor = '#e5e7eb';
+        }
     }
     
     // 初回実行

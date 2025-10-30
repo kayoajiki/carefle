@@ -16,6 +16,8 @@ class LifeEvent extends Model
         'title',
         'description',
         'motivation',
+        'timeline_color',
+        'timeline_label',
     ];
 
     /**
