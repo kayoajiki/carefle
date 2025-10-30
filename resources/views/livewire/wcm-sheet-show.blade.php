@@ -20,10 +20,28 @@
             <div class="mb-4 bg-red-50 border border-red-200 text-red-800 text-sm p-3 rounded-md">{{ session('error') }}</div>
         @endif
 
-        {{-- 上部：固定ベン図（ダミー画像 or SVG） --}}
+        {{-- 上部：固定ベン図（1920x1080 PNG を想定／レスポンシブ最適化） --}}
         <div class="bg-white rounded-2xl border border-[#00332c]/10 shadow-sm p-6 mb-8">
-            <div class="text-sm text-[#475d5b]">ベン図エリア（固定）</div>
-            <div class="mt-2 w-full h-48 bg-[#f2f7f5] rounded"></div>
+            <div class="text-sm text-[#475d5b]"></div>
+            <div class="mt-3 w-full rounded overflow-hidden bg-[#f2f7f5]">
+                <div class="aspect-[16/9] w-full">
+                    @php($venn = public_path('images/wcm-venn.png'))
+                    @if(file_exists($venn))
+                        <img
+                            src="{{ asset('images/wcm-venn.png') }}"
+                            alt="WCM ベン図"
+                            width="1920" height="1080"
+                            loading="lazy" decoding="async"
+                            class="w-full h-full object-contain select-none"
+                            sizes="(min-width: 1280px) 1120px, 100vw"
+                        />
+                    @else
+                        <div class="w-full h-full flex items-center justify-center text-[#475d5b] text-sm">
+                            画像（images/wcm-venn.png）を配置するとここに表示されます（推奨: 1920×1080 / PNG）
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
 
         {{-- 下部：Will / Can / Must --}}
