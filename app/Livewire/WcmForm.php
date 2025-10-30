@@ -21,6 +21,13 @@ class WcmForm extends Component
     public ?int $draftId = null;
     public ?string $draftSavedAt = null;
 
+    public function mount(): void
+    {
+        if (empty($this->answersLinear)) {
+            $this->answersLinear = array_fill(0, 15, '');
+        }
+    }
+
     public function next(): void
     {
         if ($this->step < 14) $this->step++;

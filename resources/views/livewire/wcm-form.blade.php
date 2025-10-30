@@ -18,7 +18,7 @@
             $hint = $hints[$section][$indexInSection($step)] ?? null;
         @endphp
 
-        <div class="bg-white rounded-2xl shadow-md p-8 flex flex-col gap-6">
+        <div class="bg-white rounded-2xl shadow-md p-8 flex flex-col gap-6" wire:key="card-{{ $step }}">
             <div>
                 <div class="flex justify-between items-baseline mb-2">
                     <div class="text-sm font-medium text-[#00473e]">Q{{ $step+1 }}/15 <span class="ml-2">{{ $label }}</span></div>
@@ -35,6 +35,7 @@
                     <p class="mt-2 text-xs md:text-sm text-[#475d5b] leading-relaxed">ヒント：{{ $hint }}</p>
                 @endif
                 <textarea
+                    wire:key="ans-{{ $step }}"
                     wire:model.debounce.800ms="answersLinear.{{ $step }}"
                     rows="10"
                     class="mt-3 w-full text-base rounded-md border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e] p-4 focus:outline-none focus:ring-2 focus:ring-[#faae2b]"
