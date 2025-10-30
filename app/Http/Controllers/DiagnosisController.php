@@ -67,16 +67,40 @@ class DiagnosisController extends Controller
             }
         }
 
-        // Lifeデータ（平均値を1つの値として表示、または各pillarを表示）
-        $lifeAvg = !empty($lifePillarScores) 
+        // Lifeデータ：赤い点（平均値）と両サイドのWork点を線で結ぶ（左↔Life、右↔Life）
+        $lifeAvg = !empty($lifePillarScores)
             ? round(array_sum($lifePillarScores) / count($lifePillarScores))
             : $diagnosis->life_score ?? 0;
 
-        // Lifeを1つの値として追加
+        // Life 軸を追加
         $radarLabels[] = 'Life（ライフ）';
+        // Work は Life 軸では線を引かない
         $radarWorkData[] = null;
-        $radarLifeData = array_fill(0, count($radarLabels) - 1, null);
-        $radarLifeData[] = $lifeAvg;
+
+        $countAfterAdd = count($radarLabels);        // 合計軸数
+        $lastWorkIndex = $countAfterAdd - 2;         // 最後のWork軸
+        $lifeIndex = $countAfterAdd - 1;             // Life軸
+
+        // 線（左↔Life）
+        $lifeEdgeLeftData = array_fill(0, $countAfterAdd, null);
+        $lifeEdgeLeftData[0] = $radarWorkData[0] ?? null;                 // 左サイドのWork値
+        $lifeEdgeLeftData[$lifeIndex] = $lifeAvg;                          // Life点
+
+        // 線（右↔Life）
+        $lifeEdgeRightData = array_fill(0, $countAfterAdd, null);
+        $lifeEdgeRightData[$lastWorkIndex] = $radarWorkData[$lastWorkIndex] ?? null; // 右サイドのWork値
+        $lifeEdgeRightData[$lifeIndex] = $lifeAvg;                         // Life点
+
+        // 赤い点のみ（線なし）
+        $lifePointData = array_fill(0, $countAfterAdd, null);
+        $lifePointData[$lifeIndex] = $lifeAvg;
+
+        // 塗りつぶし用（三角形の境界線は描かず、背景のみ）
+        // すき間を無くすため、その他の軸は0（中心）を設定し、三角形内がすべて塗られるようにする
+        $lifeFillData = array_fill(0, $countAfterAdd, 0);
+        $lifeFillData[0] = $radarWorkData[0] ?? 0;
+        $lifeFillData[$lastWorkIndex] = $radarWorkData[$lastWorkIndex] ?? 0;
+        $lifeFillData[$lifeIndex] = $lifeAvg;
 
         // コメントの取得
         $answerNotes = [];
@@ -95,7 +119,10 @@ class DiagnosisController extends Controller
             'lifeScore' => $diagnosis->life_score ?? 0,
             'radarLabels' => $radarLabels,
             'radarWorkData' => $radarWorkData,
-            'radarLifeData' => $radarLifeData,
+            'lifeEdgeLeftData' => $lifeEdgeLeftData,
+            'lifeEdgeRightData' => $lifeEdgeRightData,
+            'lifePointData' => $lifePointData,
+            'lifeFillData' => $lifeFillData,
             'answerNotes' => $answerNotes,
         ]);
     }

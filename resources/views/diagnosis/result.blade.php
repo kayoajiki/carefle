@@ -103,7 +103,10 @@ const ctx = document.getElementById('radarChart').getContext('2d');
 
 const radarLabels = @json($radarLabels);
 const workData = @json($radarWorkData);
-const lifeData = @json($radarLifeData);
+const lifeEdgeLeft = @json($lifeEdgeLeftData ?? []);
+const lifeEdgeRight = @json($lifeEdgeRightData ?? []);
+const lifePoint = @json($lifePointData ?? []);
+const lifeFill = @json($lifeFillData ?? []);
 
 new Chart(ctx, {
     type: 'radar',
@@ -119,15 +122,46 @@ new Chart(ctx, {
                 pointBackgroundColor: '#00473e',
                 pointBorderColor: '#00473e',
             },
+            // Life 左↔点 の線
             {
-                label: 'Life',
-                data: lifeData,
+                label: 'Life-Link-L',
+                data: lifeEdgeLeft,
                 borderWidth: 2,
                 borderColor: '#fa5246',
-                backgroundColor: 'rgba(250,82,70,0.10)',
+                backgroundColor: 'transparent',
+                pointRadius: 0,
+                spanGaps: true,
+            },
+            // Life 右↔点 の線
+            {
+                label: 'Life-Link-R',
+                data: lifeEdgeRight,
+                borderWidth: 2,
+                borderColor: '#fa5246',
+                backgroundColor: 'transparent',
+                pointRadius: 0,
+                spanGaps: true,
+            },
+            // Life の塗り（薄いピンク）
+            {
+                label: 'Life-Fill',
+                data: lifeFill,
+                borderWidth: 0,
+                backgroundColor: 'rgba(255, 99, 132, 0.12)',
+                pointRadius: 0,
+                spanGaps: true,
+            },
+            // Life の赤い点のみ
+            {
+                label: 'Life',
+                data: lifePoint,
+                borderWidth: 0,
+                showLine: false,
+                backgroundColor: 'transparent',
                 pointBackgroundColor: '#fa5246',
                 pointBorderColor: '#fa5246',
-            }
+                pointRadius: 4,
+            },
         ]
     },
     options: {
@@ -155,7 +189,11 @@ new Chart(ctx, {
             legend: {
                 labels: {
                     color: '#475d5b',
-                    font: { size: 11 }
+                    font: { size: 11 },
+                    // Work と Life だけを凡例に表示
+                    filter: function(item) {
+                        return item.text === 'Work' || item.text === 'Life';
+                    }
                 }
             }
         }
