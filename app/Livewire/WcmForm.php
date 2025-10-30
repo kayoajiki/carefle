@@ -16,6 +16,8 @@ class WcmForm extends Component
         'can' => [],
         'must' => [],
     ];
+    // フラット配列（0..14）: 保存時の確実な区切りのために使用
+    public array $answersLinear = [];
     public ?int $draftId = null;
     public ?string $draftSavedAt = null;
 
@@ -40,9 +42,7 @@ class WcmForm extends Component
             return null;
         }
 
-        $willText = trim(implode("\n\n", $this->answers['will']));
-        $canText  = trim(implode("\n\n", $this->answers['can']));
-        $mustText = trim(implode("\n\n", $this->answers['must']));
+        [$willText, $canText, $mustText] = $this->composeTexts();
 
         if ($this->draftId) {
             $sheet = WcmSheet::where('id', $this->draftId)->where('user_id', $userId)->first();
@@ -77,9 +77,7 @@ class WcmForm extends Component
     public function saveDraft(): void
     {
         $userId = Auth::id();
-        $willText = trim(implode("\n\n", $this->answers['will']));
-        $canText  = trim(implode("\n\n", $this->answers['can']));
-        $mustText = trim(implode("\n\n", $this->answers['must']));
+        [$willText, $canText, $mustText] = $this->composeTexts();
 
         if ($this->draftId) {
             WcmSheet::where('id', $this->draftId)
@@ -109,6 +107,30 @@ class WcmForm extends Component
     public function updatedAnswers(): void
     {
         $this->saveDraft();
+    }
+
+    public function updatedAnswersLinear(): void
+    {
+        // フラット配列が更新された場合、セクション配列へも反映
+        $this->answers['will'] = array_values(array_slice($this->answersLinear, 0, 5));
+        $this->answers['can']  = array_values(array_slice($this->answersLinear, 5, 5));
+        $this->answers['must'] = array_values(array_slice($this->answersLinear, 10, 5));
+        $this->saveDraft();
+    }
+
+    private function composeTexts(): array
+    {
+        // フラット配列が優先。なければ従来配列を使用
+        if (!empty($this->answersLinear)) {
+            $will = array_filter(array_map('trim', array_slice($this->answersLinear, 0, 5)), fn($t)=>$t!=="");
+            $can  = array_filter(array_map('trim', array_slice($this->answersLinear, 5, 5)), fn($t)=>$t!=="");
+            $must = array_filter(array_map('trim', array_slice($this->answersLinear, 10, 5)), fn($t)=>$t!=="");
+        } else {
+            $will = array_filter(array_map('trim', $this->answers['will'] ?? []), fn($t)=>$t!=="");
+            $can  = array_filter(array_map('trim', $this->answers['can'] ?? []), fn($t)=>$t!=="");
+            $must = array_filter(array_map('trim', $this->answers['must'] ?? []), fn($t)=>$t!=="");
+        }
+        return [trim(implode("\n\n", $will)), trim(implode("\n\n", $can)), trim(implode("\n\n", $must))];
     }
 
     public function render()

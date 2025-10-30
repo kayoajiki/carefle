@@ -35,7 +35,7 @@
                     <p class="mt-2 text-xs md:text-sm text-[#475d5b] leading-relaxed">ヒント：{{ $hint }}</p>
                 @endif
                 <textarea
-                    wire:model.debounce.800ms="answers.{{ $section }}.{{ $indexInSection($step) }}"
+                    wire:model.debounce.800ms="answersLinear.{{ $step }}"
                     rows="10"
                     class="mt-3 w-full text-base rounded-md border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e] p-4 focus:outline-none focus:ring-2 focus:ring-[#faae2b]"
                     placeholder="自由に記入してください"
