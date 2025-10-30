@@ -2,7 +2,7 @@
     <div class="w-full max-w-3xl mx-auto">
         <div class="text-center mb-6">
             <h1 class="text-3xl font-semibold text-[#00473e]">WCMシート作成（Step 1/2）</h1>
-            <p class="text-base text-[#475d5b] mt-2">バリュークエスチョンに答えていきましょう</p>
+            <p class="text-base text-[#475d5b] mt-2">ここでは綺麗にまとまっていなくても構いません。文章でなくても単語でも。思いのまま書いていきましょう。</p>
         </div>
 
         @php
