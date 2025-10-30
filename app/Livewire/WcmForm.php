@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.simple')]
+#[Layout('components.layouts.simple_component')]
 class WcmForm extends Component
 {
     public int $step = 0; // 0..14 (WILL 5, CAN 5, MUST 5)
