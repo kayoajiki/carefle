@@ -29,8 +29,23 @@ class WcmSheetShow extends Component
             'will_text' => $this->will_text,
             'can_text'  => $this->can_text,
             'must_text' => $this->must_text,
+            'is_draft'  => false,
         ]);
         session()->flash('saved', '保存しました');
+    }
+
+    public function updatedWillText(): void { $this->autosave(); }
+    public function updatedCanText(): void { $this->autosave(); }
+    public function updatedMustText(): void { $this->autosave(); }
+
+    private function autosave(): void
+    {
+        // 下書き的に常時保存（バージョンは上げない）
+        $this->sheet->update([
+            'will_text' => $this->will_text,
+            'can_text'  => $this->can_text,
+            'must_text' => $this->must_text,
+        ]);
     }
 
     public function saveAsNew(): mixed
@@ -58,6 +73,7 @@ class WcmSheetShow extends Component
     public function render()
     {
         $versions = WcmSheet::where('user_id', Auth::id())
+            ->where('is_draft', false)
             ->orderByDesc('version')
             ->limit(10)
             ->get(['id','version','created_at']);

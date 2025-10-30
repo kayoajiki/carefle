@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-[#f2f7f5] px-4 py-8">
-    <div class="max-w-6xl mx-auto">
+<div class="min-h-screen bg-[#f2f7f5] px-4 py-10">
+    <div class="max-w-7xl mx-auto">
         <div class="flex items-start justify-between mb-6">
-            <h1 class="text-2xl font-semibold text-[#00473e]">WCMシート（Step 2/2）</h1>
+            <h1 class="text-3xl font-semibold text-[#00473e]">WCMシート（Step 2/2）</h1>
             <div class="flex items-center gap-3">
                 <button wire:click="save" class="text-xs px-4 py-2 rounded-md font-semibold bg-[#faae2b] text-[#00473e] shadow-sm">上書き保存</button>
                 <button wire:click="saveAsNew" class="text-xs px-4 py-2 rounded-md border border-[#00473e]/30 text-[#00473e] bg-white font-medium">新規保存</button>
@@ -16,24 +16,24 @@
         @endif
 
         {{-- 上部：固定ベン図（ダミー画像 or SVG） --}}
-        <div class="bg-white rounded-xl border border-[#00332c]/10 shadow-sm p-4 mb-6">
+        <div class="bg-white rounded-2xl border border-[#00332c]/10 shadow-sm p-6 mb-8">
             <div class="text-sm text-[#475d5b]">ベン図エリア（固定）</div>
             <div class="mt-2 w-full h-48 bg-[#f2f7f5] rounded"></div>
         </div>
 
         {{-- 下部：Will / Can / Must --}}
         <div class="space-y-6">
-            <div class="bg-white rounded-xl border border-[#a5b4fc] shadow-sm p-4">
+            <div class="bg-white rounded-xl border border-[#a5b4fc] shadow-sm p-6">
                 <div class="text-sm font-semibold text-[#00473e] mb-2">Will</div>
-                <textarea wire:model.defer="will_text" rows="6" class="w-full text-sm rounded-md border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e] p-3 focus:outline-none focus:ring-2 focus:ring-[#faae2b]"></textarea>
+                <textarea wire:model.debounce.800ms="will_text" rows="10" class="w-full text-base rounded-md border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e] p-4 focus:outline-none focus:ring-2 focus:ring-[#faae2b]"></textarea>
             </div>
-            <div class="bg-white rounded-xl border border-[#fdba74] shadow-sm p-4">
+            <div class="bg-white rounded-xl border border-[#fdba74] shadow-sm p-6">
                 <div class="text-sm font-semibold text-[#00473e] mb-2">Can</div>
-                <textarea wire:model.defer="can_text" rows="6" class="w-full text-sm rounded-md border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e] p-3 focus:outline-none focus:ring-2 focus:ring-[#faae2b]"></textarea>
+                <textarea wire:model.debounce.800ms="can_text" rows="10" class="w-full text-base rounded-md border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e] p-4 focus:outline-none focus:ring-2 focus:ring-[#faae2b]"></textarea>
             </div>
-            <div class="bg-white rounded-xl border border-[#86efac] shadow-sm p-4">
+            <div class="bg-white rounded-xl border border-[#86efac] shadow-sm p-6">
                 <div class="text-sm font-semibold text-[#00473e] mb-2">Must</div>
-                <textarea wire:model.defer="must_text" rows="6" class="w-full text-sm rounded-md border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e] p-3 focus:outline-none focus:ring-2 focus:ring-[#faae2b]"></textarea>
+                <textarea wire:model.debounce.800ms="must_text" rows="10" class="w-full text-base rounded-md border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e] p-4 focus:outline-none focus:ring-2 focus:ring-[#faae2b]"></textarea>
             </div>
         </div>
 

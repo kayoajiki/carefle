@@ -16,6 +16,8 @@ class WcmForm extends Component
         'can' => [],
         'must' => [],
     ];
+    public ?int $draftId = null;
+    public ?string $draftSavedAt = null;
 
     public function next(): void
     {
@@ -31,8 +33,8 @@ class WcmForm extends Component
     {
         $userId = Auth::id();
 
-        // 10枚制限
-        $count = WcmSheet::where('user_id', $userId)->count();
+        // 10枚制限（確定のみ）
+        $count = WcmSheet::where('user_id', $userId)->where('is_draft', false)->count();
         if ($count >= 10) {
             session()->flash('error', '保存上限（10件）に達しています。古いシートを削除してください。');
             return null;
@@ -42,16 +44,71 @@ class WcmForm extends Component
         $canText  = trim(implode("\n\n", $this->answers['can']));
         $mustText = trim(implode("\n\n", $this->answers['must']));
 
+        if ($this->draftId) {
+            $sheet = WcmSheet::where('id', $this->draftId)->where('user_id', $userId)->first();
+            if ($sheet) {
+                $maxVersion = WcmSheet::where('user_id', $userId)->where('is_draft', false)->max('version') ?? 0;
+                $sheet->update([
+                    'title'     => $sheet->title ?? 'WCMシート',
+                    'will_text' => $willText,
+                    'can_text'  => $canText,
+                    'must_text' => $mustText,
+                    'version'   => $maxVersion + 1,
+                    'is_draft'  => false,
+                ]);
+                return redirect()->route('wcm.sheet', ['id' => $sheet->id]);
+            }
+        }
+
+        $maxVersion = WcmSheet::where('user_id', $userId)->where('is_draft', false)->max('version') ?? 0;
         $sheet = WcmSheet::create([
             'user_id'   => $userId,
             'title'     => 'WCMシート',
             'will_text' => $willText,
             'can_text'  => $canText,
             'must_text' => $mustText,
-            'version'   => 1,
+            'version'   => $maxVersion + 1,
+            'is_draft'  => false,
         ]);
 
         return redirect()->route('wcm.sheet', ['id' => $sheet->id]);
+    }
+
+    public function saveDraft(): void
+    {
+        $userId = Auth::id();
+        $willText = trim(implode("\n\n", $this->answers['will']));
+        $canText  = trim(implode("\n\n", $this->answers['can']));
+        $mustText = trim(implode("\n\n", $this->answers['must']));
+
+        if ($this->draftId) {
+            WcmSheet::where('id', $this->draftId)
+                ->where('user_id', $userId)
+                ->update([
+                    'title'     => 'WCMシート（下書き）',
+                    'will_text' => $willText,
+                    'can_text'  => $canText,
+                    'must_text' => $mustText,
+                    'is_draft'  => true,
+                ]);
+        } else {
+            $sheet = WcmSheet::create([
+                'user_id'   => $userId,
+                'title'     => 'WCMシート（下書き）',
+                'will_text' => $willText,
+                'can_text'  => $canText,
+                'must_text' => $mustText,
+                'version'   => 1,
+                'is_draft'  => true,
+            ]);
+            $this->draftId = $sheet->id;
+        }
+        $this->draftSavedAt = now()->format('H:i');
+    }
+
+    public function updatedAnswers(): void
+    {
+        $this->saveDraft();
     }
 
     public function render()
