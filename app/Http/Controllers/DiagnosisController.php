@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Diagnosis;
 use App\Models\Question;
+use App\Models\DiagnosisImportanceAnswer;
 use Illuminate\Support\Facades\Auth;
 
 class DiagnosisController extends Controller
@@ -113,6 +114,23 @@ class DiagnosisController extends Controller
             }
         }
 
+        // 重要度（青）オーバーレイ
+        $importanceWork = [];
+        $workQuestions = Question::where('type','work')->get();
+        $totalWorkWeight = $workQuestions->sum('weight');
+        foreach ($workQuestions->groupBy('pillar') as $pillar => $qs) {
+            $sum=0; $w=0;
+            foreach ($qs as $q) {
+                $ans = DiagnosisImportanceAnswer::where('diagnosis_id',$diagnosis->id)->where('question_id',$q->id)->first();
+                if ($ans) { $sum += (($ans->importance_value-1)/4*100) * $q->weight; $w += $q->weight; }
+            }
+            $importanceWork[$pillar] = $w>0 ? round($sum/$w) : null;
+        }
+        $importanceDataset = [];
+        foreach (array_keys($pillarLabels) as $key) { $importanceDataset[] = $importanceWork[$key] ?? null; }
+        // Life 軸は使わない
+        $importanceDataset[] = null;
+
         return view('diagnosis.result', [
             'diagnosis' => $diagnosis,
             'workScore' => $diagnosis->work_score ?? 0,
@@ -123,6 +141,7 @@ class DiagnosisController extends Controller
             'lifeEdgeRightData' => $lifeEdgeRightData,
             'lifePointData' => $lifePointData,
             'lifeFillData' => $lifeFillData,
+            'importanceDataset' => $importanceDataset,
             'answerNotes' => $answerNotes,
         ]);
     }

@@ -51,6 +51,9 @@
         <div class="w-full md:w-2/3 mx-auto">
             <canvas id="radarChart" width="400" height="400"></canvas>
         </div>
+        <div class="mt-4 text-right">
+            <a href="{{ route('diagnosis.importance', ['id' => $diagnosis->id]) }}" class="text-xs px-4 py-2 rounded-md font-semibold bg-[#60a5fa] text-white shadow-sm">今度は重要度を確認する</a>
+        </div>
     </div>
 
     <!-- comments / reflection -->
@@ -107,6 +110,7 @@ const lifeEdgeLeft = @json($lifeEdgeLeftData ?? []);
 const lifeEdgeRight = @json($lifeEdgeRightData ?? []);
 const lifePoint = @json($lifePointData ?? []);
 const lifeFill = @json($lifeFillData ?? []);
+const importanceData = @json($importanceDataset ?? []);
 
 new Chart(ctx, {
     type: 'radar',
@@ -149,6 +153,17 @@ new Chart(ctx, {
                 borderWidth: 0,
                 backgroundColor: 'rgba(255, 99, 132, 0.12)',
                 pointRadius: 0,
+                spanGaps: true,
+            },
+            // 重要度（青）
+            {
+                label: 'Importance',
+                data: importanceData,
+                borderWidth: 2,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59,130,246,0.10)',
+                pointBackgroundColor: '#3b82f6',
+                pointBorderColor: '#3b82f6',
                 spanGaps: true,
             },
             // Life の赤い点のみ

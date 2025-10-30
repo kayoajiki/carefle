@@ -7,6 +7,7 @@ use App\Livewire\Settings\TwoFactor;
 use App\Livewire\ProfileSetup;
 use App\Livewire\LifeHistory;
 use App\Livewire\LifeHistoryTimeline;
+use App\Livewire\DiagnosisImportanceForm;
 use App\Livewire\WcmForm;
 use App\Http\Controllers\DiagnosisController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('diagnosis.start');
     Route::get('diagnosis/result/{id}', [DiagnosisController::class, 'result'])
         ->name('diagnosis.result');
+    Route::get('diagnosis/importance/{id}', DiagnosisImportanceForm::class)
+        ->name('diagnosis.importance');
     Route::get('life-history', function () {
         return view('life-history');
     })->name('life-history');
