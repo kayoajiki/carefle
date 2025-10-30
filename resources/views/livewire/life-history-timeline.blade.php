@@ -22,8 +22,8 @@
         <div class="max-w-6xl mx-auto">
             <div class="flex gap-8">
                 {{-- 左側：タイムライン --}}
-                <div class="hidden md:block w-40 flex-shrink-0">
-                    <div class="relative pt-4">
+                <div class="hidden md:block w-16 flex-shrink-0">
+                    <div class="relative">
                         {{-- タイムライン --}}
                         <div class="relative">
                             @php
@@ -35,31 +35,31 @@
                                 $colorIndex = 0;
                             @endphp
                             
-                            @foreach($years as $index => $year)
+                            @foreach($years as $year)
                                 @php
                                     $yearEvents = $eventsByYear[$year];
-                                    $segmentHeight = max(100, 80 + ($yearEvents->count() * 50));
-                                    $color = $yearColors[$colorIndex % count($yearColors)];
-                                    $colorIndex++;
                                 @endphp
                                 
-                                <div class="relative mb-2">
-                                    {{-- 年号ラベル --}}
-                                    <div class="absolute -left-20 top-1/2 -translate-y-1/2 text-sm font-bold text-[#00473e] whitespace-nowrap">
-                                        {{ $year }}
-                                    </div>
+                                @foreach($yearEvents as $event)
+                                    @php
+                                        $color = $yearColors[$colorIndex % count($yearColors)];
+                                        $colorIndex++;
+                                    @endphp
                                     
-                                    {{-- カラフルなセグメント --}}
-                                    <div 
-                                        class="w-16 rounded-lg relative shadow-md"
-                                        style="background: {{ $color }}; height: {{ $segmentHeight }}px; min-height: 100px;"
-                                    >
-                                        {{-- セグメント間の矢印（最後以外） --}}
-                                        @if(!$loop->last)
-                                            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-[10px] border-r-[10px] border-t-[16px] border-transparent" style="border-top-color: #9ca3af;"></div>
+                                    <div class="relative mb-4">
+                                        {{-- カラフルなセグメント --}}
+                                        <div 
+                                            class="timeline-segment w-16 rounded-lg relative shadow-md"
+                                            data-event-id="event-{{ $year }}-{{ $event->id }}"
+                                            style="background: {{ $color }};"
+                                        ></div>
+                                        
+                                        {{-- セグメント間の矢印（最後の出来事以外） --}}
+                                        @if(!($loop->parent->last && $loop->last))
+                                            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-[10px] border-r-[10px] border-t-[16px] border-transparent" style="border-top-color: #9ca3af; z-index: 10;"></div>
                                         @endif
                                     </div>
-                                </div>
+                                @endforeach
                             @endforeach
                         </div>
                     </div>
@@ -74,7 +74,7 @@
                             @endphp
                             
                             @foreach($yearEvents as $event)
-                                <div class="bg-white rounded-xl border border-[#00332c]/10 shadow-sm p-4 md:p-6">
+                                <div id="event-{{ $year }}-{{ $event->id }}" class="bg-white rounded-xl border border-[#00332c]/10 shadow-sm p-4 md:p-6">
                                     {{-- ヘッダー --}}
                                     <div class="flex items-start justify-between mb-3">
                                         <div class="flex items-center gap-2">
@@ -115,3 +115,35 @@
         </div>
     @endif
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 右側の出来事カードの高さに合わせて左側のタイムラインセグメントの高さを調整
+    function syncTimelineSegments() {
+        const segments = document.querySelectorAll('.timeline-segment');
+        segments.forEach(segment => {
+            const eventId = segment.getAttribute('data-event-id');
+            const eventCard = document.getElementById(eventId);
+            if (eventCard) {
+                const cardHeight = eventCard.offsetHeight;
+                segment.style.height = cardHeight + 'px';
+            }
+        });
+    }
+    
+    // 初回実行
+    syncTimelineSegments();
+    
+    // ウィンドウリサイズ時にも再計算
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(syncTimelineSegments, 100);
+    });
+    
+    // Livewireの更新後にも再計算
+    document.addEventListener('livewire:update', function() {
+        setTimeout(syncTimelineSegments, 100);
+    });
+});
+</script>
