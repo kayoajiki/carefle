@@ -15,6 +15,7 @@
             $section = $map[$step] ?? 'will';
             $label = strtoupper($section);
             $question = $questions[$section][$indexInSection($step)];
+            $hint = $hints[$section][$indexInSection($step)] ?? null;
         @endphp
 
         <div class="bg-white rounded-2xl shadow-md p-8 flex flex-col gap-6">
@@ -30,6 +31,9 @@
 
             <div>
                 <h2 class="text-lg md:text-xl font-semibold text-[#00473e] leading-relaxed">{{ $question }}</h2>
+                @if($hint)
+                    <p class="mt-2 text-xs md:text-sm text-[#475d5b] leading-relaxed">ヒント：{{ $hint }}</p>
+                @endif
                 <textarea
                     wire:model.debounce.800ms="answers.{{ $section }}.{{ $indexInSection($step) }}"
                     rows="10"
