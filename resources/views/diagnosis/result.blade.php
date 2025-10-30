@@ -118,7 +118,7 @@ new Chart(ctx, {
         labels: radarLabels,
         datasets: [
             {
-                label: 'Work',
+                label: '満足度',
                 data: workData,
                 borderWidth: 2,
                 borderColor: '#00473e',
@@ -131,7 +131,7 @@ new Chart(ctx, {
                 label: 'Life-Link-L',
                 data: lifeEdgeLeft,
                 borderWidth: 2,
-                borderColor: '#fa5246',
+                borderColor: '#00473e',
                 backgroundColor: 'transparent',
                 pointRadius: 0,
                 spanGaps: true,
@@ -141,23 +141,23 @@ new Chart(ctx, {
                 label: 'Life-Link-R',
                 data: lifeEdgeRight,
                 borderWidth: 2,
-                borderColor: '#fa5246',
+                borderColor: '#00473e',
                 backgroundColor: 'transparent',
                 pointRadius: 0,
                 spanGaps: true,
             },
-            // Life の塗り（薄いピンク）
+            // Life の塗り（ワーク色と同系）
             {
                 label: 'Life-Fill',
                 data: lifeFill,
                 borderWidth: 0,
-                backgroundColor: 'rgba(255, 99, 132, 0.12)',
+                backgroundColor: 'rgba(250,174,43,0.15)',
                 pointRadius: 0,
                 spanGaps: true,
             },
             // 重要度（青）
             {
-                label: 'Importance',
+                label: '重要度',
                 data: importanceData,
                 borderWidth: 2,
                 borderColor: '#3b82f6',
@@ -168,13 +168,13 @@ new Chart(ctx, {
             },
             // Life の赤い点のみ
             {
-                label: 'Life',
+                label: 'Life-Point',
                 data: lifePoint,
                 borderWidth: 0,
                 showLine: false,
                 backgroundColor: 'transparent',
-                pointBackgroundColor: '#fa5246',
-                pointBorderColor: '#fa5246',
+                pointBackgroundColor: '#00473e',
+                pointBorderColor: '#00473e',
                 pointRadius: 4,
             },
         ]
@@ -205,9 +205,9 @@ new Chart(ctx, {
                 labels: {
                     color: '#475d5b',
                     font: { size: 11 },
-                    // Work と Life だけを凡例に表示
+                    // 「満足度」「重要度」だけを凡例に表示
                     filter: function(item) {
-                        return item.text === 'Work' || item.text === 'Life';
+                        return item.text === '満足度' || item.text === '重要度';
                     }
                 }
             }
