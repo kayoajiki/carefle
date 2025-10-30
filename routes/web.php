@@ -8,7 +8,6 @@ use App\Livewire\ProfileSetup;
 use App\Livewire\LifeHistory;
 use App\Livewire\LifeHistoryTimeline;
 use App\Livewire\WcmForm;
-use App\Livewire\WcmSheetShow;
 use App\Http\Controllers\DiagnosisController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -36,7 +35,9 @@ Route::middleware(['auth'])->group(function () {
 
     // WCM
     Route::get('wcm/start', WcmForm::class)->name('wcm.start');
-    Route::get('wcm/sheet/{id}', WcmSheetShow::class)->name('wcm.sheet');
+    Route::get('wcm/sheet/{id}', function ($id) {
+        return view('wcm.sheet', ['id' => (int)$id]);
+    })->name('wcm.sheet');
 });
 
 Route::middleware(['auth'])->group(function () {

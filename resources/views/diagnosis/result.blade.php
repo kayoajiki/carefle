@@ -1,7 +1,6 @@
-@extends('components.layouts.simple')
-
-@section('content')
-<div class="min-h-screen bg-[#f2f7f5] px-4 py-8 flex flex-col items-center">
+<x-layouts.app.sidebar :title="'診断結果'">
+    <flux:main>
+<div class="min-h-screen bg-[#f2f7f5] px-4 py-8">
     <!-- heading -->
     <div class="w-full max-w-4xl mb-8">
         <h1 class="text-2xl font-semibold text-[#00473e]">
@@ -94,7 +93,8 @@
             ダッシュボードに戻る
         </a>
     </div>
-</div>
+    </flux:main>
+</x-layouts.app.sidebar>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -162,5 +162,5 @@ new Chart(ctx, {
     }
 });
 </script>
-@endsection
+ 
 

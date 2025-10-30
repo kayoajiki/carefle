@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.simple_component')]
 class WcmSheetShow extends Component
 {
     public WcmSheet $sheet;
