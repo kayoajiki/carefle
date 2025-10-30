@@ -5,6 +5,11 @@
             <div class="flex items-center gap-3">
                 <button wire:click="save" class="text-xs px-4 py-2 rounded-md font-semibold bg-[#faae2b] text-[#00473e] shadow-sm">上書き保存</button>
                 <button wire:click="saveAsNew" class="text-xs px-4 py-2 rounded-md border border-[#00473e]/30 text-[#00473e] bg-white font-medium">新規保存</button>
+                <button
+                    onclick="if(!confirm('このシートを削除します。よろしいですか？')) return false;"
+                    wire:click="delete({{ $sheet->id }})"
+                    class="text-xs px-4 py-2 rounded-md border border-[#fa5246] text-[#fa5246] bg-white font-medium"
+                >削除</button>
             </div>
         </div>
 
@@ -40,11 +45,18 @@
         {{-- バージョン一覧 --}}
         <div class="mt-8 bg-white rounded-xl border border-[#00332c]/10 shadow-sm p-4">
             <div class="text-sm font-semibold text-[#00473e] mb-2">保存済み（最新10件）</div>
-            <div class="flex flex-wrap gap-2 text-sm">
+            <div class="space-y-2">
                 @foreach($versions as $v)
-                    <a href="{{ route('wcm.sheet', ['id' => $v->id]) }}" class="px-3 py-1 rounded border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e]">
-                        v{{ $v->version }} （{{ $v->created_at->format('Y/m/d') }}）
-                    </a>
+                    <div class="flex items-center gap-2 text-sm">
+                        <a href="{{ route('wcm.sheet', ['id' => $v->id]) }}" class="px-3 py-1 rounded border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e]">
+                            v{{ $v->version }} （{{ $v->created_at->format('Y/m/d') }}）
+                        </a>
+                        <button
+                            onclick="if(!confirm('v{{ $v->version }} を削除します。よろしいですか？')) return false;"
+                            wire:click="delete({{ $v->id }})"
+                            class="text-xs px-2 py-1 rounded border border-[#fa5246] text-[#fa5246] bg-white"
+                        >削除</button>
+                    </div>
                 @endforeach
             </div>
         </div>

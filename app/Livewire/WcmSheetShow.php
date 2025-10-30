@@ -82,6 +82,30 @@ class WcmSheetShow extends Component
             'versions' => $versions,
         ]);
     }
+
+    public function delete(int $id)
+    {
+        $sheet = WcmSheet::where('user_id', Auth::id())
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $sheet->delete();
+
+        // 削除したのが現在表示中なら、最新の確定版へ遷移 or 作成へ
+        if ($id === $this->sheet->id) {
+            $next = WcmSheet::where('user_id', Auth::id())
+                ->where('is_draft', false)
+                ->orderByDesc('version')
+                ->first();
+            if ($next) {
+                return redirect()->route('wcm.sheet', ['id' => $next->id]);
+            }
+            return redirect()->route('wcm.start');
+        }
+
+        // 画面はそのまま、一覧だけ再取得させる
+        session()->flash('saved', '削除しました');
+    }
 }
 
 
