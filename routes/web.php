@@ -6,6 +6,7 @@ use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
 use App\Livewire\ProfileSetup;
 use App\Livewire\LifeHistory;
+use App\Livewire\LifeHistoryTimeline;
 use App\Http\Controllers\DiagnosisController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -28,6 +29,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('life-history', function () {
         return view('life-history');
     })->name('life-history');
+    Route::get('life-history/timeline', LifeHistoryTimeline::class)
+        ->name('life-history.timeline');
 });
 
 Route::middleware(['auth'])->group(function () {

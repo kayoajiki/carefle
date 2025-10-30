@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>キャリアカルテ - Career Karte</title>
+    <title>キャリフレ - Career Fre</title>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -86,7 +86,7 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="text-xl md:text-2xl font-bold brand-headline flex items-center gap-2">
                 <span class="inline-block w-2 h-2 rounded-full bg-[#faae2b] shadow-sm"></span>
-                <span>キャリアカルテ</span>
+                <span>キャリフレ</span>
             </div>
 
             @if (Route::has('login'))
@@ -118,7 +118,7 @@
 
             <div class="space-y-6 text-center">
                 <div class="inline-flex items-center gap-2 text-xs md:text-sm font-semibold badge-step rounded-full px-3 py-1 tracking-wide w-fit mx-auto">
-                    内省支援サービス「キャリアカルテ」
+                    内省支援サービス「キャリフレ」
                 </div>
 
                 <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight brand-headline">
@@ -127,7 +127,7 @@
                 </h1>
 
                 <p class="text-lg md:text-xl leading-relaxed text-dim max-w-4xl mx-auto">
-                    キャリアカルテは、あなたの「過去・現在・未来」を3回のセッションで整理。<br>
+                    キャリフレは、あなたの「過去・現在・未来」を3回のセッションで整理。<br>
                     強み・価値観・これから進む方向を言語化するプログラムです。<br class="hidden md:block">
                     転職する／続ける／働き方を変える——次の一歩を、自分で選べる状態まで伴走します。
                 </p>
@@ -143,7 +143,7 @@
                     {{-- </li> --}}
                     {{-- <li class="flex items-start gap-2"> --}}
                         {{-- <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">●</span> --}}
-                        {{-- <span class="leading-relaxed">受講後は「キャリアカルテPDF」が手元に残る</span> --}}
+                        {{-- <span class="leading-relaxed">受講後は「キャリフレPDF」が手元に残る</span> --}}
                     {{-- </li> --}}
                 {{-- </ul> --}}
 
@@ -185,7 +185,7 @@
                 <p class="text-lg md:text-xl text-dim leading-relaxed max-w-4xl mx-auto">
                     セッションの内容は、口頭アドバイスだけで終わりません。<br class="hidden md:block">
                     あなたの価値観・強み・これからの指針をまとめた
-                    "キャリアカルテPDF"としてお渡しします。<br class="hidden md:block">
+                    "キャリフレPDF"としてお渡しします。<br class="hidden md:block">
                     悩んだときに読み返せる、あなただけの取扱説明書です。
                 </p>
 
@@ -260,7 +260,7 @@
                     </div>
 
                     <h3 class="text-xl md:text-2xl font-bold text-[#00473e] leading-snug mb-4">
-                        キャリアカルテ（サマリーPDF）
+                        キャリフレ（サマリーPDF）
                     </h3>
 
                     <div class="space-y-6 text-[14px] md:text-[15px] text-dim leading-relaxed">
@@ -445,7 +445,7 @@
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12 md:mb-16">
                 <h2 class="text-2xl md:text-3xl font-bold brand-headline leading-tight mb-4">
-                    キャリアカルテが大事にしていること
+                    キャリフレが大事にしていること
                 </h2>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
@@ -547,7 +547,7 @@
          FOOTER
     ========================== -->
     <footer class="max-w-7xl mx-auto px-6 md:px-8 py-10 text-center text-[12px] md:text-[13px] leading-relaxed text-dim">
-        <p class="mb-2">&copy; {{ date('Y') }} キャリアカルテ / Career Karte</p>
+        <p class="mb-2">&copy; {{ date('Y') }} キャリフレ / Career Fre</p>
         <p>
             本サービスはキャリア相談・自己理解支援を目的としたプログラムです。医療・法律・労務上の助言には該当しません。
         </p>

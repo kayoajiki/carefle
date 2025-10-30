@@ -42,7 +42,7 @@
                     <a href="{{ route('home') }}" class="flex flex-col items-center gap-2" wire:navigate>
                         <div class="flex items-center gap-2">
                             <span class="inline-block w-2 h-2 rounded-full bg-[#faae2b] shadow-sm"></span>
-                            <span class="text-xl md:text-2xl font-bold brand-headline">キャリアカルテ</span>
+                            <span class="text-xl md:text-2xl font-bold brand-headline">キャリフレ</span>
                         </div>
                     </a>
                 </div>

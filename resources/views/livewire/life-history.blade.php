@@ -1,6 +1,6 @@
 <div class="min-h-screen w-full bg-[#f2f7f5] text-[#475d5b] px-4 py-6 md:px-8" x-data="{ showGraph: false, showTimeline: false }">
     {{-- ヘッダー --}}
-    <div class="max-w-4xl mx-auto mb-6">
+    <div class="max-w-6xl mx-auto mb-6">
         <h1 class="text-xl font-semibold text-[#00473e]">
             人生史の作成
         </h1>
@@ -10,7 +10,7 @@
     </div>
 
     {{-- 入力フォームカード --}}
-    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-md border border-[#00332c]/10 p-4 md:p-6 mb-8">
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-md border border-[#00332c]/10 p-4 md:p-6 mb-8">
         <div class="flex items-center justify-between mb-4">
             <div class="text-[#00473e] font-semibold">
                 {{ $editingId ? '出来事を編集' : '新しい出来事を追加' }}
@@ -47,7 +47,7 @@
                     type="text"
                     wire:model.defer="title"
                     class="w-full rounded-lg border border-[#00332c]/20 bg-white text-[#00473e] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
-                    placeholder="大学入学 / 初めての転職 など"
+                    placeholder="大学퓨터入学 / 初めての転職 など"
                 />
                 @error('title')
                     <span class="text-xs text-[#fa5246] mt-1">{{ $message }}</span>
@@ -104,7 +104,7 @@
     </div>
 
     {{-- 一覧 --}}
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-6xl mx-auto">
         <h2 class="text-sm font-semibold text-[#00473e] mb-3">
             登録済みの出来事
         </h2>
@@ -163,14 +163,14 @@
 
     {{-- モチベーショングラフ表示エリア --}}
     <div 
-        x-show="showGraph" 
+        x-show="showGraph"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 transform translate-y-2"
         x-transition:enter-end="opacity-100 transform translate-y-0"
         x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100 transform translate-y-0"
+        x-transition:leave-start="opacity-100 transform translate-y-0但实际上"
         x-transition:leave-end="opacity-0 transform translate-y-2"
-        class="max-w-4xl mx-auto mt-8 mb-8"
+        class="max-w-6xl mx-auto mt-8 mb-8"
         style="display: none;"
     >
         <div class="bg-white rounded-2xl shadow-md border border-[#00332c]/10 p-6">
@@ -189,7 +189,7 @@
     </div>
 
     {{-- 下部ボタンエリア --}}
-    <div class="max-w-4xl mx-auto mt-8 pb-8">
+    <div class="max-w-6xl mx-auto mt-8 pb-8">
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <button
                 @click="showGraph = !showGraph; showTimeline = false"
@@ -200,14 +200,14 @@
                 モチベーショングラフ表示
             </button>
 
-            <button
-                @click="showTimeline = !showTimeline; showGraph = false"
+            <a
+                href="{{ route('life-history.timeline') }}"
                 class="flex items-center justify-center gap-2 bg-white text-[#00473e] font-semibold text-sm rounded-xl px-6 py-3 shadow border border-[#faae2b] hover:bg-[#fff9eb] transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 人生史一覧表示
-            </button>
+            </a>
         </div>
     </div>
 </div>
@@ -368,4 +368,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endif
-
