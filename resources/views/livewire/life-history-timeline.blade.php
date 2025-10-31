@@ -150,42 +150,103 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 右側の出来事カードの高さに合わせて左側のタイムラインセグメントの高さを調整
-    function syncTimelineSegments() {
-        const segments = document.querySelectorAll('.timeline-segment');
-        segments.forEach(segment => {
-            const eventId = segment.getAttribute('data-event-id');
-            const eventCard = document.getElementById(eventId);
-            if (eventCard) {
-                const cardHeight = eventCard.offsetHeight;
-                segment.style.height = cardHeight + 'px';
-            }
-        });
-    }
-
-    // 色変更用ヘルパー（非永続）
-    window.setTimelineSegmentColor = function(eventId, color) {
-        const seg = document.querySelector('[data-event-id="' + eventId + '"]');
-        if (seg) {
-            seg.style.backgroundColor = color;
-            seg.style.borderColor = '#e5e7eb';
+// 右側の出来事カードの高さに合わせて左側のタイムラインセグメントの高さを調整
+function syncTimelineSegments() {
+    const segments = document.querySelectorAll('.timeline-segment');
+    segments.forEach(segment => {
+        const eventId = segment.getAttribute('data-event-id');
+        const eventCard = document.getElementById(eventId);
+        if (eventCard && eventCard.offsetHeight > 0) {
+            const cardHeight = eventCard.offsetHeight;
+            segment.style.height = cardHeight + 'px';
         }
+    });
+}
+
+// 色変更用ヘルパー（非永続）
+window.setTimelineSegmentColor = function(eventId, color) {
+    const seg = document.querySelector('[data-event-id="' + eventId + '"]');
+    if (seg) {
+        seg.style.backgroundColor = color;
+        seg.style.borderColor = '#e5e7eb';
     }
-    
-    // 初回実行
+}
+
+// 複数のタイミングで実行を試みる関数
+function initTimelineSync() {
+    // 即座に実行
     syncTimelineSegments();
     
-    // ウィンドウリサイズ時にも再計算
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(syncTimelineSegments, 100);
-    });
+    // 短い遅延で実行（DOM要素が完全にレンダリングされるまで待つ）
+    setTimeout(syncTimelineSegments, 50);
+    setTimeout(syncTimelineSegments, 200);
+    setTimeout(syncTimelineSegments, 500);
     
-    // Livewireの更新後にも再計算
-    document.addEventListener('livewire:update', function() {
+    // 画像が読み込まれた後にも実行
+    window.addEventListener('load', function() {
         setTimeout(syncTimelineSegments, 100);
     });
+}
+
+// DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+    initTimelineSync();
 });
+
+// 既にDOMが読み込まれている場合（ページリロード後など）
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTimelineSync);
+} else {
+    initTimelineSync();
+}
+
+// ウィンドウリサイズ時にも再計算
+let resizeTimer;
+window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(syncTimelineSegments, 100);
+});
+
+// Livewireの各種イベント
+document.addEventListener('livewire:init', function() {
+    setTimeout(syncTimelineSegments, 100);
+});
+
+document.addEventListener('livewire:load', function() {
+    setTimeout(syncTimelineSegments, 100);
+});
+
+document.addEventListener('livewire:update', function() {
+    setTimeout(syncTimelineSegments, 100);
+});
+
+document.addEventListener('livewire:navigated', function() {
+    setTimeout(syncTimelineSegments, 100);
+});
+
+// MutationObserverでDOMの変化を監視
+const observer = new MutationObserver(function(mutations) {
+    let shouldSync = false;
+    mutations.forEach(function(mutation) {
+        if (mutation.type === 'childList' || mutation.type === 'attributes') {
+            shouldSync = true;
+        }
+    });
+    if (shouldSync) {
+        setTimeout(syncTimelineSegments, 50);
+    }
+});
+
+// オブザーバーを開始（Livewireのコンテンツがレンダリングされた後）
+setTimeout(function() {
+    const timelineContainer = document.querySelector('.timeline-segment')?.closest('.relative');
+    if (timelineContainer) {
+        observer.observe(timelineContainer.parentElement, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+    }
+}, 500);
 </script>
