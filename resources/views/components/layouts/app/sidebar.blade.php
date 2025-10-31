@@ -15,19 +15,28 @@
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                 </flux:navlist.group>
+                
+                <flux:navlist.group heading="診断・分析" class="grid">
+                    @if(isset($latestDiagnosisId))
+                        <flux:navlist.item icon="chart-bar" :href="route('diagnosis.result', $latestDiagnosisId)" :current="request()->routeIs('diagnosis.*')" wire:navigate>現職満足度診断</flux:navlist.item>
+                    @else
+                        <flux:navlist.item icon="chart-bar" :href="route('diagnosis.start')" :current="request()->routeIs('diagnosis.*')" wire:navigate>現職満足度診断</flux:navlist.item>
+                    @endif
+                    <flux:navlist.item icon="clock" :href="route('life-history.timeline')" :current="request()->routeIs('life-history.*')" wire:navigate>人生史</flux:navlist.item>
+                    @if(isset($latestWcmSheetId))
+                        <flux:navlist.item icon="light-bulb" :href="route('wcm.sheet', $latestWcmSheetId)" :current="request()->routeIs('wcm.*')" wire:navigate>WCMシート</flux:navlist.item>
+                    @else
+                        <flux:navlist.item icon="light-bulb" :href="route('wcm.start')" :current="request()->routeIs('wcm.*')" wire:navigate>WCMシート</flux:navlist.item>
+                    @endif
+                </flux:navlist.group>
+
+                <flux:navlist.group heading="相談・サポート" class="grid">
+                    <flux:navlist.item icon="calendar" :href="route('consultation.request')" :current="request()->routeIs('consultation.*')" wire:navigate>面談申し込み</flux:navlist.item>
+                    <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat.index')" :current="request()->routeIs('chat.*')" wire:navigate>チャット相談</flux:navlist.item>
+                </flux:navlist.group>
             </flux:navlist>
 
             <flux:spacer />
-
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                {{ __('Repository') }}
-                </flux:navlist.item>
-
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                {{ __('Documentation') }}
-                </flux:navlist.item>
-            </flux:navlist>
 
             <!-- Desktop User Menu -->
             <flux:dropdown class="hidden lg:block" position="bottom" align="start">

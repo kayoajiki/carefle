@@ -102,17 +102,53 @@
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const ctx = document.getElementById('radarChart').getContext('2d');
+let radarChartInstance = null;
 
-const radarLabels = @json($radarLabels);
-const workData = @json($radarWorkData);
-const lifeEdgeLeft = @json($lifeEdgeLeftData ?? []);
-const lifeEdgeRight = @json($lifeEdgeRightData ?? []);
-const lifePoint = @json($lifePointData ?? []);
-const lifeFill = @json($lifeFillData ?? []);
-const importanceData = @json($importanceDataset ?? []);
+function initRadarChart() {
+    // 既存のチャートがあれば破棄
+    if (radarChartInstance) {
+        radarChartInstance.destroy();
+        radarChartInstance = null;
+    }
 
-new Chart(ctx, {
+    const canvas = document.getElementById('radarChart');
+    if (!canvas) {
+        console.error('Radar chart canvas not found');
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Could not get 2d context');
+        return;
+    }
+
+    const radarLabels = @json($radarLabels ?? []);
+    const workData = @json($radarWorkData ?? []);
+    const lifeEdgeLeft = @json($lifeEdgeLeftData ?? []);
+    const lifeEdgeRight = @json($lifeEdgeRightData ?? []);
+    const lifePoint = @json($lifePointData ?? []);
+    const lifeFill = @json($lifeFillData ?? []);
+    const importanceData = @json($importanceDataset ?? []);
+
+    console.log('Radar chart data:', {
+        labels: radarLabels,
+        workData: workData,
+        lifeEdgeLeft: lifeEdgeLeft,
+        lifeEdgeRight: lifeEdgeRight,
+        lifePoint: lifePoint,
+        lifeFill: lifeFill,
+        importanceData: importanceData
+    });
+
+    // データが空の場合はチャートを作成しない
+    if (!radarLabels || radarLabels.length === 0) {
+        console.warn('No radar chart labels found');
+        return;
+    }
+
+    try {
+        radarChartInstance = new Chart(ctx, {
     type: 'radar',
     data: {
         labels: radarLabels,
@@ -213,7 +249,26 @@ new Chart(ctx, {
             }
         }
     }
-});
+    });
+    } catch (error) {
+        console.error('Error creating chart:', error);
+    }
+}
+
+// DOMContentLoadedとLivewireナビゲーションの両方に対応
+function initChartWhenReady() {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initRadarChart);
+    } else {
+        initRadarChart();
+    }
+}
+
+// Livewireのナビゲーション後にも実行
+document.addEventListener('livewire:navigated', initRadarChart);
+
+// 初回読み込み時にも実行
+initChartWhenReady();
 </script>
  
 

@@ -10,6 +10,7 @@ use App\Livewire\LifeHistoryTimeline;
 use App\Livewire\DiagnosisImportanceForm;
 use App\Livewire\WcmForm;
 use App\Http\Controllers\DiagnosisController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -17,7 +18,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
+Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -41,6 +42,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('wcm/sheet/{id}', function ($id) {
         return view('wcm.sheet', ['id' => (int)$id]);
     })->name('wcm.sheet');
+
+    // 面談申し込み
+    Route::get('consultation/request', function () {
+        return view('consultation.request');
+    })->name('consultation.request');
+
+    // チャット相談
+    Route::get('chat', function () {
+        return view('chat.index');
+    })->name('chat.index');
 });
 
 Route::middleware(['auth'])->group(function () {
