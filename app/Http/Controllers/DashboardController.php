@@ -35,6 +35,7 @@ class DashboardController extends Controller
             ->latest('updated_at')
             ->first();
 
+
         return view('dashboard', [
             'latestDiagnosis' => $latestDiagnosis,
             'draftDiagnosis' => $draftDiagnosis,

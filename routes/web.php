@@ -11,6 +11,7 @@ use App\Livewire\DiagnosisImportanceForm;
 use App\Livewire\WcmForm;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -52,7 +53,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('chat', function () {
         return view('chat.index');
     })->name('chat.index');
+    
+    // チャットAPI
+    Route::post('chat/message', [ChatController::class, 'sendMessage'])
+        ->name('chat.message');
+
 });
+
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
