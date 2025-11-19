@@ -11,8 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // 信頼できるプロキシを設定（ロードバランサーやリバースプロキシ経由の場合）
         $middleware->trustProxies(at: '*');
         
+        // CSRF保護の設定
         $middleware->validateCsrfTokens(except: [
             // CSRF除外が必要なエンドポイントがあれば追加
         ]);
