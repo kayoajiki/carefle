@@ -78,17 +78,28 @@ class Question extends Model
         if (is_string($data)) {
             // uXXXX形式（バックスラッシュなしのUnicodeエスケープ）を検出
             // 例: "u3068u3066u3082" → "とても"
-            if (preg_match('/u[0-9a-fA-F]{4}/', $data)) {
-                // uXXXX形式を\uXXXX形式に変換
-                $fixed = preg_replace_callback('/(?<!\\\\)u([0-9a-fA-F]{4})/i', function ($matches) {
-                    return '\\u' . strtolower($matches[1]);
+            if (preg_match('/u[0-9a-fA-F]{4}/i', $data)) {
+                // uXXXX形式を直接Unicodeコードポイントとして解釈してUTF-8文字に変換
+                $result = preg_replace_callback('/u([0-9a-fA-F]{4})/i', function ($matches) {
+                    $codepoint = intval($matches[1], 16);
+                    // UnicodeコードポイントをUTF-8バイト列に変換
+                    if ($codepoint <= 0x7F) {
+                        // 1バイト文字
+                        return chr($codepoint);
+                    } elseif ($codepoint <= 0x7FF) {
+                        // 2バイト文字
+                        return chr(0xC0 | ($codepoint >> 6)) . chr(0x80 | ($codepoint & 0x3F));
+                    } elseif ($codepoint <= 0xFFFF) {
+                        // 3バイト文字（日本語文字はここ）
+                        return chr(0xE0 | ($codepoint >> 12)) . chr(0x80 | (($codepoint >> 6) & 0x3F)) . chr(0x80 | ($codepoint & 0x3F));
+                    } elseif ($codepoint <= 0x10FFFF) {
+                        // 4バイト文字
+                        return chr(0xF0 | ($codepoint >> 18)) . chr(0x80 | (($codepoint >> 12) & 0x3F)) . chr(0x80 | (($codepoint >> 6) & 0x3F)) . chr(0x80 | ($codepoint & 0x3F));
+                    }
+                    return $matches[0]; // 変換できない場合は元の値を返す
                 }, $data);
                 
-                // JSON文字列としてデコード（Unicodeエスケープを通常の文字に変換）
-                $decoded = json_decode('"' . addslashes($fixed) . '"');
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    return $decoded;
-                }
+                return $result;
             }
         }
         
