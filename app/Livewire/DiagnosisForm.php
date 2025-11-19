@@ -126,6 +126,8 @@ class DiagnosisForm extends Component
         }
 
         session()->flash('message', '回答を一時保存しました。あとで続きから再開できます。');
+        
+        return redirect()->route('dashboard');
     }
 
     public function finish()
