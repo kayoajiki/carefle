@@ -1,100 +1,195 @@
 <x-layouts.app.sidebar :title="'診断結果'">
     <flux:main>
-<div class="min-h-screen bg-[#f2f7f5] px-4 py-8">
-    <!-- heading -->
-    <div class="w-full max-w-4xl mb-8">
-        <h1 class="text-2xl font-semibold text-[#00473e]">
-            あなたの現在地レポート
-        </h1>
-        <p class="text-sm text-[#475d5b] mt-2 leading-relaxed">
-            「いまの仕事」と「いまの暮らし」の満足度を数値化しました。<br>
-            グラフの凸凹が、次に整えるべきヒントになります。
-        </p>
-    </div>
+<div class="min-h-screen bg-[#EAF3FF] content-padding section-spacing-sm">
+    @php
+        $workDataSet = $radarWorkData ?? [];
+        $labels = $radarLabels ?? [];
+        $minScore = filled($workDataSet) ? min($workDataSet) : null;
+        $maxScore = filled($workDataSet) ? max($workDataSet) : null;
+        $focusLabel = $minScore !== null ? ($labels[array_search($minScore, $workDataSet)] ?? '未計測') : '未計測';
+        $strongLabel = $maxScore !== null ? ($labels[array_search($maxScore, $workDataSet)] ?? '未計測') : '未計測';
+        $balanceDelta = $workScore - $lifeScore;
+        $balanceCopy = $balanceDelta === 0
+            ? '仕事と暮らしが同じテンションで整っています'
+            : ($balanceDelta > 0 ? '仕事側に余力がありそうです' : '暮らし側がより満ちています');
+    @endphp
 
-    <!-- top scores -->
-    <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div class="bg-white rounded-xl shadow p-6">
-            <div class="text-xs text-[#475d5b] font-medium mb-1">Work 満足度</div>
-            <div class="text-4xl font-bold text-[#00473e] leading-none">
-                {{ $workScore }}<span class="text-lg font-semibold">/100</span>
+    <div class="w-full max-w-6xl mx-auto space-y-10">
+        <!-- hero -->
+        <div class="card-refined p-10 bg-gradient-to-br from-[#f8fbff] via-white to-[#e0edff]">
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+                <div>
+                    <p class="body-small uppercase tracking-[0.2em] text-[#4B7BB5] mb-2">
+                        Current Position
+                    </p>
+                    <h1 class="heading-2 text-3xl md:text-4xl mb-3">
+                        あなたの現在地レポート
+                    </h1>
+                    <p class="body-large text-[#1E3A5F]">
+                        「いまの仕事」と「いまの暮らし」の凸凹を俯瞰して、次の一歩に使えるヒントをまとめました。
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <span class="px-4 py-2 rounded-full bg-white text-[#2E5C8A] body-small font-semibold soft-shadow-refined">
+                        {{ now()->format('Y.m.d') }} 更新
+                    </span>
+                    <span class="px-4 py-2 rounded-full bg-[#2E5C8A] text-white body-small font-semibold soft-shadow-refined">
+                        診断ID：#{{ str_pad($diagnosis->id, 4, '0', STR_PAD_LEFT) }}
+                    </span>
+                </div>
             </div>
-            <p class="text-[11px] text-[#475d5b] leading-snug mt-2">
-                会社のビジョン・仕事内容・仲間・待遇・成長感など、働く環境そのものへの満足度。
-            </p>
         </div>
 
-        <div class="bg-white rounded-xl shadow p-6">
-            <div class="text-xs text-[#475d5b] font-medium mb-1">Life 満足度</div>
-            <div class="text-4xl font-bold text-[#00473e] leading-none">
-                {{ $lifeScore }}<span class="text-lg font-semibold">/100</span>
+        <!-- score cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="card-refined p-8 space-y-4">
+                <div class="body-small font-medium text-[#4B7BB5]">Work 満足度</div>
+                <div class="heading-1 text-5xl text-[#1E3A5F]">
+                    {{ $workScore }}<span class="text-2xl font-semibold"> /100</span>
+                </div>
+                <div class="w-full h-2.5 bg-[#E3ECF9] rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-[#5B8DCC] to-[#2563EB]" style="width: {{ $workScore }}%;"></div>
+                </div>
+                <p class="body-small text-[#4A5A73]">
+                    ビジョン共感・仕事の楽しさ・チームの相性・待遇など、働く場そのものへの納得度。
+                </p>
             </div>
-            <p class="text-[11px] text-[#475d5b] leading-snug mt-2">
-                家族・人間関係・余暇・健康・お金の安心感など、暮らしの土台への満足度。
-            </p>
-        </div>
-    </div>
 
-    <!-- radar chart card -->
-    <div class="w-full max-w-4xl bg-white rounded-xl shadow p-6 mb-8">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+            <div class="card-refined p-8 space-y-4">
+                <div class="body-small font-medium text-[#4B7BB5]">Life 満足度</div>
+                <div class="heading-1 text-5xl text-[#1E3A5F]">
+                    {{ $lifeScore }}<span class="text-2xl font-semibold"> /100</span>
+                </div>
+                <div class="w-full h-2.5 bg-[#E3ECF9] rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-[#8FBEDC] to-[#4F9EDB]" style="width: {{ $lifeScore }}%;"></div>
+                </div>
+                <p class="body-small text-[#4A5A73]">
+                    家族・健康・余暇・お金の安心感など、暮らしの土台がどれだけ柔らかく整っているか。
+                </p>
+            </div>
+
+            <div class="card-refined p-8 space-y-4">
+                <div class="body-small font-medium text-[#4B7BB5]">バランス & 次の視点</div>
+                <div class="heading-1 text-4xl text-[#1E3A5F]">
+                    @if($balanceDelta === 0)
+                        ±0
+                    @else
+                        {{ $balanceDelta > 0 ? '+' : '' }}{{ $balanceDelta }}
+                    @endif
+                </div>
+                <p class="body-text text-[#1E3A5F]">
+                    {{ $balanceCopy }}
+                </p>
+                <div class="flex flex-wrap gap-2 pt-2">
+                    <span class="px-3 py-1 rounded-full bg-[#E3ECF9] text-[#2E5C8A] body-small">
+                        強み：{{ $strongLabel }}
+                    </span>
+                    <span class="px-3 py-1 rounded-full bg-[#FFEED9] text-[#B45309] body-small">
+                        伸ばしどころ：{{ $focusLabel }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- radar + insights -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card-refined p-8">
+                <div class="flex flex-col gap-2 mb-6">
+                    <div class="heading-3 text-xl">
+                        バランスチェック（レーダーチャート）
+                    </div>
+                    <p class="body-small text-[#4A5A73]">
+                        凸は「安心・満足している領域」、凹は「これから呼吸を合わせたい領域」。重要度と重ねて眺めると、行動に移す順番が見えてきます。
+                    </p>
+                </div>
+
+                <div class="w-full max-w-sm md:max-w-md mx-auto mb-6">
+                    <canvas id="radarChart" width="400" height="400"></canvas>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 text-xs text-[#4A5A73]">
+                        <span class="inline-flex items-center gap-1">
+                            <span class="w-3 h-3 rounded-full bg-[#2563EB]"></span> 満足度
+                        </span>
+                        <span class="inline-flex items-center gap-1">
+                            <span class="w-3 h-3 rounded-full bg-[#F59E0B]"></span> 重要度
+                        </span>
+                    </div>
+                    <a href="{{ route('diagnosis.importance', ['id' => $diagnosis->id]) }}" class="btn-primary text-sm px-5 py-2">
+                        今度は重要度を確認する
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-refined p-8 flex flex-col gap-6">
+                <div>
+                    <div class="heading-3 text-xl mb-2">次に整えたいポイント</div>
+                    <p class="body-small text-[#4A5A73]">
+                        スコアの凹み具合から、いま着手すると全体の呼吸が整いやすい領域をピックアップしました。
+                    </p>
+                </div>
+                <div class="space-y-4">
+                    <div class="border border-[#2E5C8A]/15 rounded-2xl p-5 flex items-start gap-4">
+                        <span class="w-12 h-12 rounded-2xl bg-[#F4F7FF] text-[#2E5C8A] flex items-center justify-center font-semibold">
+                            01
+                        </span>
+                        <div>
+                            <p class="body-small font-semibold text-[#2E5C8A] mb-1">フォーカス領域</p>
+                            <p class="heading-3 text-lg mb-2">{{ $focusLabel }}</p>
+                            <p class="body-small text-[#4A5A73]">
+                                日常のリズムを乱しやすい要素。小さな行動で可視化し、Diaryに記録すると変化が追いやすくなります。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="border border-[#2E5C8A]/15 rounded-2xl p-5 flex items-start gap-4 bg-[#FDF7EE]">
+                        <span class="w-12 h-12 rounded-2xl bg-white text-[#B45309] flex items-center justify-center font-semibold">
+                            02
+                        </span>
+                        <div>
+                            <p class="body-small font-semibold text-[#B45309] mb-1">活かしたい強み</p>
+                            <p class="heading-3 text-lg mb-2">{{ $strongLabel }}</p>
+                            <p class="body-small text-[#72441A]">
+                                余力がある領域は、行動の下支えに使える資産。Diaryの「今日の出来事」に書き添えると、良い循環が印象に残ります。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- comments / reflection -->
+        @if(!empty($answerNotes))
+        <div class="card-refined p-8 space-y-6">
             <div>
-                <div class="text-sm font-semibold text-[#00473e]">
-                    バランスチェック（レーダーチャート）
-                </div>
-                <div class="text-[11px] text-[#475d5b] leading-snug mt-1">
-                    凸が「満足・安定しているところ」、凹が「これから整えたいところ」。
-                </div>
+                <div class="heading-3 text-xl mb-2">あなたのメモ</div>
+                <p class="body-small text-[#4A5A73]">
+                    セッションで深めたいキーワードを置き場として保存しています。読み返しながら、DiaryやMilestoneにも転記しておくと会話が滑らかになります。
+                </p>
+            </div>
+            <div class="flex flex-col divide-y divide-[#2E5C8A]/10 gap-4">
+                @foreach ($answerNotes as $note)
+                    <div class="pt-4 first:pt-0">
+                        <div class="body-small font-semibold text-[#2E5C8A] mb-1">
+                            {{ $note['label'] }}
+                        </div>
+                        <div class="body-text whitespace-pre-line text-[#1E3A5F]">
+                            {{ $note['comment'] }}
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
+        @endif
 
-        <div class="w-full md:w-2/3 mx-auto">
-            <canvas id="radarChart" width="400" height="400"></canvas>
+        <!-- actions -->
+        <div class="flex flex-col md:flex-row gap-4">
+            <a href="/diagnosis/start" class="btn-secondary flex-1 text-center">
+                もう一度チェックする
+            </a>
+            <a href="/dashboard" class="btn-primary flex-1 text-center">
+                ダッシュボードに戻る
+            </a>
         </div>
-        <div class="mt-4 text-right">
-            <a href="{{ route('diagnosis.importance', ['id' => $diagnosis->id]) }}" class="text-xs px-4 py-2 rounded-md font-semibold bg-[#60a5fa] text-white shadow-sm">今度は重要度を確認する</a>
-        </div>
-    </div>
-
-    <!-- comments / reflection -->
-    @if(!empty($answerNotes))
-    <div class="w-full max-w-4xl bg-white rounded-xl shadow p-6 mb-16">
-        <div class="text-sm font-semibold text-[#00473e] mb-2">
-            あなたのメモ
-        </div>
-        <p class="text-[11px] text-[#475d5b] leading-snug mb-4">
-            あなたが残してくれた一言メモは、次のセッションで深く扱う領域です。
-        </p>
-
-        <div class="flex flex-col divide-y divide-[#00473e]/10 text-sm text-[#00473e]">
-            @foreach ($answerNotes as $note)
-                <div class="py-3">
-                    <div class="text-[11px] text-[#475d5b] mb-1 font-medium">
-                        {{ $note['label'] }}
-                    </div>
-                    <div class="whitespace-pre-line">
-                        {{ $note['comment'] }}
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    <!-- actions -->
-    <div class="w-full max-w-4xl flex flex-col md:flex-row gap-4 mb-24">
-        <a
-            href="/diagnosis/start"
-            class="flex-1 text-center text-xs px-4 py-3 rounded-md border border-[#00473e]/30 text-[#00473e] bg-white font-medium shadow-sm"
-        >
-            もう一度チェックする
-        </a>
-        <a
-            href="/dashboard"
-            class="flex-1 text-center text-xs px-4 py-3 rounded-md font-semibold bg-[#faae2b] text-[#00473e] shadow-sm"
-        >
-            ダッシュボードに戻る
-        </a>
     </div>
     </flux:main>
 </x-layouts.app.sidebar>
@@ -105,6 +200,13 @@
 let radarChartInstance = null;
 
 function initRadarChart() {
+    // Chart.jsが読み込まれているか確認
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js is not loaded yet, retrying...');
+        setTimeout(initRadarChart, 100);
+        return;
+    }
+
     // 既存のチャートがあれば破棄
     if (radarChartInstance) {
         radarChartInstance.destroy();
@@ -156,18 +258,21 @@ function initRadarChart() {
             {
                 label: '満足度',
                 data: workData,
-                borderWidth: 2,
-                borderColor: '#00473e',
-                backgroundColor: 'rgba(250,174,43,0.15)',
-                pointBackgroundColor: '#00473e',
-                pointBorderColor: '#00473e',
+                borderWidth: 3,
+                borderColor: '#2563EB',
+                backgroundColor: 'rgba(37,99,235,0.2)',
+                pointBackgroundColor: '#2563EB',
+                pointBorderColor: '#FFFFFF',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
             },
             // Life 左↔点 の線
             {
                 label: 'Life-Link-L',
                 data: lifeEdgeLeft,
                 borderWidth: 2,
-                borderColor: '#00473e',
+                borderColor: '#2563EB',
                 backgroundColor: 'transparent',
                 pointRadius: 0,
                 spanGaps: true,
@@ -177,7 +282,7 @@ function initRadarChart() {
                 label: 'Life-Link-R',
                 data: lifeEdgeRight,
                 borderWidth: 2,
-                borderColor: '#00473e',
+                borderColor: '#2563EB',
                 backgroundColor: 'transparent',
                 pointRadius: 0,
                 spanGaps: true,
@@ -187,31 +292,36 @@ function initRadarChart() {
                 label: 'Life-Fill',
                 data: lifeFill,
                 borderWidth: 0,
-                backgroundColor: 'rgba(250,174,43,0.15)',
+                backgroundColor: 'rgba(37,99,235,0.15)',
                 pointRadius: 0,
                 spanGaps: true,
             },
-            // 重要度（青）
+            // 重要度（オレンジ系で温かみとコントラスト）
             {
                 label: '重要度',
                 data: importanceData,
-                borderWidth: 2,
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59,130,246,0.10)',
-                pointBackgroundColor: '#3b82f6',
-                pointBorderColor: '#3b82f6',
+                borderWidth: 3,
+                borderColor: '#F59E0B',
+                backgroundColor: 'rgba(245,158,11,0.15)',
+                pointBackgroundColor: '#F59E0B',
+                pointBorderColor: '#FFFFFF',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
                 spanGaps: true,
             },
-            // Life の赤い点のみ
+            // Life の点のみ
             {
                 label: 'Life-Point',
                 data: lifePoint,
                 borderWidth: 0,
                 showLine: false,
                 backgroundColor: 'transparent',
-                pointBackgroundColor: '#00473e',
-                pointBorderColor: '#00473e',
-                pointRadius: 4,
+                pointBackgroundColor: '#2563EB',
+                pointBorderColor: '#FFFFFF',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
             },
         ]
     },
@@ -222,15 +332,15 @@ function initRadarChart() {
             r: {
                 suggestedMin: 0,
                 suggestedMax: 100,
-                grid: { color: 'rgba(0,71,62,0.15)' },
-                angleLines: { color: 'rgba(0,71,62,0.15)' },
+                grid: { color: 'rgba(46,92,138,0.2)', lineWidth: 1 },
+                angleLines: { color: 'rgba(46,92,138,0.2)', lineWidth: 1 },
                 pointLabels: {
-                    color: '#00473e',
+                    color: '#2E5C8A',
                     font: { size: 11 }
                 },
                 ticks: {
                     backdropColor: 'transparent',
-                    color: '#475d5b',
+                    color: '#1E3A5F',
                     font: { size: 10 },
                     stepSize: 20
                 }
@@ -239,7 +349,7 @@ function initRadarChart() {
         plugins: {
             legend: {
                 labels: {
-                    color: '#475d5b',
+                    color: '#1E3A5F',
                     font: { size: 11 },
                     // 「満足度」「重要度」だけを凡例に表示
                     filter: function(item) {
@@ -255,17 +365,40 @@ function initRadarChart() {
     }
 }
 
-// DOMContentLoadedとLivewireナビゲーションの両方に対応
-function initChartWhenReady() {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initRadarChart);
+// Chart.jsの読み込み完了を待つ
+function waitForChartJS(callback) {
+    if (typeof Chart !== 'undefined') {
+        callback();
     } else {
-        initRadarChart();
+        // Chart.jsのスクリプトタグのonloadイベントを待つ
+        const script = document.querySelector('script[src*="chart.js"]');
+        if (script) {
+            script.addEventListener('load', callback);
+        } else {
+            // フォールバック: 定期的にチェック
+            setTimeout(() => waitForChartJS(callback), 50);
+        }
     }
 }
 
+// DOMContentLoadedとLivewireナビゲーションの両方に対応
+function initChartWhenReady() {
+    waitForChartJS(() => {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initRadarChart);
+        } else {
+            // DOMが既に読み込まれている場合は少し遅延させてから実行
+            setTimeout(initRadarChart, 50);
+        }
+    });
+}
+
 // Livewireのナビゲーション後にも実行
-document.addEventListener('livewire:navigated', initRadarChart);
+document.addEventListener('livewire:navigated', () => {
+    waitForChartJS(() => {
+        setTimeout(initRadarChart, 50);
+    });
+});
 
 // 初回読み込み時にも実行
 initChartWhenReady();
