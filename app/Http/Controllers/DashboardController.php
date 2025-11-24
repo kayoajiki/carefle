@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Diagnosis;
 use App\Models\LifeEvent;
 use App\Models\WcmSheet;
+use App\Models\Diary;
+use App\Models\PersonalityAssessment;
 
 class DashboardController extends Controller
 {
@@ -35,6 +37,10 @@ class DashboardController extends Controller
             ->latest('updated_at')
             ->first();
 
+        $latestAssessment = PersonalityAssessment::where('user_id', $user->id)
+            ->orderByDesc('completed_at')
+            ->orderByDesc('created_at')
+            ->first();
 
         return view('dashboard', [
             'latestDiagnosis' => $latestDiagnosis,
@@ -42,6 +48,7 @@ class DashboardController extends Controller
             'hasLifeHistory' => $hasLifeHistory,
             'lifeEventCount' => $lifeEventCount,
             'latestWcmSheet' => $latestWcmSheet,
+            'latestAssessment' => $latestAssessment,
         ]);
     }
 }
