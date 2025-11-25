@@ -21,48 +21,48 @@
         }
 
         body {
-            background-color: #f2f7f5; /* やわらかいグリーン */
-            color: #1f2e2c; /* 落ち着いた深めグリーン */
+            background-color: #F0F7FF; /* やわらかいブルー */
+            color: #1E3A5F; /* 落ち着いたダークブルー */
         }
 
         .brand-headline {
-            color: #00473e;
+            color: #2E5C8A;
         }
 
         .text-dim {
-            color: rgba(31,46,44,0.75);
+            color: rgba(30, 58, 95, 0.75);
         }
 
         .accent-bg {
-            background-color: #faae2b;
+            background-color: #6BB6FF;
         }
         .accent-text {
-            color: #00473e;
+            color: #2E5C8A;
         }
 
         .badge-step {
-            background-color: #00473e;
+            background-color: #2E5C8A;
             color: #fff;
         }
 
         .card-base {
             background-color: #ffffff;
             border-radius: 1rem; /* rounded-2xl系 */
-            box-shadow: 0 24px 48px -12px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px -5px rgba(74, 144, 226, 0.1), 0 4px 6px -2px rgba(74, 144, 226, 0.05);
         }
 
         .border-accent {
-            border-color: #faae2b;
+            border-color: #6BB6FF;
         }
 
         .soft-panel {
-            background-color: #fff9eb;
-            border: 1px solid #faae2b;
+            background-color: #E8F4FF;
+            border: 1px solid #6BB6FF;
             border-radius: 0.75rem;
         }
 
         .sample-leftbar {
-            border-left: 4px solid #faae2b;
+            border-left: 4px solid #6BB6FF;
         }
 
         .section-pad {
@@ -77,7 +77,7 @@
         }
         </style>
     </head>
-<body class="antialiased selection:bg-yellow-200/60 selection:text-[#00473e]">
+<body class="antialiased selection:bg-blue-200/60 selection:text-[#2E5C8A]">
 
     <!-- =========================
          Header / Navigation
@@ -85,18 +85,18 @@
     <header class="w-full px-6 py-4 md:px-8">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="text-xl md:text-2xl font-bold brand-headline flex items-center gap-2">
-                <span class="inline-block w-2 h-2 rounded-full bg-[#faae2b] shadow-sm"></span>
+                <span class="inline-block w-2 h-2 rounded-full bg-[#6BB6FF] shadow-sm"></span>
                 <span>キャリフレ</span>
             </div>
 
             @if (Route::has('login'))
                 <nav class="flex items-center gap-3 text-sm md:text-base font-medium">
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="px-4 py-2 rounded-lg text-[#00473e] hover:bg-white/60 transition-colors">
+                        <a href="{{ url('/dashboard') }}" class="px-4 py-2 rounded-lg text-[#2E5C8A] hover:bg-white/60 transition-colors">
                             ダッシュボード
                         </a>
                     @else
-                        <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg text-[#00473e] hover:bg-white/60 transition-colors">
+                        <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg text-[#2E5C8A] hover:bg-white/60 transition-colors">
                             ログイン
                         </a>
                         @if (Route::has('register'))
@@ -118,34 +118,19 @@
 
             <div class="space-y-6 text-center">
                 <div class="inline-flex items-center gap-2 text-xs md:text-sm font-semibold badge-step rounded-full px-3 py-1 tracking-wide w-fit mx-auto">
-                    内省支援サービス「キャリフレ」
+                    自己理解の旅を始める「キャリフレ」
                 </div>
 
                 <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight brand-headline">
-                    「このままでいいのか？」に、<br class="hidden md:block">
-                    自分の言葉で答えが出せるようになる。
+                    自分を知る → 記録する → 行動する<br class="hidden md:block">
+                    あなたの自己理解の旅が、ここから始まります。
                 </h1>
 
                 <p class="text-lg md:text-xl leading-relaxed text-dim max-w-4xl mx-auto">
-                    キャリフレは、あなたの「過去・現在・未来」を3回のセッションで整理。<br>
-                    強み・価値観・これから進む方向を言語化するプログラムです。<br class="hidden md:block">
-                    転職する／続ける／働き方を変える——次の一歩を、自分で選べる状態まで伴走します。
+                    キャリフレは、診断・記録・行動計画のツールで、あなたの「今」を可視化し、<br class="hidden md:block">
+                    「これから」を具体化する自己理解プラットフォームです。<br class="hidden md:block">
+                    転職する／続ける／働き方を変える——まずは自分を理解することから始めましょう。
                 </p>
-
-                {{-- <ul class="text-base md:text-lg text-[#00473e] space-y-2 max-w-2xl mx-auto"> --}}
-                    {{-- <li class="flex items-start gap-2"> --}}
-                        {{-- <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">●</span> --}}
-                        {{-- <span class="leading-relaxed">1on1セッション3回（過去 / 現在 / 未来）</span> --}}
-                    {{-- </li> --}}
-                    {{-- <li class="flex items-start gap-2"> --}}
-                        {{-- <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">●</span> --}}
-                        {{-- <span class="leading-relaxed">事前ワークシートで内省を深めてから当日へ</span> --}}
-                    {{-- </li> --}}
-                    {{-- <li class="flex items-start gap-2"> --}}
-                        {{-- <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">●</span> --}}
-                        {{-- <span class="leading-relaxed">受講後は「キャリフレPDF」が手元に残る</span> --}}
-                    {{-- </li> --}}
-                {{-- </ul> --}}
 
                 <div class="flex flex-col sm:flex-row gap-4 pt-2 justify-center">
                     @if (Route::has('register'))
@@ -154,15 +139,128 @@
                         </a>
                     @endif
                     @if (Route::has('login'))
-                        <a href="{{ route('login') }}" class="inline-flex justify-center items-center px-6 py-3 rounded-lg font-semibold text-lg bg-white text-[#00473e] shadow-md border border-[#faae2b] hover:bg-[#fff9eb] transition">
+                        <a href="{{ route('login') }}" class="inline-flex justify-center items-center px-6 py-3 rounded-lg font-semibold text-lg bg-white text-[#2E5C8A] shadow-md border border-[#6BB6FF] hover:bg-[#E8F4FF] transition">
                             ログイン
                         </a>
                     @endif
                 </div>
 
                 <p class="text-[12px] md:text-[13px] text-dim leading-relaxed">
-                    ※各回の前日までに、簡単な準備ワーク（シート記入）をお願いしています。
+                    ※登録後すぐに、診断や記録ツールを無料でご利用いただけます。
                 </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================
+         FEATURES / キャリフレの機能
+    ========================== -->
+    <section id="features" class="px-6 md:px-8 section-pad bg-white/60">
+        <div class="max-w-7xl mx-auto">
+            <div class="space-y-6 text-center mb-12 md:mb-16">
+                <div class="text-xs md:text-sm font-semibold inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#6BB6FF] text-[#2E5C8A] shadow-sm w-fit mx-auto">
+                    あなたの自己理解を支えるツール
+                </div>
+
+                <h2 class="text-2xl md:text-3xl font-bold brand-headline leading-tight">
+                    診断・記録・行動計画。<br class="hidden md:block">
+                    すべてがあなたの手の中に。
+                </h2>
+
+                <p class="text-lg md:text-xl text-dim leading-relaxed max-w-4xl mx-auto">
+                    キャリフレは、自分で気づくためのツールを提供します。<br class="hidden md:block">
+                    データとして蓄積され、可視化される——日常的な自己理解の習慣が、あなたを変えます。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-12">
+                <!-- 診断・分析 -->
+                <div class="card-base p-6 bg-white border border-[#6BB6FF]">
+                    <div class="text-[#6BB6FF] text-3xl mb-3">📊</div>
+                    <h3 class="font-semibold text-[#2E5C8A] text-base md:text-lg mb-2">
+                        診断・分析
+                    </h3>
+                    <ul class="text-dim text-[14px] md:text-[15px] leading-relaxed space-y-1">
+                        <li>• 現職満足度診断</li>
+                        <li>• 自己診断結果</li>
+                        <li>• レーダーチャート可視化</li>
+                    </ul>
+                    <div class="mt-4">
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="text-[#6BB6FF] text-sm font-medium hover:underline">
+                                診断を始める →
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- 記録・振り返り -->
+                <div class="card-base p-6 bg-white border border-[#6BB6FF]">
+                    <div class="text-[#6BB6FF] text-3xl mb-3">📝</div>
+                    <h3 class="font-semibold text-[#2E5C8A] text-base md:text-lg mb-2">
+                        記録・振り返り
+                    </h3>
+                    <ul class="text-dim text-[14px] md:text-[15px] leading-relaxed space-y-1">
+                        <li>• 日記</li>
+                        <li>• 人生史</li>
+                        <li>• マイルストーン</li>
+                    </ul>
+                    <div class="mt-4">
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="text-[#6BB6FF] text-sm font-medium hover:underline">
+                                記録を始める →
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- 行動計画 -->
+                <div class="card-base p-6 bg-white border border-[#6BB6FF]">
+                    <div class="text-[#6BB6FF] text-3xl mb-3">🎯</div>
+                    <h3 class="font-semibold text-[#2E5C8A] text-base md:text-lg mb-2">
+                        行動計画
+                    </h3>
+                    <ul class="text-dim text-[14px] md:text-[15px] leading-relaxed space-y-1">
+                        <li>• WCMシート</li>
+                        <li>• マイルストーン</li>
+                        <li>• アクション管理</li>
+                    </ul>
+                    <div class="mt-4">
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="text-[#6BB6FF] text-sm font-medium hover:underline">
+                                計画を立てる →
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- サポート -->
+                <div class="card-base p-6 bg-white border border-[#6BB6FF]">
+                    <div class="text-[#6BB6FF] text-3xl mb-3">💬</div>
+                    <h3 class="font-semibold text-[#2E5C8A] text-base md:text-lg mb-2">
+                        サポート
+                    </h3>
+                    <ul class="text-dim text-[14px] md:text-[15px] leading-relaxed space-y-1">
+                        <li>• 面談申し込み</li>
+                        <li>• チャット相談</li>
+                        <li>• 専門家との対話</li>
+                    </ul>
+                    <div class="mt-4">
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="text-[#6BB6FF] text-sm font-medium hover:underline">
+                                相談する →
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="inline-flex justify-center items-center px-6 py-3 rounded-lg font-semibold text-lg accent-bg accent-text shadow-md hover:opacity-90 transition">
+                        無料で始める
+                    </a>
+                @endif
             </div>
         </div>
     </section>
@@ -170,31 +268,30 @@
     <!-- =========================
          OUTPUT / あなた専用アウトプット
     ========================== -->
-    <section id="output" class="px-6 md:px-8 section-pad bg-white/60">
+    <section id="output" class="px-6 md:px-8 section-pad bg-white/0">
         <div class="max-w-7xl mx-auto">
             <div class="space-y-6 text-center">
-                <div class="text-xs md:text-sm font-semibold inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#faae2b] text-[#00473e] shadow-sm w-fit mx-auto">
-                    あなた専用アウトプット
+                <div class="text-xs md:text-sm font-semibold inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#6BB6FF] text-[#2E5C8A] shadow-sm w-fit mx-auto">
+                    データとして蓄積される、あなたの自己理解
                 </div>
 
                 <h2 class="text-2xl md:text-3xl font-bold brand-headline leading-tight">
-                    最後に手元に残るのは、<br class="hidden md:block">
-                    あなたの「ぶれない軸」と「次の90日」。
+                    診断・記録・行動計画が、<br class="hidden md:block">
+                    あなたの「ぶれない軸」と「次の一歩」を可視化します。
                 </h2>
 
                 <p class="text-lg md:text-xl text-dim leading-relaxed max-w-4xl mx-auto">
-                    セッションの内容は、口頭アドバイスだけで終わりません。<br class="hidden md:block">
-                    あなたの価値観・強み・これからの指針をまとめた
-                    "キャリフレPDF"としてお渡しします。<br class="hidden md:block">
-                    悩んだときに読み返せる、あなただけの取扱説明書です。
+                    キャリフレでは、あなたの診断結果・記録・行動計画がすべてデータとして蓄積されます。<br class="hidden md:block">
+                    レーダーチャートやタイムラインで可視化され、いつでも振り返ることができます。<br class="hidden md:block">
+                    悩んだときに確認できる、あなただけの自己理解マップです。
                 </p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
                     <!-- Card 1 -->
-                    <div class="card-base p-6 bg-white border border-[#faae2b]">
+                    <div class="card-base p-6 bg-white border border-[#6BB6FF]">
                         <div class="flex items-start gap-3 mb-3">
-                            <span class="text-[#00473e] font-bold text-xl flex-shrink-0">●</span>
-                            <h3 class="font-semibold text-[#00473e] text-base md:text-lg leading-tight">
+                            <span class="text-[#2E5C8A] font-bold text-xl flex-shrink-0">●</span>
+                            <h3 class="font-semibold text-[#2E5C8A] text-base md:text-lg leading-tight">
                                 あなたが大事にしてきた価値観
                             </h3>
                         </div>
@@ -204,10 +301,10 @@
                     </div>
 
                     <!-- Card 2 -->
-                    <div class="card-base p-6 bg-white border border-[#faae2b]">
+                    <div class="card-base p-6 bg-white border border-[#6BB6FF]">
                         <div class="flex items-start gap-3 mb-3">
-                            <span class="text-[#00473e] font-bold text-xl flex-shrink-0">●</span>
-                            <h3 class="font-semibold text-[#00473e] text-base md:text-lg leading-tight">
+                            <span class="text-[#2E5C8A] font-bold text-xl flex-shrink-0">●</span>
+                            <h3 class="font-semibold text-[#2E5C8A] text-base md:text-lg leading-tight">
                                 強みと活かし方
                             </h3>
                         </div>
@@ -217,10 +314,10 @@
                     </div>
 
                     <!-- Card 3 -->
-                    <div class="card-base p-6 bg-white border border-[#faae2b]">
+                    <div class="card-base p-6 bg-white border border-[#6BB6FF]">
                         <div class="flex items-start gap-3 mb-3">
-                            <span class="text-[#00473e] font-bold text-xl flex-shrink-0">●</span>
-                            <h3 class="font-semibold text-[#00473e] text-base md:text-lg leading-tight">
+                            <span class="text-[#2E5C8A] font-bold text-xl flex-shrink-0">●</span>
+                            <h3 class="font-semibold text-[#2E5C8A] text-base md:text-lg leading-tight">
                                 Will / Can / Must<br>（これからの指針）
                             </h3>
                         </div>
@@ -230,7 +327,7 @@
                     </div>
                 </div>
 
-                <div class="soft-panel p-4 text-[14px] md:text-[15px] leading-relaxed text-[#00473e] max-w-3xl mx-auto">
+                <div class="soft-panel p-4 text-[14px] md:text-[15px] leading-relaxed text-[#2E5C8A] max-w-3xl mx-auto">
                     「転職するべき？」ではなく、<br class="hidden md:block">
                     「私は何を守りたいから、こう動くのか」まで言葉になります。
                 </div>
@@ -253,19 +350,19 @@
     <section id="sample" class="px-6 md:px-8 section-pad">
         <div class="max-w-7xl mx-auto">
             <div class="max-w-2xl mx-auto">
-                <div class="card-base p-6 md:p-8 bg-white border border-[#faae2b] relative">
-                    <div class="absolute -top-3 -left-3 bg-white shadow rounded-lg border border-[#faae2b] px-3 py-1 text-[11px] md:text-[12px] font-semibold text-[#00473e] flex items-center gap-1">
-                        <span class="text-[#faae2b]">◆</span>
+                <div class="card-base p-6 md:p-8 bg-white border border-[#6BB6FF] relative">
+                    <div class="absolute -top-3 -left-3 bg-white shadow rounded-lg border border-[#6BB6FF] px-3 py-1 text-[11px] md:text-[12px] font-semibold text-[#2E5C8A] flex items-center gap-1">
+                        <span class="text-[#6BB6FF]">◆</span>
                         サンプルイメージ
                     </div>
 
-                    <h3 class="text-xl md:text-2xl font-bold text-[#00473e] leading-snug mb-4">
+                    <h3 class="text-xl md:text-2xl font-bold text-[#2E5C8A] leading-snug mb-4">
                         キャリフレ（サマリーPDF）
                     </h3>
 
                     <div class="space-y-6 text-[14px] md:text-[15px] text-dim leading-relaxed">
                         <div class="sample-leftbar pl-3">
-                            <div class="text-[#00473e] font-semibold text-[14px] md:text-[15px] mb-1">あなたの価値観リスト</div>
+                            <div class="text-[#2E5C8A] font-semibold text-[14px] md:text-[15px] mb-1">あなたの価値観リスト</div>
                         <div class="leading-relaxed">
                             ●「安心できる人間関係」<br>
                             ●「成果より成長の実感」<br>
@@ -274,7 +371,7 @@
                     </div>
 
                     <div class="sample-leftbar pl-3">
-                        <div class="text-[#00473e] font-semibold text-[14px] md:text-[15px] mb-1">あなたの強み</div>
+                        <div class="text-[#2E5C8A] font-semibold text-[14px] md:text-[15px] mb-1">あなたの強み</div>
                         <div class="leading-relaxed">
                             ・相手の気持ちを先に受け止める聞き方ができる<br>
                             ・混乱している現場を落ち着かせる役割を取れる
@@ -282,7 +379,7 @@
                     </div>
 
                     <div class="sample-leftbar pl-3">
-                        <div class="text-[#00473e] font-semibold text-[14px] md:text-[15px] mb-1">次の90日アクション</div>
+                        <div class="text-[#2E5C8A] font-semibold text-[14px] md:text-[15px] mb-1">次の90日アクション</div>
                         <div class="leading-relaxed">
                             1. 週1回、「不満」ではなく「こうしたい」を上司に伝える<br>
                             2. 転職サイトではなく、OB訪問で業界情報を集める
@@ -299,138 +396,157 @@
     </section>
     --}}
     <!-- =========================
-         PROGRAM / 3回のセッション
+         JOURNEY / 自己理解の3ステップ
     ========================== -->
-    <section id="program" class="px-6 md:px-8 section-pad bg-white/0">
+    <section id="journey" class="px-6 md:px-8 section-pad bg-white/60">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12 md:mb-16">
+                <div class="text-xs md:text-sm font-semibold inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#6BB6FF] text-[#2E5C8A] shadow-sm w-fit mx-auto mb-4">
+                    自己理解の旅
+                </div>
                 <h2 class="text-2xl md:text-3xl font-bold brand-headline leading-tight mb-4">
-                    3回のセッションでやること
+                    自分を知る → 記録する → 行動する
                 </h2>
                 <p class="text-lg md:text-xl text-dim leading-relaxed">
-                    あなたの「原点」から「これからの意思決定」まで、順番に棚卸します。
+                    診断で「今の自分」を可視化し、記録で「過去と現在」を言語化し、<br class="hidden md:block">
+                    行動計画で「未来」を具体化する——3つのステップで、あなたの自己理解が深まります。
                 </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
 
-                <!-- Session 1 / 過去 -->
+                <!-- Step 1 / 診断する -->
                 <div class="card-base p-6 flex flex-col bg-white">
                     <div class="flex items-center justify-between mb-4">
                         <div class="text-xs md:text-sm font-semibold badge-step rounded-full px-3 py-1">
-                            第1回：過去
+                            ステップ1：診断する
                         </div>
                         <div class="text-right text-[11px] md:text-[12px] font-medium text-dim">
-                            テーマ：価値観
+                            テーマ：今の自分
                         </div>
                     </div>
 
-                    <h3 class="text-lg md:text-xl font-bold text-[#00473e] leading-snug mb-3">
-                        「私は何を大切にしてきたのか？」
+                    <h3 class="text-lg md:text-xl font-bold text-[#2E5C8A] leading-snug mb-3">
+                        「今の自分」を可視化する
                     </h3>
 
                     <p class="text-base md:text-lg text-dim leading-relaxed mb-4">
-                        人生のターニングポイントをたどり、
-                        何に喜び／怒り／悔しさを感じてきたかを言語化します。
+                        現職満足度診断と自己診断で、<br>
+                        あなたの「満足度」と「重要度」を比較し、<br>
+                        レーダーチャートで可視化します。
                     </p>
 
-                    <ul class="text-base text-[#1f2e2c] space-y-2 mb-6">
+                    <ul class="text-base text-[#1E3A5F] space-y-2 mb-6">
                         <li class="flex items-start gap-2">
-                            <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">・</span>
-                            <span class="leading-relaxed">人生史（モチベーショングラフ）</span>
+                            <span class="text-[#6BB6FF] font-bold flex-shrink-0 mt-0.5">・</span>
+                            <span class="leading-relaxed">現職満足度診断（満足度vs重要度）</span>
                         </li>
                         <li class="flex items-start gap-2">
-                            <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">・</span>
-                            <span class="leading-relaxed">「譲れない価値観」の抽出</span>
+                            <span class="text-[#6BB6FF] font-bold flex-shrink-0 mt-0.5">・</span>
+                            <span class="leading-relaxed">自己診断結果（MBTI/ストレングス/FFSなど）</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-[#6BB6FF] font-bold flex-shrink-0 mt-0.5">・</span>
+                            <span class="leading-relaxed">レーダーチャートで可視化</span>
                         </li>
                     </ul>
 
-                    <div class="mt-auto text-[12px] md:text-[13px] text-dim leading-relaxed border-t border-gray-200 pt-4">
-                        目的：<br>
-                        「これは私の軸だ」と胸を張って言える拠りどころを見つける
+                    <div class="mt-auto">
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="inline-flex justify-center items-center w-full px-4 py-2 rounded-lg font-semibold text-sm accent-bg accent-text shadow-sm hover:opacity-90 transition">
+                                診断を始める
+                            </a>
+                        @endif
                     </div>
                 </div>
 
-                <!-- Session 2 / 現在 -->
+                <!-- Step 2 / 記録する -->
                 <div class="card-base p-6 flex flex-col bg-white">
                     <div class="flex items-center justify-between mb-4">
                         <div class="text-xs md:text-sm font-semibold badge-step rounded-full px-3 py-1">
-                            第2回：現在
+                            ステップ2：記録する
                         </div>
                         <div class="text-right text-[11px] md:text-[12px] font-medium text-dim">
-                            テーマ：強みと環境
+                            テーマ：過去と現在
                         </div>
                     </div>
 
-                    <h3 class="text-lg md:text-xl font-bold text-[#00473e] leading-snug mb-3">
-                        「私はなぜ、いまこの仕事をしているのか？」
+                    <h3 class="text-lg md:text-xl font-bold text-[#2E5C8A] leading-snug mb-3">
+                        「過去と現在」を言語化する
                     </h3>
 
                     <p class="text-base md:text-lg text-dim leading-relaxed mb-4">
-                        自分の強み・役割・評価されているポイントを棚卸しし、
-                        今の環境とのズレや満足度も見える化します。
+                        日記で毎日のコンディションを記録し、<br>
+                        人生史で価値観のルーツを可視化し、<br>
+                        マイルストーンで目標を管理します。
                     </p>
 
-                    <ul class="text-base text-[#1f2e2c] space-y-2 mb-6">
+                    <ul class="text-base text-[#1E3A5F] space-y-2 mb-6">
                         <li class="flex items-start gap-2">
-                            <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">・</span>
-                            <span class="leading-relaxed">強みの棚卸し（他者から見た価値）</span>
+                            <span class="text-[#6BB6FF] font-bold flex-shrink-0 mt-0.5">・</span>
+                            <span class="leading-relaxed">日記（モチベーション・写真付きカレンダー）</span>
                         </li>
                         <li class="flex items-start gap-2">
-                            <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">・</span>
-                            <span class="leading-relaxed">現職満足度診断</span>
+                            <span class="text-[#6BB6FF] font-bold flex-shrink-0 mt-0.5">・</span>
+                            <span class="leading-relaxed">人生史（タイムラインで価値観のルーツ）</span>
                         </li>
                         <li class="flex items-start gap-2">
-                            <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">・</span>
-                            <span class="leading-relaxed">働く目的を5つの要素に分解し言語化</span>
+                            <span class="text-[#6BB6FF] font-bold flex-shrink-0 mt-0.5">・</span>
+                            <span class="leading-relaxed">マイルストーン（目標とアクション管理）</span>
                         </li>
                     </ul>
 
-                    <div class="mt-auto text-[12px] md:text-[13px] text-dim leading-relaxed border-t border-gray-200 pt-4">
-                        目的：<br>
-                        「このまま続ける/変えるなら、何を守りたいのか？」をはっきりさせる
+                    <div class="mt-auto">
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="inline-flex justify-center items-center w-full px-4 py-2 rounded-lg font-semibold text-sm accent-bg accent-text shadow-sm hover:opacity-90 transition">
+                                記録を始める
+                            </a>
+                        @endif
                     </div>
                 </div>
 
-                <!-- Session 3 / 未来 -->
+                <!-- Step 3 / 行動する -->
                 <div class="card-base p-6 flex flex-col bg-white">
                     <div class="flex items-center justify-between mb-4">
                         <div class="text-xs md:text-sm font-semibold badge-step rounded-full px-3 py-1">
-                            第3回：未来
+                            ステップ3：行動する
                         </div>
                         <div class="text-right text-[11px] md:text-[12px] font-medium text-dim">
-                            テーマ：これから
+                            テーマ：未来
                         </div>
                     </div>
 
-                    <h3 class="text-lg md:text-xl font-bold text-[#00473e] leading-snug mb-3">
-                        「これから、どう在りたい？」
+                    <h3 class="text-lg md:text-xl font-bold text-[#2E5C8A] leading-snug mb-3">
+                        「未来」を具体化する
                     </h3>
 
                     <p class="text-base md:text-lg text-dim leading-relaxed mb-4">
-                        Will / Can / Mustフレームで
-                        “理想のあり方”と“現実的にやること”をつなげ、
-                        90日間のアクションプランまで落とし込みます。
+                        WCMシートで「Will・Can・Must」を整理し、<br>
+                        マイルストーンで目標とアクションを管理し、<br>
+                        次の一歩を具体化します。
                     </p>
 
-                    <ul class="text-base text-[#1f2e2c] space-y-2 mb-6">
+                    <ul class="text-base text-[#1E3A5F] space-y-2 mb-6">
                         <li class="flex items-start gap-2">
-                            <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">・</span>
-                            <span class="leading-relaxed">WILL / CAN / MUST シート</span>
+                            <span class="text-[#6BB6FF] font-bold flex-shrink-0 mt-0.5">・</span>
+                            <span class="leading-relaxed">WCMシート（Will・Can・Must）</span>
                         </li>
                         <li class="flex items-start gap-2">
-                            <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">・</span>
-                            <span class="leading-relaxed">キャリアポートフォリオ仮案</span>
+                            <span class="text-[#6BB6FF] font-bold flex-shrink-0 mt-0.5">・</span>
+                            <span class="leading-relaxed">マイルストーン（目標とアクション）</span>
                         </li>
                         <li class="flex items-start gap-2">
-                            <span class="text-[#faae2b] font-bold flex-shrink-0 mt-0.5">・</span>
-                            <span class="leading-relaxed">次の90日アクションプラン</span>
+                            <span class="text-[#6BB6FF] font-bold flex-shrink-0 mt-0.5">・</span>
+                            <span class="leading-relaxed">次の一歩を具体化</span>
                         </li>
                     </ul>
 
-                    <div class="mt-auto text-[12px] md:text-[13px] text-dim leading-relaxed border-t border-gray-200 pt-4">
-                        目的：<br>
-                        ただ悩む段階を卒業し、「私はこう進む」に言い換える
+                    <div class="mt-auto">
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="inline-flex justify-center items-center w-full px-4 py-2 rounded-lg font-semibold text-sm accent-bg accent-text shadow-sm hover:opacity-90 transition">
+                                計画を立てる
+                            </a>
+                        @endif
                     </div>
                 </div>
 
@@ -441,71 +557,79 @@
     <!-- =========================
          VALUES / 私たちが大事にしていること
     ========================== -->
-    <section class="px-6 md:px-8 section-pad">
+    <section class="px-6 md:px-8 section-pad bg-white/60">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12 md:mb-16">
+                <div class="text-xs md:text-sm font-semibold inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#6BB6FF] text-[#2E5C8A] shadow-sm w-fit mx-auto mb-4">
+                    キャリフレの価値
+                </div>
                 <h2 class="text-2xl md:text-3xl font-bold brand-headline leading-tight mb-4">
-                    キャリフレが大事にしていること
+                    自分で気づくツールを提供します
                 </h2>
+                <p class="text-lg md:text-xl text-dim leading-relaxed max-w-4xl mx-auto">
+                    答えを与えるのではなく、あなたの中の答えを見えるようにする。<br class="hidden md:block">
+                    日常的な自己理解の習慣が、あなたを変えます。
+                </p>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
             <div class="space-y-8">
 
-                <div class="space-y-6 text-base md:text-lg leading-relaxed text-[#1f2e2c]">
+                <div class="space-y-6 text-base md:text-lg leading-relaxed text-[#1E3A5F]">
 
-                    <div class="p-4 rounded-lg bg-white border border-[#faae2b] shadow-sm">
-                        <div class="font-semibold text-[#00473e] mb-2 text-base md:text-lg">1. 答えを与えない</div>
+                    <div class="p-4 rounded-lg bg-white border border-[#6BB6FF] shadow-sm">
+                        <div class="font-semibold text-[#2E5C8A] mb-2 text-base md:text-lg">1. 自分で気づくツールを提供</div>
                         <div class="text-dim text-[14px] md:text-[15px] leading-relaxed">
-                            私たちの役割は「あなたの中の答え」を見えるようにすること。
+                            診断・記録・可視化のツールで、あなたの中の答えを見えるようにします。
                             決めつけたり、特定の選択を押しつけたりはしません。
                         </div>
                     </div>
 
-                    <div class="p-4 rounded-lg bg-white border border-[#faae2b] shadow-sm">
-                        <div class="font-semibold text-[#00473e] mb-2 text-base md:text-lg">2. "今のあなた"を否定しない</div>
+                    <div class="p-4 rounded-lg bg-white border border-[#6BB6FF] shadow-sm">
+                        <div class="font-semibold text-[#2E5C8A] mb-2 text-base md:text-lg">2. "今のあなた"を否定しない</div>
                         <div class="text-dim text-[14px] md:text-[15px] leading-relaxed">
                             今の環境で耐えてきたことも、守ってきたものも、ちゃんと意味がある。
                             「がまんしてきた自分」を置き去りにしません。
                         </div>
                     </div>
 
-                    <div class="p-4 rounded-lg bg-white border border-[#faae2b] shadow-sm">
-                        <div class="font-semibold text-[#00473e] mb-2 text-base md:text-lg">3. 言葉に残す</div>
+                    <div class="p-4 rounded-lg bg-white border border-[#6BB6FF] shadow-sm">
+                        <div class="font-semibold text-[#2E5C8A] mb-2 text-base md:text-lg">3. データとして蓄積され、可視化される</div>
                         <div class="text-dim text-[14px] md:text-[15px] leading-relaxed">
                             ふわっとした自己理解では終わらせません。
-                            あなたの強み・価値観・次の一歩を、あとで読み返せる形（PDF）で手元に残します。
+                            あなたの診断結果・記録・行動計画がすべてデータとして蓄積され、
+                            レーダーチャートやタイムラインで可視化されます。
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card-base p-6 md:p-8 bg-white border border-[#faae2b]">
-                <h3 class="text-xl md:text-2xl font-bold text-[#00473e] leading-snug mb-4">
-                    セッション後に残るもの
+            <div class="card-base p-6 md:p-8 bg-white border border-[#6BB6FF]">
+                <h3 class="text-xl md:text-2xl font-bold text-[#2E5C8A] leading-snug mb-4">
+                    日常的な自己理解の習慣が、あなたを変えます
                 </h3>
-                <ul class="text-base md:text-lg space-y-5 text-[#1f2e2c] leading-relaxed">
+                <ul class="text-base md:text-lg space-y-5 text-[#1E3A5F] leading-relaxed">
                     <li class="flex flex-col">
-                        <span class="font-semibold text-[#00473e]">● あなたの価値観マップ</span>
+                        <span class="font-semibold text-[#2E5C8A]">● 診断で「今の自分」を可視化</span>
                         <span class="text-dim text-[14px] md:text-[15px] leading-relaxed">
-                            「これだけは手放したくないもの」が明文化されます。
+                            満足度と重要度を比較し、レーダーチャートで見える化。
                         </span>
                     </li>
                     <li class="flex flex-col">
-                        <span class="font-semibold text-[#00473e]">● 強みの使いどころ</span>
+                        <span class="font-semibold text-[#2E5C8A]">● 記録で「過去と現在」を言語化</span>
                         <span class="text-dim text-[14px] md:text-[15px] leading-relaxed">
-                            今の職場で活かす/別の環境に持ち出す、その両面の視点。
+                            日記・人生史・マイルストーンで、価値観のルーツを発見。
                         </span>
                     </li>
                     <li class="flex flex-col">
-                        <span class="font-semibold text-[#00473e]">● 次の90日のアクション</span>
+                        <span class="font-semibold text-[#2E5C8A]">● 行動計画で「未来」を具体化</span>
                         <span class="text-dim text-[14px] md:text-[15px] leading-relaxed">
-                            いきなり人生を変えるのではなく、「まずこれをやる」まで落とします。
+                            WCMシートとマイルストーンで、次の一歩を明確に。
                         </span>
                     </li>
                 </ul>
 
                 <div class="mt-6 text-[12px] md:text-[13px] text-dim leading-relaxed border-t border-gray-200 pt-4">
-                    つまり、悩み続ける時間を「進んでいる実感がある時間」に置き換えることが目的です。
+                    悩み続ける時間を「進んでいる実感がある時間」に置き換える——それがキャリフレの目的です。
                 </div>
             </div>
         </div>
@@ -514,13 +638,18 @@
     <!-- =========================
          FINAL CTA
     ========================== -->
-    <section class="px-6 md:px-8 section-pad bg-white/60">
+    <section class="px-6 md:px-8 section-pad bg-white/0">
         <div class="max-w-7xl mx-auto">
             <div class="max-w-3xl mx-auto">
-                <div class="card-base bg-white text-center p-8 md:p-12 border border-[#faae2b]">
+                <div class="card-base bg-white text-center p-8 md:p-12 border border-[#6BB6FF]">
             <h2 class="text-xl md:text-2xl font-bold brand-headline leading-snug mb-4">
-                あなたのキャリア、次はどこへ進みたいですか？
+                まずは診断から始めましょう
             </h2>
+
+            <p class="text-lg md:text-xl text-dim leading-relaxed mb-6 max-w-2xl mx-auto">
+                登録後すぐに、診断・記録・行動計画のツールを無料でご利用いただけます。<br class="hidden md:block">
+                自分を知る旅を、今日から始めませんか？
+            </p>
 
             <div class="flex flex-col sm:flex-row justify-center gap-4">
                 @if (Route::has('register'))
@@ -529,7 +658,7 @@
                     </a>
         @endif
 
-                <a href="#top" class="inline-flex justify-center items-center px-6 py-3 rounded-lg font-semibold text-lg bg-white text-[#00473e] shadow-md border border-[#faae2b] hover:bg-[#fff9eb] transition">
+                <a href="#top" class="inline-flex justify-center items-center px-6 py-3 rounded-lg font-semibold text-lg bg-white text-[#2E5C8A] shadow-md border border-[#6BB6FF] hover:bg-[#E8F4FF] transition">
                     もう一度くわしく読む
                 </a>
             </div>

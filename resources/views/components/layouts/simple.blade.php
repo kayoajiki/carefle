@@ -8,27 +8,27 @@
             }
 
             body {
-                background-color: #f2f7f5;
-                color: #1f2e2c;
+                background-color: #F0F7FF;
+                color: #1E3A5F;
             }
 
             .brand-headline {
-                color: #00473e;
+                color: #2E5C8A;
             }
 
             .text-dim {
-                color: rgba(31,46,44,0.75);
+                color: rgba(30, 58, 95, 0.75);
             }
 
             .accent-bg {
-                background-color: #faae2b;
+                background-color: #6BB6FF;
             }
             .accent-text {
-                color: #00473e;
+                color: #2E5C8A;
             }
         </style>
     </head>
-    <body class="min-h-screen bg-[#f2f7f5] antialiased">
+    <body class="min-h-screen bg-[#F0F7FF] antialiased">
         @yield('content')
 
         @fluxScripts

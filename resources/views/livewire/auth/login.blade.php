@@ -26,7 +26,7 @@
 
             <!-- Email Address -->
             <div class="flex flex-col gap-2">
-                <label for="email" class="text-sm font-medium text-[#00473e]">
+                <label for="email" class="text-sm font-medium text-[#2E5C8A]">
                     メールアドレス
                 </label>
                 <input
@@ -37,7 +37,7 @@
                     autofocus
                     autocomplete="email"
                     value="{{ old('email') }}"
-                    class="w-full px-4 py-3 rounded-lg border border-[#00473e]/20 bg-white text-[#00473e] focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    class="w-full px-4 py-3 rounded-lg border border-[#2E5C8A]/20 bg-white text-[#2E5C8A] focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
                     placeholder="email@example.com"
                 />
             </div>
@@ -45,11 +45,11 @@
             <!-- Password -->
             <div class="flex flex-col gap-2">
                 <div class="flex items-center justify-between">
-                    <label for="password" class="text-sm font-medium text-[#00473e]">
+                    <label for="password" class="text-sm font-medium text-[#2E5C8A]">
                         パスワード
                     </label>
                     @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-xs text-[#00473e] underline underline-offset-2 hover:text-[#faae2b] transition-colors" wire:navigate>
+                        <a href="{{ route('password.request') }}" class="text-xs text-[#2E5C8A] underline underline-offset-2 hover:text-[#6BB6FF] transition-colors" wire:navigate>
                             パスワードをお忘れですか？
                         </a>
                     @endif
@@ -60,7 +60,7 @@
                     type="password"
                     required
                     autocomplete="current-password"
-                    class="w-full px-4 py-3 rounded-lg border border-[#00473e]/20 bg-white text-[#00473e] focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    class="w-full px-4 py-3 rounded-lg border border-[#2E5C8A]/20 bg-white text-[#2E5C8A] focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
                     placeholder="パスワードを入力"
                 />
             </div>
@@ -71,7 +71,7 @@
                     id="remember"
                     name="remember"
                     type="checkbox"
-                    class="w-4 h-4 text-[#faae2b] border-[#00473e]/20 rounded focus:ring-[#faae2b]"
+                    class="w-4 h-4 text-[#6BB6FF] border-[#2E5C8A]/20 rounded focus:ring-[#6BB6FF]"
                     {{ old('remember') ? 'checked' : '' }}
                 />
                 <label for="remember" class="text-sm text-dim">
@@ -89,9 +89,9 @@
         </form>
 
         @if (Route::has('register'))
-            <div class="text-sm text-center text-dim pt-4 border-t border-[#00473e]/10">
+            <div class="text-sm text-center text-dim pt-4 border-t border-[#2E5C8A]/10">
                 <span>アカウントをお持ちでない方は</span>
-                <a href="{{ route('register') }}" class="text-[#00473e] font-semibold underline underline-offset-2 hover:text-[#faae2b] transition-colors" wire:navigate>
+                <a href="{{ route('register') }}" class="text-[#2E5C8A] font-semibold underline underline-offset-2 hover:text-[#6BB6FF] transition-colors" wire:navigate>
                     新規登録
                 </a>
             </div>

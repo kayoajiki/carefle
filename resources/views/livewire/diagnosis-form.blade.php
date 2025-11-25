@@ -1,5 +1,5 @@
 <div
-    class="bg-white rounded-xl shadow-md p-6 flex flex-col gap-6"
+    class="card-refined p-8 flex flex-col gap-8"
     x-data="{
         currentIndex: @entangle('currentIndex'),
         answers: @entangle('answers'),
@@ -40,46 +40,46 @@
 
     <!-- progress bar + step info -->
     <div>
-        <div class="flex justify-between items-baseline mb-2">
-            <div class="text-xs font-medium text-[#00473e]">
+        <div class="flex justify-between items-baseline mb-3">
+            <div class="body-small font-medium text-[#2E5C8A]">
                 Q<span x-text="currentIndex + 1"></span>/<span x-text="questions.length"></span>
             </div>
-            <div class="text-[10px] text-[#475d5b]">約3分で完了します</div>
+            <div class="body-small">約3分で完了します</div>
         </div>
-        <div class="w-full bg-[#f2f7f5] rounded-full h-2 overflow-hidden">
-            <div class="h-2 bg-[#faae2b] transition-all duration-300" :style="`width: ${progressPercent()}%`"></div>
+        <div class="w-full bg-[#F0F7FF] rounded-full h-3 overflow-hidden">
+            <div class="h-3 bg-[#6BB6FF] transition-all duration-300 rounded-full" :style="`width: ${progressPercent()}%`"></div>
         </div>
     </div>
 
     <!-- question text -->
-    <div x-show="currentQuestion">
-        <h2 class="text-base font-semibold text-[#00473e] leading-relaxed" x-text="currentQuestion.text"></h2>
-        <p class="text-xs text-[#475d5b] mt-2 leading-relaxed" x-show="currentQuestion.helper" x-text="currentQuestion.helper"></p>
+    <div x-show="currentQuestion" class="mb-6">
+        <h2 class="heading-3 text-xl mb-3" x-text="currentQuestion.text"></h2>
+        <p class="body-text" x-show="currentQuestion.helper" x-text="currentQuestion.helper"></p>
     </div>
 
     <!-- answer scale buttons -->
-    <div class="flex flex-col gap-3" x-show="currentQuestion">
+    <div class="flex flex-col gap-4" x-show="currentQuestion">
         <template x-for="opt in currentQuestion.options" :key="opt.value">
             <button
                 type="button"
-                class="w-full border rounded-lg px-4 py-3 text-left text-sm font-medium transition-colors"
-                :class="currentAnswer.answer_value === opt.value ? 'bg-[#faae2b] text-[#00473e] border-[#faae2b]' : 'border-[#00473e]/20 hover:border-[#faae2b]/50'"
+                class="w-full border-2 rounded-xl px-6 py-4 text-left transition-all duration-200"
+                :class="currentAnswer.answer_value === opt.value ? 'bg-[#6BB6FF] text-[#2E5C8A] border-[#6BB6FF] shadow-sm' : 'border-[#2E5C8A]/20 bg-white hover:border-[#6BB6FF]/50 hover:bg-[#F0F7FF]'"
                 @click="selectOption(opt.value)"
             >
-                <div class="text-[#00473e] text-sm font-semibold" x-text="opt.label"></div>
-                <div class="text-[11px] text-[#475d5b] leading-snug" x-text="opt.desc"></div>
+                <div class="body-text font-semibold mb-1" x-text="opt.label"></div>
+                <div class="body-small" x-text="opt.desc"></div>
             </button>
         </template>
     </div>
 
     <!-- optional comment -->
-    <div class="flex flex-col gap-2" x-show="currentQuestion">
-        <label class="text-xs font-medium text-[#00473e]">
+    <div class="flex flex-col gap-3" x-show="currentQuestion">
+        <label class="body-small font-medium text-[#2E5C8A]">
             よければ一言メモ（任意）
         </label>
         <textarea
-            class="w-full text-sm rounded-md border border-[#00473e]/20 bg-[#f2f7f5] text-[#00473e] p-3 focus:outline-none focus:ring-2 focus:ring-[#faae2b]"
-            rows="3"
+            class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"
+            rows="4"
             placeholder="今いちばん引っかかっていること、嬉しいこと、しんどいことなど自由に。次回の面談で深く扱いやすくなります。"
             x-model="currentAnswer.comment"
             @input="updateComment($event.target.value)"
@@ -87,17 +87,17 @@
     </div>
 
     <!-- nav buttons -->
-    <div class="flex items-center justify-between pt-4 border-t border-[#00473e]/10">
+    <div class="flex items-center justify-between pt-6 border-t border-[#2E5C8A]/10">
         <button
-            class="text-xs text-[#475d5b] underline underline-offset-2"
+            class="body-small text-[#1E3A5F] underline underline-offset-2 hover:text-[#2E5C8A] transition-colors"
             @click="$wire.saveDraft()"
         >
             いったん保存してあとで続ける
         </button>
 
-        <div class="flex gap-3">
+        <div class="flex gap-4">
             <button
-                class="text-xs px-4 py-2 rounded-md border border-[#00473e]/30 text-[#00473e] bg-white font-medium"
+                class="btn-secondary text-sm"
                 x-show="currentIndex > 0"
                 @click="$wire.prevQuestion()"
             >
@@ -105,7 +105,7 @@
             </button>
 
             <button
-                class="text-xs px-4 py-2 rounded-md font-semibold bg-[#faae2b] text-[#00473e] shadow-sm"
+                class="btn-primary text-sm"
                 @click="isLast() ? $wire.finish() : $wire.nextQuestion()"
             >
                 <span x-show="!isLast()">次へ</span>

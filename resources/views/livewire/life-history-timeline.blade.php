@@ -1,18 +1,18 @@
-<div class="min-h-screen w-full bg-[#f2f7f5] text-[#475d5b] px-4 py-6 md:px-8">
+<div class="min-h-screen w-full bg-[#F0F7FF] text-[#1E3A5F] content-padding section-spacing-sm">
     {{-- ヘッダー --}}
-    <div class="max-w-6xl mx-auto mb-6">
-        <div class="flex items-center justify-between mb-4">
+    <div class="max-w-6xl mx-auto mb-12">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-6 gap-4">
             <div>
-                <h1 class="text-xl font-semibold text-[#00473e]">
+                <h1 class="heading-2 mb-4">
                     人生史一覧
                 </h1>
-                <p class="text-sm text-[#475d5b] leading-relaxed mt-2">
+                <p class="body-large">
                     これまでの人生の出来事を時系列で振り返ります。
                 </p>
             </div>
             <a
                 href="{{ route('life-history') }}"
-                class="text-xs font-semibold px-4 py-2 rounded-lg border border-[#00473e]/20 text-[#00473e] bg-white hover:bg-[#f2f7f5] transition">
+                class="btn-secondary text-sm">
                 編集に戻る
             </a>
         </div>
@@ -46,7 +46,7 @@
                                                 <div x-data="{ editing:false, localLabel: @js($event->timeline_label) }" class="w-full h-full">
                                                     <template x-if="!editing">
                                                         <button type="button"
-                                                            class="w-full h-full text-[#00473e] text-xs font-semibold"
+                                                            class="w-full h-full text-[#2E5C8A] text-xs font-semibold"
                                                             style="writing-mode: vertical-rl; text-orientation: mixed;"
                                                             @click="editing = true; $nextTick(() => $refs.inp.focus())"
                                                         >
@@ -58,7 +58,7 @@
                                                             x-ref="inp"
                                                             type="text"
                                                             maxlength="32"
-                                                            class="w-full h-full bg-white/80 text-[#00473e] text-xs text-center rounded outline-none"
+                                                            class="w-full h-full bg-white/80 text-[#2E5C8A] text-xs text-center rounded outline-none"
                                                             style="writing-mode: vertical-rl; text-orientation: mixed;"
                                                             x-model.trim="localLabel"
                                                             @blur="editing=false; $wire.updateLabel({{ $event->id }}, localLabel)"
@@ -107,24 +107,24 @@
                             @endphp
                             
                             @foreach($yearEvents as $event)
-                                <div id="event-{{ $year }}-{{ $event->id }}" class="bg-white rounded-xl border border-[#00332c]/10 shadow-sm p-4 md:p-6">
+                                <div id="event-{{ $year }}-{{ $event->id }}" class="card-refined p-6 md:p-8">
                                     {{-- ヘッダー --}}
                                     <div class="flex items-start justify-between mb-3">
                                         <div class="flex items-center gap-2">
-                                            <span class="text-xs font-semibold text-[#00473e] bg-[#f2f7f5] px-2 py-1 rounded">
+                                            <span class="text-xs font-semibold text-[#2E5C8A] bg-[#F0F7FF] px-2 py-1 rounded">
                                                 {{ $event->year }}年
                                             </span>
                                         </div>
                                     </div>
 
                                     {{-- タイトル --}}
-                                    <h3 class="text-base font-semibold text-[#00473e] mb-2">
+                                    <h3 class="text-base font-semibold text-[#2E5C8A] mb-2">
                                         {{ $event->title }}
                                     </h3>
 
                                     {{-- 内容 --}}
                                     @if($event->description)
-                                        <div class="text-sm text-[#475d5b] leading-relaxed mt-2 whitespace-pre-line">
+                                        <div class="text-sm text-[#1E3A5F] leading-relaxed mt-2 whitespace-pre-line">
                                             {{ $event->description }}
                                         </div>
                                     @endif
@@ -137,10 +137,10 @@
         </div>
     @else
         <div class="max-w-6xl mx-auto">
-            <div class="bg-white rounded-xl border border-dashed border-[#00332c]/20 p-12 text-center">
-                <p class="text-sm text-[#475d5b]">
+            <div class="card-refined border-2 border-dashed border-[#2E5C8A]/20 p-16 text-center">
+                <p class="text-sm text-[#1E3A5F]">
                     まだ出来事が登録されていません。<br>
-                    <a href="{{ route('life-history') }}" class="text-[#00473e] underline hover:text-[#faae2b] transition">
+                    <a href="{{ route('life-history') }}" class="text-[#2E5C8A] underline hover:text-[#6BB6FF] transition">
                         人生史の作成
                     </a>ページから最初の出来事を追加してみてください。
                 </p>

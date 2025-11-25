@@ -27,17 +27,17 @@
     --color-accent-content: var(--color-neutral-800);
     --color-accent-foreground: var(--color-white);
 
-    /* Career Fre Custom Colors */
-    --color-bg-primary: #f2f7f5;
-    --color-headline: #00473e;
-    --color-paragraph: #475d5b;
-    --color-button: #faae2b;
-    --color-button-text: #00473e;
-    --color-illustration-stroke: #00332c;
-    --color-illustration-main: #f2f7f5;
-    --color-illustration-highlight: #faae2b;
-    --color-illustration-secondary: #ffa8ba;
-    --color-illustration-tertiary: #fa5246;
+    /* Career Fre Custom Colors - Blue Theme */
+    --color-bg-primary: #F0F7FF;
+    --color-headline: #2E5C8A;
+    --color-paragraph: #1E3A5F;
+    --color-button: #6BB6FF;
+    --color-button-text: #2E5C8A;
+    --color-illustration-stroke: #2E5C8A;
+    --color-illustration-main: #F0F7FF;
+    --color-illustration-highlight: #6BB6FF;
+    --color-illustration-secondary: #5BA3D6;
+    --color-illustration-tertiary: #4A90E2;
 }
 
 @layer theme {
@@ -76,3 +76,166 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* ============================================
+   Refined Design System - Spacing & Typography
+   ============================================ */
+
+@layer utilities {
+    /* Refined Card Styles */
+    .card-refined {
+        @apply bg-white rounded-2xl;
+        box-shadow: 0 4px 6px -1px rgba(74, 144, 226, 0.05), 
+                    0 10px 15px -3px rgba(74, 144, 226, 0.08),
+                    0 0 0 1px rgba(74, 144, 226, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-refined:hover {
+        box-shadow: 0 10px 15px -3px rgba(74, 144, 226, 0.1),
+                    0 20px 25px -5px rgba(74, 144, 226, 0.1),
+                    0 0 0 1px rgba(74, 144, 226, 0.08);
+        transform: translateY(-2px);
+    }
+
+    /* Enhanced Soft Shadow */
+    .soft-shadow-refined {
+        box-shadow: 0 4px 6px -1px rgba(74, 144, 226, 0.05),
+                    0 10px 15px -3px rgba(74, 144, 226, 0.08),
+                    0 0 0 1px rgba(74, 144, 226, 0.05);
+    }
+
+    .soft-shadow-refined-hover:hover {
+        box-shadow: 0 10px 15px -3px rgba(74, 144, 226, 0.1),
+                    0 20px 25px -5px rgba(74, 144, 226, 0.1),
+                    0 0 0 1px rgba(74, 144, 226, 0.08);
+        transform: translateY(-2px);
+    }
+
+    /* Typography Hierarchy */
+    .heading-1 {
+        @apply text-4xl md:text-5xl font-bold leading-tight;
+        color: #2E5C8A;
+        letter-spacing: -0.02em;
+    }
+
+    .heading-2 {
+        @apply text-3xl md:text-4xl font-bold leading-tight;
+        color: #2E5C8A;
+        letter-spacing: -0.01em;
+    }
+
+    .heading-3 {
+        @apply text-2xl md:text-3xl font-semibold leading-snug;
+        color: #2E5C8A;
+    }
+
+    .body-large {
+        @apply text-base md:text-lg leading-relaxed;
+        color: #1E3A5F;
+    }
+
+    .body-text {
+        @apply text-sm md:text-base leading-relaxed;
+        color: #1E3A5F;
+    }
+
+    .body-small {
+        @apply text-xs md:text-sm leading-relaxed;
+        color: rgba(30, 58, 95, 0.75);
+    }
+
+    /* Spacing System - 8px Grid */
+    .section-spacing {
+        @apply py-12 md:py-16;
+    }
+
+    .section-spacing-sm {
+        @apply py-8 md:py-12;
+    }
+
+    .content-padding {
+        @apply px-6 md:px-8;
+    }
+
+    .content-padding-lg {
+        @apply px-8 md:px-12;
+    }
+
+    /* Refined Button Styles */
+    .btn-primary {
+        @apply px-6 py-3 rounded-xl font-semibold text-sm md:text-base;
+        background-color: #6BB6FF;
+        color: #2E5C8A;
+        box-shadow: 0 4px 6px -1px rgba(107, 182, 255, 0.2),
+                    0 2px 4px -1px rgba(107, 182, 255, 0.1);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-primary:hover {
+        background-color: #5BA3D6;
+        box-shadow: 0 6px 8px -1px rgba(107, 182, 255, 0.25),
+                    0 4px 6px -1px rgba(107, 182, 255, 0.15);
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        @apply px-6 py-3 rounded-xl font-semibold text-sm md:text-base border-2;
+        border-color: #2E5C8A;
+        color: #2E5C8A;
+        background-color: transparent;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-secondary:hover {
+        background-color: rgba(46, 92, 138, 0.05);
+        border-color: #4A90E2;
+        color: #4A90E2;
+    }
+
+    /* Utility surfaces */
+    .surface-blue {
+        background: radial-gradient(circle at top, rgba(107, 182, 255, 0.18), transparent 55%),
+            #f6f9ff;
+        border: 1px solid rgba(46, 92, 138, 0.08);
+        border-radius: 1.25rem;
+    }
+
+    .surface-muted {
+        background-color: rgba(46, 92, 138, 0.08);
+        border-radius: 1rem;
+    }
+
+    /* Soft badges & pills */
+    .badge-pill {
+        @apply inline-flex items-center gap-1 text-xs font-semibold px-3 py-1;
+        border-radius: 999px;
+        background-color: rgba(46, 92, 138, 0.08);
+        color: #2E5C8A;
+    }
+
+    .badge-pill--accent {
+        background-color: rgba(107, 182, 255, 0.2);
+        color: #1E3A5F;
+    }
+
+    /* Adaptive grid helper */
+    .grid-auto-fit {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+    }
+
+    /* Divider */
+    .divider-soft {
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(46, 92, 138, 0.25), transparent);
+    }
+
+    /* Floating dotted accent */
+    .dotted-accent {
+        background-image: radial-gradient(rgba(46, 92, 138, 0.2) 1px, transparent 1px);
+        background-size: 12px 12px;
+    }
+}

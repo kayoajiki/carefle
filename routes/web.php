@@ -9,6 +9,12 @@ use App\Livewire\LifeHistory;
 use App\Livewire\LifeHistoryTimeline;
 use App\Livewire\DiagnosisImportanceForm;
 use App\Livewire\WcmForm;
+use App\Livewire\DiaryCalendar;
+use App\Livewire\PersonalityAssessmentForm;
+use App\Livewire\PersonalityAssessmentVisualization;
+use App\Livewire\CareerTimeline;
+use App\Livewire\CareerMilestoneBoard;
+use App\Livewire\CareerMilestoneForm;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ChatController;
@@ -38,6 +44,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('life-history/timeline', LifeHistoryTimeline::class)
         ->name('life-history.timeline');
 
+    // 日記
+    Route::get('diary', function () {
+        return view('diary');
+    })->name('diary');
+
     // WCM
     Route::get('wcm/start', WcmForm::class)->name('wcm.start');
     Route::get('wcm/sheet/{id}', function ($id) {
@@ -57,6 +68,17 @@ Route::middleware(['auth'])->group(function () {
     // チャットAPI
     Route::post('chat/message', [ChatController::class, 'sendMessage'])
         ->name('chat.message');
+
+    // 自己診断
+    Route::get('assessments', function () {
+        return view('personality-assessments');
+    })->name('assessments.index');
+    Route::get('assessments/visualization', PersonalityAssessmentVisualization::class)->name('assessments.visualization');
+
+    // キャリアタイムライン
+    Route::get('career/timeline', CareerTimeline::class)->name('career.timeline');
+    Route::get('career/milestones', CareerMilestoneBoard::class)->name('career.milestones');
+
 
 });
 

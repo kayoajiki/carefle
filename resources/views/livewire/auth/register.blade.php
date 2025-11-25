@@ -26,7 +26,7 @@
 
             <!-- Name -->
             <div class="flex flex-col gap-2">
-                <label for="name" class="text-sm font-medium text-[#00473e]">
+                <label for="name" class="text-sm font-medium text-[#2E5C8A]">
                     お名前
                 </label>
                 <input
@@ -37,14 +37,14 @@
                     autofocus
                     autocomplete="name"
                     value="{{ old('name') }}"
-                    class="w-full px-4 py-3 rounded-lg border border-[#00473e]/20 bg-white text-[#00473e] focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    class="w-full px-4 py-3 rounded-lg border border-[#2E5C8A]/20 bg-white text-[#2E5C8A] focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
                     placeholder="山田 太郎"
                 />
             </div>
 
             <!-- Email Address -->
             <div class="flex flex-col gap-2">
-                <label for="email" class="text-sm font-medium text-[#00473e]">
+                <label for="email" class="text-sm font-medium text-[#2E5C8A]">
                     メールアドレス
                 </label>
                 <input
@@ -54,14 +54,14 @@
                     required
                     autocomplete="email"
                     value="{{ old('email') }}"
-                    class="w-full px-4 py-3 rounded-lg border border-[#00473e]/20 bg-white text-[#00473e] focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    class="w-full px-4 py-3 rounded-lg border border-[#2E5C8A]/20 bg-white text-[#2E5C8A] focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
                     placeholder="email@example.com"
                 />
             </div>
 
             <!-- Password -->
             <div class="flex flex-col gap-2">
-                <label for="password" class="text-sm font-medium text-[#00473e]">
+                <label for="password" class="text-sm font-medium text-[#2E5C8A]">
                     パスワード
                 </label>
                 <input
@@ -70,7 +70,7 @@
                     type="password"
                     required
                     autocomplete="new-password"
-                    class="w-full px-4 py-3 rounded-lg border border-[#00473e]/20 bg-white text-[#00473e] focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    class="w-full px-4 py-3 rounded-lg border border-[#2E5C8A]/20 bg-white text-[#2E5C8A] focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
                     placeholder="パスワードを入力"
                 />
                 <p class="text-xs text-dim">
@@ -80,7 +80,7 @@
 
             <!-- Confirm Password -->
             <div class="flex flex-col gap-2">
-                <label for="password_confirmation" class="text-sm font-medium text-[#00473e]">
+                <label for="password_confirmation" class="text-sm font-medium text-[#2E5C8A]">
                     パスワード（確認）
                 </label>
                 <input
@@ -89,7 +89,7 @@
                     type="password"
                     required
                     autocomplete="new-password"
-                    class="w-full px-4 py-3 rounded-lg border border-[#00473e]/20 bg-white text-[#00473e] focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    class="w-full px-4 py-3 rounded-lg border border-[#2E5C8A]/20 bg-white text-[#2E5C8A] focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
                     placeholder="パスワードを再度入力"
                 />
             </div>
@@ -102,9 +102,9 @@
             </button>
         </form>
 
-        <div class="text-sm text-center text-dim pt-4 border-t border-[#00473e]/10">
+        <div class="text-sm text-center text-dim pt-4 border-t border-[#2E5C8A]/10">
             <span>すでにアカウントをお持ちの方は</span>
-            <a href="{{ route('login') }}" class="text-[#00473e] font-semibold underline underline-offset-2 hover:text-[#faae2b] transition-colors" wire:navigate>
+            <a href="{{ route('login') }}" class="text-[#2E5C8A] font-semibold underline underline-offset-2 hover:text-[#6BB6FF] transition-colors" wire:navigate>
                 ログイン
             </a>
         </div>

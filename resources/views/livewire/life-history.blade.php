@@ -1,25 +1,25 @@
-<div class="min-h-screen w-full bg-[#f2f7f5] text-[#475d5b] px-4 py-6 md:px-8" x-data="{ showGraph: false, showTimeline: false }">
+<div class="min-h-screen w-full bg-[#F0F7FF] text-[#1E3A5F] content-padding section-spacing-sm" x-data="{ showGraph: false, showTimeline: false }">
     {{-- ヘッダー --}}
-    <div class="max-w-6xl mx-auto mb-6">
-        <h1 class="text-xl font-semibold text-[#00473e]">
+    <div class="max-w-6xl mx-auto mb-12">
+        <h1 class="heading-2 mb-4">
             人生史の作成
         </h1>
-        <p class="text-sm text-[#475d5b] leading-relaxed mt-2">
+        <p class="body-large">
             今まで生きてきた中で、自分にとって節目となった体験・大きな影響を与えた・印象に残っている体験を書き出してみてください。
         </p>
     </div>
 
     {{-- 入力フォームカード --}}
-    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-md border border-[#00332c]/10 p-4 md:p-6 mb-8">
+    <div class="max-w-6xl mx-auto card-refined p-8 mb-12">
         <div class="flex items-center justify-between mb-4">
-            <div class="text-[#00473e] font-semibold">
+            <div class="text-[#2E5C8A] font-semibold">
                 {{ $editingId ? '出来事を編集' : '新しい出来事を追加' }}
             </div>
 
             @if($editingId)
                 <button
                     wire:click="cancelEdit"
-                    class="text-xs underline text-[#475d5b] hover:text-[#00473e] transition">
+                    class="text-xs underline text-[#1E3A5F] hover:text-[#2E5C8A] transition">
                     編集をやめる
                 </button>
             @endif
@@ -28,11 +28,11 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             {{-- 西暦 --}}
             <div class="flex flex-col">
-                <label class="text-xs font-medium text-[#00473e] mb-1">西暦 <span class="text-red-500">*</span></label>
+                <label class="text-xs font-medium text-[#2E5C8A] mb-1">西暦 <span class="text-red-500">*</span></label>
                 <input
                     type="number"
                     wire:model.defer="year"
-                    class="w-full rounded-lg border border-[#00332c]/20 bg-[#f2f7f5] text-[#00473e] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    class="w-full rounded-lg border border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
                     placeholder="2008"
                 />
                 @error('year')
@@ -42,11 +42,11 @@
 
             {{-- タイトル --}}
             <div class="flex flex-col md:col-span-1">
-                <label class="text-xs font-medium text-[#00473e] mb-1">タイトル <span class="text-red-500">*</span></label>
+                <label class="text-xs font-medium text-[#2E5C8A] mb-1">タイトル <span class="text-red-500">*</span></label>
                 <input
                     type="text"
                     wire:model.defer="title"
-                    class="w-full rounded-lg border border-[#00332c]/20 bg-white text-[#00473e] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    class="w-full rounded-lg border border-[#2E5C8A]/20 bg-white text-[#2E5C8A] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
                     placeholder="大学퓨터入学 / 初めての転職 など"
                 />
                 @error('title')
@@ -56,11 +56,11 @@
 
             {{-- 内容 --}}
             <div class="flex flex-col md:col-span-2">
-                <label class="text-xs font-medium text-[#00473e] mb-1">内容</label>
+                <label class="text-xs font-medium text-[#2E5C8A] mb-1">内容</label>
                 <textarea
                     wire:model.defer="description"
                     rows="3"
-                    class="w-full rounded-lg border border-[#00332c]/20 bg-white text-[#00473e] px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
+                    class="w-full rounded-lg border border-[#2E5C8A]/20 bg-white text-[#2E5C8A] px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
                     placeholder="当時どんな状況で、どんな気持ちだったかを書いてください。"
                 ></textarea>
                 @error('description')
@@ -72,7 +72,7 @@
         {{-- motivation & ボタン --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
             <div class="flex flex-col" x-data="{ localMotivation: @entangle('motivation') }">
-                <label class="text-xs font-medium text-[#00473e] mb-2">
+                <label class="text-xs font-medium text-[#2E5C8A] mb-2">
                     当時のモチベーション（0〜100）
                 </label>
                 <div class="flex items-center gap-3">
@@ -82,9 +82,9 @@
                         max="100"
                         x-model="localMotivation"
                         @input="localMotivation = $event.target.value"
-                        class="w-full accent-[#faae2b]"
+                        class="w-full accent-[#6BB6FF]"
                     />
-                    <div class="text-sm font-semibold text-[#00473e] w-10 text-right" x-text="localMotivation">
+                    <div class="text-sm font-semibold text-[#2E5C8A] w-10 text-right" x-text="localMotivation">
                         {{ $motivation }}
                     </div>
                 </div>
@@ -96,7 +96,7 @@
             <div class="flex items-end justify-start md:justify-end">
                 <button
                     wire:click="save"
-                    class="w-full md:w-auto bg-[#faae2b] text-[#00473e] font-semibold text-sm rounded-xl px-4 py-2 shadow hover:opacity-90 active:scale-[0.99] transition">
+                    class="w-full md:w-auto bg-[#6BB6FF] text-[#2E5C8A] font-semibold text-sm rounded-xl px-4 py-2 shadow hover:opacity-90 active:scale-[0.99] transition">
                     {{ $editingId ? '更新する' : '追加する' }}
                 </button>
             </div>
@@ -105,32 +105,32 @@
 
     {{-- 一覧 --}}
     <div class="max-w-6xl mx-auto">
-        <h2 class="text-sm font-semibold text-[#00473e] mb-3">
+        <h2 class="text-sm font-semibold text-[#2E5C8A] mb-3">
             登録済みの出来事
         </h2>
 
         <div class="max-h-[480px] overflow-y-auto space-y-4 pr-1">
             @forelse ($events as $event)
-                <div class="bg-white rounded-xl border border-[#00332c]/10 shadow-sm p-4 flex flex-col md:flex-row md:items-start md:justify-between">
+                <div class="bg-white rounded-xl border border-[#2E5C8A]/10 shadow-sm p-4 flex flex-col md:flex-row md:items-start md:justify-between">
                     {{-- 左側：本文 --}}
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <div class="text-base font-semibold text-[#00473e]">
+                            <div class="text-base font-semibold text-[#2E5C8A]">
                                 {{ $event->year }}年
                             </div>
-                            <div class="text-sm font-semibold text-[#00473e]">
+                            <div class="text-sm font-semibold text-[#2E5C8A]">
                                 {{ $event->title }}
                             </div>
                         </div>
 
                         @if($event->description)
-                            <div class="text-sm text-[#475d5b] leading-relaxed mt-2 whitespace-pre-line">
+                            <div class="text-sm text-[#1E3A5F] leading-relaxed mt-2 whitespace-pre-line">
                                 {{ $event->description }}
                             </div>
                         @endif
 
-                        <div class="text-xs text-[#475d5b] mt-3 flex items-center gap-2">
-                            <span class="px-2 py-1 rounded-lg bg-[#f2f7f5] border border-[#00332c]/10 text-[#00473e] font-medium">
+                        <div class="text-xs text-[#1E3A5F] mt-3 flex items-center gap-2">
+                            <span class="px-2 py-1 rounded-lg bg-[#F0F7FF] border border-[#2E5C8A]/10 text-[#2E5C8A] font-medium">
                                 モチベーション {{ $event->motivation }}
                             </span>
                         </div>
@@ -140,7 +140,7 @@
                     <div class="flex flex-row md:flex-col gap-3 mt-4 md:mt-0 md:ml-6 shrink-0">
                         <button
                             wire:click="edit({{ $event->id }})"
-                            class="text-xs font-semibold px-3 py-1 rounded-lg border border-[#00332c]/20 text-[#00473e] bg-[#f2f7f5] hover:bg-[#faae2b]/20 transition">
+                            class="text-xs font-semibold px-3 py-1 rounded-lg border border-[#2E5C8A]/20 text-[#2E5C8A] bg-[#F0F7FF] hover:bg-[#6BB6FF]/20 transition">
                             編集
                         </button>
 
@@ -153,7 +153,7 @@
                     </div>
                 </div>
             @empty
-                <div class="text-sm text-[#475d5b] bg-white border border-dashed border-[#00332c]/20 rounded-xl p-6 text-center">
+                <div class="text-sm text-[#1E3A5F] bg-white border border-dashed border-[#2E5C8A]/20 rounded-xl p-6 text-center">
                     まだ出来事が登録されていません。<br class="hidden md:block" />
                     上のフォームから最初の一件を追加してみてください。
                 </div>
@@ -173,15 +173,15 @@
         class="max-w-6xl mx-auto mt-8 mb-8"
         style="display: none;"
     >
-        <div class="bg-white rounded-2xl shadow-md border border-[#00332c]/10 p-6">
-            <h3 class="text-lg font-semibold text-[#00473e] mb-4">モチベーショングラフ</h3>
+        <div class="bg-white rounded-2xl shadow-md border border-[#2E5C8A]/10 p-6">
+            <h3 class="text-lg font-semibold text-[#2E5C8A] mb-4">モチベーショングラフ</h3>
             
             @if($events->count() > 0)
                 <div class="relative" style="height: 400px;">
                     <canvas id="motivationChart"></canvas>
                 </div>
             @else
-                <div class="text-center py-12 text-[#475d5b]">
+                <div class="text-center py-12 text-[#1E3A5F]">
                     <p class="text-sm">出来事を登録すると、グラフが表示されます。</p>
                 </div>
             @endif
@@ -193,7 +193,7 @@
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <button
                 @click="showGraph = !showGraph; showTimeline = false"
-                class="flex items-center justify-center gap-2 bg-[#faae2b] text-[#00473e] font-semibold text-sm rounded-xl px-6 py-3 shadow hover:opacity-90 transition">
+                class="flex items-center justify-center gap-2 bg-[#6BB6FF] text-[#2E5C8A] font-semibold text-sm rounded-xl px-6 py-3 shadow hover:opacity-90 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
@@ -202,7 +202,7 @@
 
             <a
                 href="{{ route('life-history.timeline') }}"
-                class="flex items-center justify-center gap-2 bg-white text-[#00473e] font-semibold text-sm rounded-xl px-6 py-3 shadow border border-[#faae2b] hover:bg-[#fff9eb] transition">
+                class="flex items-center justify-center gap-2 bg-white text-[#2E5C8A] font-semibold text-sm rounded-xl px-6 py-3 shadow border border-[#6BB6FF] hover:bg-[#fff9eb] transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
@@ -244,12 +244,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'モチベーション',
                     data: motivations,
-                    borderColor: '#faae2b',
+                    borderColor: '#6BB6FF',
                     backgroundColor: 'rgba(250, 174, 43, 0.1)',
                     borderWidth: 2,
                     pointRadius: 6,
-                    pointBackgroundColor: '#faae2b',
-                    pointBorderColor: '#00473e',
+                    pointBackgroundColor: '#6BB6FF',
+                    pointBorderColor: '#2E5C8A',
                     pointBorderWidth: 2,
                     pointHoverRadius: 8,
                     tension: 0.3,
@@ -271,9 +271,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         },
                         backgroundColor: 'rgba(0, 71, 62, 0.9)',
-                        titleColor: '#faae2b',
-                        bodyColor: '#f2f7f5',
-                        borderColor: '#faae2b',
+                        titleColor: '#6BB6FF',
+                        bodyColor: '#F0F7FF',
+                        borderColor: '#6BB6FF',
                         borderWidth: 1,
                         padding: 12,
                     }
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         min: 0,
                         ticks: {
                             stepSize: 20,
-                            color: '#475d5b',
+                            color: '#1E3A5F',
                             font: {
                                 size: 12
                             }
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         title: {
                             display: true,
                             text: 'モチベーション',
-                            color: '#00473e',
+                            color: '#2E5C8A',
                             font: {
                                 size: 14,
                                 weight: 'bold'
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     x: {
                         ticks: {
-                            color: '#475d5b',
+                            color: '#1E3A5F',
                             font: {
                                 size: 12
                             }
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         title: {
                             display: true,
                             text: '西暦（年）',
-                            color: '#00473e',
+                            color: '#2E5C8A',
                             font: {
                                 size: 14,
                                 weight: 'bold'
