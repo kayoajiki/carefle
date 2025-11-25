@@ -200,29 +200,57 @@ class DiagnosisForm extends Component
             }
         }
 
-        // Workスコア：pillar別平均をweightで加重平均
-        $workScore = 0;
-        $totalWeight = 0;
+        // pillar別スコアを計算（各pillar内でweightで加重平均）
+        $workPillarFinal = [];
         foreach ($workPillarScores as $pillar => $scores) {
-            $pillarAvg = array_sum($scores) / count($scores);
-            $question = Question::where('type', 'work')
+            // このpillarの質問を取得
+            $pillarQuestions = Question::where('type', 'work')
                 ->where('pillar', $pillar)
-                ->first();
-            if ($question && $question->weight) {
-                $workScore += $pillarAvg * ($question->weight / 100);
-                $totalWeight += $question->weight;
+                ->get();
+            
+            // 各質問のスコアとweightで加重平均を計算
+            $pillarScore = 0;
+            $pillarWeight = 0;
+            foreach ($pillarQuestions as $q) {
+                $answer = $answers->firstWhere('question_id', $q->id);
+                if ($answer && $q->weight) {
+                    $scaledScore = (($answer->answer_value - 1) / 4) * 100;
+                    $pillarScore += $scaledScore * $q->weight;
+                    $pillarWeight += $q->weight;
+                }
+            }
+            
+            if ($pillarWeight > 0) {
+                $workPillarFinal[$pillar] = round($pillarScore / $pillarWeight);
+            } else {
+                $workPillarFinal[$pillar] = round(array_sum($scores) / count($scores));
             }
         }
-        $workScore = round($workScore);
+
+        // Workスコア：各pillarの平均をweightで加重平均（レーダーチャートと一致させる）
+        // 各pillarのweightは、そのpillar内の全質問のweightの合計を使用
+        $workScore = 0;
+        $totalWeight = 0;
+        foreach ($workPillarFinal as $pillar => $pillarAvg) {
+            // このpillar内の全質問のweightの合計を取得
+            $pillarWeight = Question::where('type', 'work')
+                ->where('pillar', $pillar)
+                ->sum('weight');
+            
+            if ($pillarWeight > 0) {
+                $workScore += $pillarAvg * $pillarWeight;
+                $totalWeight += $pillarWeight;
+            }
+        }
+        // totalWeightで正規化（pillarAvgは既に0-100の範囲なので、100を掛ける必要はない）
+        if ($totalWeight > 0) {
+            $workScore = round($workScore / $totalWeight);
+        } else {
+            $workScore = 0;
+        }
 
         // Lifeスコア：単純平均
         $lifeScore = !empty($lifeScores) ? round(array_sum($lifeScores) / count($lifeScores)) : 0;
-
-        // pillar別スコアを計算（平均）
-        $workPillarFinal = [];
-        foreach ($workPillarScores as $pillar => $scores) {
-            $workPillarFinal[$pillar] = round(array_sum($scores) / count($scores));
-        }
 
         $lifePillarFinal = [];
         foreach ($lifePillarScores as $pillar => $scores) {
@@ -258,3 +286,4 @@ class DiagnosisForm extends Component
         return view('livewire.diagnosis-form');
     }
 }
+

@@ -2,16 +2,116 @@
     <flux:main>
 <div class="min-h-screen bg-[#EAF3FF] content-padding section-spacing-sm">
     @php
-        $workDataSet = $radarWorkData ?? [];
-        $labels = $radarLabels ?? [];
-        $minScore = filled($workDataSet) ? min($workDataSet) : null;
-        $maxScore = filled($workDataSet) ? max($workDataSet) : null;
-        $focusLabel = $minScore !== null ? ($labels[array_search($minScore, $workDataSet)] ?? '未計測') : '未計測';
-        $strongLabel = $maxScore !== null ? ($labels[array_search($maxScore, $workDataSet)] ?? '未計測') : '未計測';
+        // 満足度と重要度の差分を計算して強みと伸ばしどころを決定
+        $workPillarScores = $workPillarScores ?? [];
+        $importanceWork = $importanceWork ?? [];
+        $pillarLabels = $pillarLabels ?? [];
+        
+        $diffScores = []; // 満足度 - 重要度の差分
+        $strongestDiff = null;
+        $strongestKey = null;
+        $weakestDiff = null;
+        $weakestKey = null;
+        
+        foreach ($pillarLabels as $key => $label) {
+            $pillarWorkScore = $workPillarScores[$key] ?? null;
+            $importanceScore = $importanceWork[$key] ?? null;
+            
+            if ($pillarWorkScore !== null && $importanceScore !== null) {
+                $diff = $pillarWorkScore - $importanceScore;
+                $diffScores[$key] = $diff;
+                
+                // 強み: 満足度が重要度より高い（差分が最大）
+                if ($diff > 0 && ($strongestDiff === null || $diff > $strongestDiff)) {
+                    $strongestDiff = $diff;
+                    $strongestKey = $key;
+                }
+                
+                // 伸ばしどころ: 重要度が満足度より高い（差分が最小、つまりマイナスが最大）
+                if ($diff < 0 && ($weakestDiff === null || $diff < $weakestDiff)) {
+                    $weakestDiff = $diff;
+                    $weakestKey = $key;
+                }
+            }
+        }
+        
+        // 強みと伸ばしどころのラベルを取得
+        $strongLabel = $strongestKey !== null ? ($pillarLabels[$strongestKey] ?? '未計測') : '未計測';
+        $focusLabel = $weakestKey !== null ? ($pillarLabels[$weakestKey] ?? '未計測') : '未計測';
+        
+        // どちらも見つからない場合は従来の方法で計算（フォールバック）
+        if ($strongLabel === '未計測' && $focusLabel === '未計測') {
+            $workDataSet = $radarWorkData ?? [];
+            $labels = $radarLabels ?? [];
+            $minScore = filled($workDataSet) ? min($workDataSet) : null;
+            $maxScore = filled($workDataSet) ? max($workDataSet) : null;
+            $focusLabel = $minScore !== null ? ($labels[array_search($minScore, $workDataSet)] ?? '未計測') : '未計測';
+            $strongLabel = $maxScore !== null ? ($labels[array_search($maxScore, $workDataSet)] ?? '未計測') : '未計測';
+        }
+        
+        // ラベルからキーを抽出する関数
+        $getPillarKey = function($label) {
+            if ($label === '未計測') return null;
+            // "Purpose（目的）" → "purpose" に変換
+            if (preg_match('/^([A-Za-z]+)/', $label, $matches)) {
+                return strtolower($matches[1]);
+            }
+            return null;
+        };
+        
+        // 各項目ごとのフォーカス領域コメント
+        $focusComments = [
+            'purpose' => '目的意識を明確にすることで、仕事へのモチベーションが向上します。',
+            'profession' => '職業スキルや専門性を高めることで、仕事への自信が生まれます。',
+            'people' => '人間関係を整えることで、職場の雰囲気が良くなります。',
+            'privilege' => '待遇や環境を改善することで、働きやすさが向上します。',
+            'progress' => '成長実感を得ることで、仕事へのやりがいが生まれます。',
+        ];
+        
+        // 各項目ごとの強みコメント
+        $strengthComments = [
+            'purpose' => '目的意識が高い強みを活かして、他の領域の改善にも良い影響を与えます。',
+            'profession' => '職業スキルが高い強みを活かして、自信を持って他の領域にも取り組めます。',
+            'people' => '人間関係が良好な強みを活かして、チームワークや協力関係を築けます。',
+            'privilege' => '待遇や環境が整っている強みを活かして、安心して他の領域に取り組めます。',
+            'progress' => '成長実感がある強みを活かして、前向きに他の領域にも挑戦できます。',
+        ];
+        
+        // フォーカス領域と強みのコメントを取得
+        $focusKey = $getPillarKey($focusLabel);
+        $strongKey = $getPillarKey($strongLabel);
+        $focusComment = $focusKey && isset($focusComments[$focusKey]) ? $focusComments[$focusKey] : 'この領域に取り組むことで、満足度の向上が期待できます。';
+        $strengthComment = $strongKey && isset($strengthComments[$strongKey]) ? $strengthComments[$strongKey] : 'この領域の強みを意識して行動することで、他の領域の改善にも良い影響を与えます。';
+        
         $balanceDelta = $workScore - $lifeScore;
-        $balanceCopy = $balanceDelta === 0
-            ? '仕事と暮らしが同じテンションで整っています'
-            : ($balanceDelta > 0 ? '仕事側に余力がありそうです' : '暮らし側がより満ちています');
+        $absDelta = abs($balanceDelta);
+        
+        // 差分に応じたコメントを生成
+        if ($balanceDelta === 0) {
+            $balanceCopy = '満足度と重要度がバランスよく整っています';
+        } elseif ($balanceDelta > 0) {
+            // 満足度が重要度より高い場合（ポジティブ傾向）
+            if ($absDelta >= 30) {
+                $balanceCopy = '満足度が重要度よりかなり高いです。重要度の高い領域に意識を向けましょう。';
+            } elseif ($absDelta >= 20) {
+                $balanceCopy = '満足度が重要度より高いです。重要度の高い領域を意識すると更に充実します。';
+            } elseif ($absDelta >= 10) {
+                $balanceCopy = '満足度が重要度よりやや高いです。重要度を意識して取り組むとバランスが整います。';
+            } else {
+                $balanceCopy = '満足度が重要度よりわずかに高いです。現状は良好です。';
+            }
+        } else {
+            // 重要度が満足度より高い場合（満足度が低い、ややネガティブだがフラットに）
+            if ($absDelta >= 30) {
+                $balanceCopy = '重要度が満足度よりかなり高いです。重要度の高い領域から優先的に改善を進めましょう。';
+            } elseif ($absDelta >= 20) {
+                $balanceCopy = '重要度が満足度より高いです。重要度の高い領域に重点的に取り組みましょう。';
+            } elseif ($absDelta >= 10) {
+                $balanceCopy = '重要度が満足度よりやや高いです。重要度の高い領域を意識して改善しましょう。';
+            } else {
+                $balanceCopy = '重要度が満足度よりわずかに高いです。重要度を意識して満足度を上げましょう。';
+            }
+        }
     @endphp
 
     <div class="w-full max-w-6xl mx-auto space-y-10">
@@ -43,7 +143,7 @@
         <!-- score cards -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="card-refined p-8 space-y-4">
-                <div class="body-small font-medium text-[#4B7BB5]">Work 満足度</div>
+                <div class="body-small font-medium text-[#4B7BB5]">満足度</div>
                 <div class="heading-1 text-5xl text-[#1E3A5F]">
                     {{ $workScore }}<span class="text-2xl font-semibold"> /100</span>
                 </div>
@@ -56,7 +156,7 @@
             </div>
 
             <div class="card-refined p-8 space-y-4">
-                <div class="body-small font-medium text-[#4B7BB5]">Life 満足度</div>
+                <div class="body-small font-medium text-[#4B7BB5]">重要度</div>
                 <div class="heading-1 text-5xl text-[#1E3A5F]">
                     {{ $lifeScore }}<span class="text-2xl font-semibold"> /100</span>
                 </div>
@@ -64,12 +164,12 @@
                     <div class="h-full bg-gradient-to-r from-[#8FBEDC] to-[#4F9EDB]" style="width: {{ $lifeScore }}%;"></div>
                 </div>
                 <p class="body-small text-[#4A5A73]">
-                    家族・健康・余暇・お金の安心感など、暮らしの土台がどれだけ柔らかく整っているか。
+                    各領域への重要度の評価。満足度と比較することで、優先的に取り組むべき領域が見えてきます。
                 </p>
             </div>
 
             <div class="card-refined p-8 space-y-4">
-                <div class="body-small font-medium text-[#4B7BB5]">バランス & 次の視点</div>
+                <div class="body-small font-medium text-[#4B7BB5]">満足度ー重要度</div>
                 <div class="heading-1 text-4xl text-[#1E3A5F]">
                     @if($balanceDelta === 0)
                         ±0
@@ -125,7 +225,7 @@
                 <div>
                     <div class="heading-3 text-xl mb-2">次に整えたいポイント</div>
                     <p class="body-small text-[#4A5A73]">
-                        スコアの凹み具合から、いま着手すると全体の呼吸が整いやすい領域をピックアップしました。
+                        満足度と重要度の差分から、優先的に取り組むべき領域と活用できる強みをピックアップしました。
                     </p>
                 </div>
                 <div class="space-y-4">
@@ -135,9 +235,10 @@
                         </span>
                         <div>
                             <p class="body-small font-semibold text-[#2E5C8A] mb-1">フォーカス領域</p>
+                            <p class="body-small text-[#4A5A73] mb-2">重要度が高いのに満足度が低い領域。優先的に改善すべきポイントです。</p>
                             <p class="heading-3 text-lg mb-2">{{ $focusLabel }}</p>
                             <p class="body-small text-[#4A5A73]">
-                                日常のリズムを乱しやすい要素。小さな行動で可視化し、Diaryに記録すると変化が追いやすくなります。
+                                {{ $focusComment }}
                             </p>
                         </div>
                     </div>
@@ -147,9 +248,10 @@
                         </span>
                         <div>
                             <p class="body-small font-semibold text-[#B45309] mb-1">活かしたい強み</p>
+                            <p class="body-small text-[#72441A] mb-2">満足度が高く、余力がある領域。行動の下支えとして活用できる資産です。</p>
                             <p class="heading-3 text-lg mb-2">{{ $strongLabel }}</p>
                             <p class="body-small text-[#72441A]">
-                                余力がある領域は、行動の下支えに使える資産。Diaryの「今日の出来事」に書き添えると、良い循環が印象に残ります。
+                                {{ $strengthComment }}
                             </p>
                         </div>
                     </div>

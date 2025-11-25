@@ -118,11 +118,20 @@ class DiagnosisController extends Controller
         $importanceWork = [];
         $workQuestions = Question::where('type','work')->get();
         $totalWorkWeight = $workQuestions->sum('weight');
+        $totalImportanceScore = 0;
+        $totalImportanceWeight = 0;
         foreach ($workQuestions->groupBy('pillar') as $pillar => $qs) {
             $sum=0; $w=0;
             foreach ($qs as $q) {
                 $ans = DiagnosisImportanceAnswer::where('diagnosis_id',$diagnosis->id)->where('question_id',$q->id)->first();
-                if ($ans) { $sum += (($ans->importance_value-1)/4*100) * $q->weight; $w += $q->weight; }
+                if ($ans) { 
+                    $importanceValue = (($ans->importance_value-1)/4*100) * $q->weight;
+                    $sum += $importanceValue; 
+                    $w += $q->weight;
+                    // 全体の重要度スコア計算用
+                    $totalImportanceScore += $importanceValue;
+                    $totalImportanceWeight += $q->weight;
+                }
             }
             $importanceWork[$pillar] = $w>0 ? round($sum/$w) : null;
         }
@@ -131,10 +140,13 @@ class DiagnosisController extends Controller
         // Life 軸は使わない
         $importanceDataset[] = null;
 
+        // 重要度の全体スコアを計算
+        $importanceScore = $totalImportanceWeight > 0 ? round($totalImportanceScore / $totalImportanceWeight) : 0;
+
         return view('diagnosis.result', [
             'diagnosis' => $diagnosis,
             'workScore' => $diagnosis->work_score ?? 0,
-            'lifeScore' => $diagnosis->life_score ?? 0,
+            'lifeScore' => $importanceScore,
             'radarLabels' => $radarLabels,
             'radarWorkData' => $radarWorkData,
             'lifeEdgeLeftData' => $lifeEdgeLeftData,
@@ -143,6 +155,9 @@ class DiagnosisController extends Controller
             'lifeFillData' => $lifeFillData,
             'importanceDataset' => $importanceDataset,
             'answerNotes' => $answerNotes,
+            'workPillarScores' => $workPillarScores,
+            'importanceWork' => $importanceWork,
+            'pillarLabels' => $pillarLabels,
         ]);
     }
 }
