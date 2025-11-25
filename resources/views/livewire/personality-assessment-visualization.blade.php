@@ -178,6 +178,53 @@
             </div>
         </div>
 
+        <!-- FFS -->
+        <div class="card-refined p-8">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="heading-3 text-xl mb-1">FFS理論</h2>
+                    <p class="body-small text-[#1E3A5F]">5つの特性のバランスを確認</p>
+                </div>
+            </div>
+
+            @if($ffsLatest)
+                @php
+                    $ffs = $ffsLatest->formatted_result;
+                    $labels = [
+                        'condensing' => '凝縮性',
+                        'acceptance' => '受容性',
+                        'discrimination' => '弁別性',
+                        'diffusion' => '拡散性',
+                        'conservation' => '保全性',
+                    ];
+                @endphp
+                <div class="space-y-3">
+                    @foreach($labels as $key => $label)
+                        @php
+                            $value = $ffs[$key] ?? 0;
+                            $percentage = ($value / 20) * 100; // 0-20を0-100%に変換
+                        @endphp
+                        <div>
+                            <div class="flex justify-between body-small text-[#1E3A5F] mb-1">
+                                <span>{{ $label }}</span>
+                                <span>{{ $value }} / 20 ({{ number_format($percentage, 1) }}%)</span>
+                            </div>
+                            <div class="w-full h-2 bg-[#E8F4FF] rounded-full overflow-hidden">
+                                <div class="h-full bg-[#7C8CFF]" style="width: {{ $percentage }}%"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                @if($ffsLatest->completed_at)
+                    <p class="body-small text-[#1E3A5F] mt-4">
+                        診断日: {{ $ffsLatest->completed_at->format('Y年n月j日') }}
+                    </p>
+                @endif
+            @else
+                <p class="body-text text-[#1E3A5F]">FFS理論の結果がまだ登録されていません。</p>
+            @endif
+        </div>
+
         <!-- 履歴 -->
         <div class="card-refined p-8">
             <h2 class="heading-3 text-xl mb-4">診断履歴</h2>
@@ -187,6 +234,7 @@
                     $strengthAssessments ?? collect(),
                     $enneagramAssessments ?? collect(),
                     $big5Assessments ?? collect(),
+                    $ffsAssessments ?? collect(),
                 ])->flatten();
             @endphp
             <div class="overflow-x-auto">
@@ -194,40 +242,14 @@
                     <thead>
                         <tr class="text-left body-small text-[#1E3A5F]">
                             <th class="py-3">診断名</th>
-                            <th class="py-3">タイプ/結果</th>
                             <th class="py-3">記録日</th>
                             <th class="py-3">メモ</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#2E5C8A]/10 body-text text-[#1E3A5F]">
                         @forelse($history as $assessment)
-                                @php
-                                    $result = $assessment->formatted_result;
-                                @endphp
                                 <tr>
                                     <td class="py-3">{{ $assessment->assessment_name ?? strtoupper($assessment->assessment_type) }}</td>
-                                    <td class="py-3">
-                                        @switch($assessment->assessment_type)
-                                            @case('mbti')
-                                                {{ $result['type'] ?? 'N/A' }}
-                                                @break
-                                            @case('strengthsfinder')
-                                                @if(!empty($result['top5']))
-                                                    上位5: {{ implode(' / ', $result['top5']) }}
-                                                @else
-                                                    未入力
-                                                @endif
-                                                @break
-                                            @case('enneagram')
-                                                タイプ{{ $result['type'] ?? 'N/A' }}
-                                                @break
-                                            @case('big5')
-                                                平均 {{ collect($result)->avg() ? number_format(collect($result)->avg(), 1) : 'N/A' }}%
-                                                @break
-                                            @default
-                                                -
-                                        @endswitch
-                                    </td>
                                     <td class="py-3">
                                         @if($assessment->completed_at)
                                             {{ $assessment->completed_at->format('Y/m/d') }}
@@ -241,7 +263,7 @@
                                 </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="py-4 text-center text-[#1E3A5F]">診断履歴がありません。</td>
+                                <td colspan="3" class="py-4 text-center text-[#1E3A5F]">診断履歴がありません。</td>
                             </tr>
                         @endforelse
                     </tbody>

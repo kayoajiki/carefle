@@ -20,6 +20,7 @@ class PersonalityAssessmentVisualization extends Component
         $strengthAssessments = $assessments->get('strengthsfinder', collect());
         $enneagramAssessments = $assessments->get('enneagram', collect());
         $big5Assessments = $assessments->get('big5', collect());
+        $ffsAssessments = $assessments->get('ffs', collect());
 
         return view('livewire.personality-assessment-visualization', [
             'mbtiAssessments' => $mbtiAssessments,
@@ -30,6 +31,8 @@ class PersonalityAssessmentVisualization extends Component
             'enneagramLatest' => $enneagramAssessments->first(),
             'big5Assessments' => $big5Assessments,
             'big5Latest' => $big5Assessments->first(),
+            'ffsAssessments' => $ffsAssessments,
+            'ffsLatest' => $ffsAssessments->first(),
         ]);
     }
 }
