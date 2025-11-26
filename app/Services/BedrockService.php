@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class BedrockService
 {
-    protected BedrockRuntimeClient $client;
+    protected ?BedrockRuntimeClient $client = null;
     protected string $modelId;
     protected int $maxTokens;
     protected float $temperature;
@@ -23,14 +23,31 @@ class BedrockService
         $this->topP = config('bedrock.top_p');
         $this->systemPrompt = config('bedrock.system_prompt');
 
-        $this->client = new BedrockRuntimeClient([
-            'region' => config('bedrock.region'),
-            'version' => 'latest',
-            'credentials' => [
-                'key' => config('bedrock.access_key_id'),
-                'secret' => config('bedrock.secret_access_key'),
-            ],
-        ]);
+        // 認証情報のチェック
+        $accessKeyId = config('bedrock.access_key_id');
+        $secretAccessKey = config('bedrock.secret_access_key');
+        
+        if (empty($accessKeyId) || empty($secretAccessKey)) {
+            // 認証情報がない場合は、後でエラーを返すようにする
+            Log::warning('Bedrock credentials not configured');
+            return;
+        }
+
+        try {
+            $this->client = new BedrockRuntimeClient([
+                'region' => config('bedrock.region'),
+                'version' => 'latest',
+                'credentials' => [
+                    'key' => $accessKeyId,
+                    'secret' => $secretAccessKey,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            Log::warning('Failed to initialize Bedrock client', [
+                'error' => $e->getMessage(),
+            ]);
+            $this->client = null;
+        }
     }
 
     /**
@@ -42,6 +59,12 @@ class BedrockService
      */
     public function chat(string $message, array $conversationHistory = []): ?string
     {
+        // 認証情報がない場合のチェック
+        if ($this->client === null) {
+            Log::warning('Bedrock client not initialized - credentials may be missing');
+            return null;
+        }
+
         try {
             // Build messages array for Claude API
             $messages = [];
