@@ -218,6 +218,16 @@ class DiagnosisController extends Controller
         } else {
             $importanceScore = 0;
         }
+        
+        // 一つでもpillarのスコアが100点未満の場合、全体スコアが100点にならないようにする
+        // 最小値のpillarを取得（nullを除外）
+        $validImportanceWork = array_filter($importanceWork, fn($v) => $v !== null);
+        $minPillarScore = !empty($validImportanceWork) ? min($validImportanceWork) : 100;
+        // すべてのpillarが100点の場合のみ100点、それ以外は加重平均と最小値の平均を取る
+        if ($minPillarScore < 100) {
+            // 加重平均と最小値の平均を取る（最小値の影響を強くする）
+            $importanceScore = round(($importanceScore + $minPillarScore) / 2);
+        }
 
         return view('diagnosis.result', [
             'diagnosis' => $diagnosis,

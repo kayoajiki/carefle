@@ -248,6 +248,15 @@ class DiagnosisForm extends Component
         } else {
             $workScore = 0;
         }
+        
+        // 一つでもpillarのスコアが100点未満の場合、全体スコアが100点にならないようにする
+        // 最小値のpillarを取得
+        $minPillarScore = !empty($workPillarFinal) ? min($workPillarFinal) : 100;
+        // すべてのpillarが100点の場合のみ100点、それ以外は加重平均と最小値の平均を取る
+        if ($minPillarScore < 100) {
+            // 加重平均と最小値の平均を取る（最小値の影響を強くする）
+            $workScore = round(($workScore + $minPillarScore) / 2);
+        }
 
         // Lifeスコア：単純平均
         $lifeScore = !empty($lifeScores) ? round(array_sum($lifeScores) / count($lifeScores)) : 0;
