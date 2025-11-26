@@ -15,9 +15,11 @@ use App\Livewire\PersonalityAssessmentVisualization;
 use App\Livewire\CareerTimeline;
 use App\Livewire\CareerMilestoneBoard;
 use App\Livewire\CareerMilestoneForm;
+use App\Livewire\CareerHistoryUploadForm;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\CareerHistoryController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -79,6 +81,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('career/timeline', CareerTimeline::class)->name('career.timeline');
     Route::get('career/milestones', CareerMilestoneBoard::class)->name('career.milestones');
 
+    // 職務経歴書
+    Route::get('career-history/upload', function () {
+        return view('career-history.upload');
+    })->name('career-history.upload');
+    Route::get('career-history/{id}/view', [CareerHistoryController::class, 'view'])->name('career-history.view');
 
 });
 
