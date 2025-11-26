@@ -16,10 +16,12 @@ use App\Livewire\CareerTimeline;
 use App\Livewire\CareerMilestoneBoard;
 use App\Livewire\CareerMilestoneForm;
 use App\Livewire\CareerHistoryUploadForm;
+use App\Livewire\ResumeUploadForm;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CareerHistoryController;
+use App\Http\Controllers\ResumeController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -86,6 +88,12 @@ Route::middleware(['auth'])->group(function () {
         return view('career-history.upload');
     })->name('career-history.upload');
     Route::get('career-history/{id}/view', [CareerHistoryController::class, 'view'])->name('career-history.view');
+
+    // 履歴書
+    Route::get('resume/upload', function () {
+        return view('resume.upload');
+    })->name('resume.upload');
+    Route::get('resume/{id}/view', [ResumeController::class, 'view'])->name('resume.view');
 
 });
 

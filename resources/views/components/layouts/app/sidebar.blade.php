@@ -37,6 +37,11 @@
                     <flux:navlist.item icon="calendar" :href="route('consultation.request')" :current="request()->routeIs('consultation.*')" wire:navigate>面談申し込み</flux:navlist.item>
                     <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat.index')" :current="request()->routeIs('chat.*')" wire:navigate>チャット相談</flux:navlist.item>
                 </flux:navlist.group>
+
+                <flux:navlist.group heading="プロフィール" class="grid">
+                    <flux:navlist.item icon="document-text" :href="route('resume.upload')" :current="request()->routeIs('resume.*')" wire:navigate>履歴書アップロード</flux:navlist.item>
+                    <flux:navlist.item icon="document-duplicate" :href="route('career-history.upload')" :current="request()->routeIs('career-history.*')" wire:navigate>職務経歴書アップロード</flux:navlist.item>
+                </flux:navlist.group>
             </flux:navlist>
 
             <flux:spacer />
