@@ -115,33 +115,109 @@ class DiagnosisController extends Controller
         }
 
         // 重要度（青）オーバーレイ
+        // 満足度と同じロジックで計算：各pillar内でweightで加重平均 → 各pillarのスコアをそのpillarのweightの合計で加重平均
         $importanceWork = [];
         $workQuestions = Question::where('type','work')->get();
-        $totalWorkWeight = $workQuestions->sum('weight');
-        $totalImportanceScore = 0;
-        $totalImportanceWeight = 0;
+        
+        // Workタイプの各pillarの重要度スコアを計算（各pillar内でweightで加重平均）
         foreach ($workQuestions->groupBy('pillar') as $pillar => $qs) {
-            $sum=0; $w=0;
+            $pillarScore = 0;
+            $pillarWeight = 0;
+            
             foreach ($qs as $q) {
-                $ans = DiagnosisImportanceAnswer::where('diagnosis_id',$diagnosis->id)->where('question_id',$q->id)->first();
-                if ($ans) { 
-                    $importanceValue = (($ans->importance_value-1)/4*100) * $q->weight;
-                    $sum += $importanceValue; 
-                    $w += $q->weight;
-                    // 全体の重要度スコア計算用
-                    $totalImportanceScore += $importanceValue;
-                    $totalImportanceWeight += $q->weight;
+                $ans = DiagnosisImportanceAnswer::where('diagnosis_id', $diagnosis->id)
+                    ->where('question_id', $q->id)
+                    ->first();
+                
+                if ($ans && $q->weight) {
+                    $importanceValue = (($ans->importance_value - 1) / 4) * 100;
+                    $pillarScore += $importanceValue * $q->weight;
+                    $pillarWeight += $q->weight;
                 }
             }
-            $importanceWork[$pillar] = $w>0 ? round($sum/$w) : null;
+            
+            if ($pillarWeight > 0) {
+                $importanceWork[$pillar] = round($pillarScore / $pillarWeight);
+            } else {
+                $importanceWork[$pillar] = null;
+            }
         }
+        
+        // Lifeタイプの重要度スコアを計算
+        // Lifeタイプの質問はweightがnullなので、単純平均で計算
+        $lifeQuestions = Question::where('type','life')->get();
+        $importanceLifeScores = [];
+        $totalLifeImportanceScore = 0;
+        $totalLifeImportanceCount = 0;
+        
+        foreach ($lifeQuestions->groupBy('pillar') as $pillar => $qs) {
+            $pillarScore = 0;
+            $pillarCount = 0;
+            
+            foreach ($qs as $q) {
+                $ans = DiagnosisImportanceAnswer::where('diagnosis_id', $diagnosis->id)
+                    ->where('question_id', $q->id)
+                    ->first();
+                
+                if ($ans) {
+                    $importanceValue = (($ans->importance_value - 1) / 4) * 100;
+                    $pillarScore += $importanceValue;
+                    $pillarCount++;
+                }
+            }
+            
+            if ($pillarCount > 0) {
+                $pillarAvg = $pillarScore / $pillarCount;
+                $importanceLifeScores[$pillar] = round($pillarAvg);
+                // Life全体スコア計算用（各pillarの平均を単純平均）
+                $totalLifeImportanceScore += $pillarAvg;
+                $totalLifeImportanceCount++;
+            }
+        }
+        
+        // Life全体の重要度スコア（各pillarのスコアを単純平均）
+        $importanceLifeAvg = null;
+        if ($totalLifeImportanceCount > 0) {
+            $importanceLifeAvg = round($totalLifeImportanceScore / $totalLifeImportanceCount);
+        }
+        
         $importanceDataset = [];
-        foreach (array_keys($pillarLabels) as $key) { $importanceDataset[] = $importanceWork[$key] ?? null; }
-        // Life 軸は使わない
-        $importanceDataset[] = null;
+        foreach (array_keys($pillarLabels) as $key) {
+            $importanceDataset[] = $importanceWork[$key] ?? null;
+        }
+        // Life 軸に重要度を設定（nullでない場合は表示）
+        $importanceDataset[] = $importanceLifeAvg;
 
-        // 重要度の全体スコアを計算
-        $importanceScore = $totalImportanceWeight > 0 ? round($totalImportanceScore / $totalImportanceWeight) : 0;
+        // 重要度の全体スコアを計算（満足度と同じロジック：各pillarのスコアをそのpillarのweightの合計で加重平均）
+        // WorkとLifeの両方を考慮
+        $importanceScore = 0;
+        $totalWeight = 0;
+        
+        // Workタイプの重要度スコア
+        foreach ($importanceWork as $pillar => $pillarAvg) {
+            if ($pillarAvg !== null) {
+                // このpillar内の全質問のweightの合計を取得
+                $pillarWeight = Question::where('type', 'work')
+                    ->where('pillar', $pillar)
+                    ->sum('weight');
+                
+                if ($pillarWeight > 0) {
+                    $importanceScore += $pillarAvg * $pillarWeight;
+                    $totalWeight += $pillarWeight;
+                }
+            }
+        }
+        
+        // Lifeタイプの重要度スコアも追加（Lifeタイプはweightがないので、単純平均で追加）
+        // ただし、全体スコアには含めない（Workタイプのみで計算）
+        // 必要に応じて、Lifeタイプの質問数で重み付けすることも可能
+        
+        // totalWeightで正規化（pillarAvgは既に0-100の範囲なので、100を掛ける必要はない）
+        if ($totalWeight > 0) {
+            $importanceScore = round($importanceScore / $totalWeight);
+        } else {
+            $importanceScore = 0;
+        }
 
         return view('diagnosis.result', [
             'diagnosis' => $diagnosis,
@@ -154,6 +230,7 @@ class DiagnosisController extends Controller
             'lifePointData' => $lifePointData,
             'lifeFillData' => $lifeFillData,
             'importanceDataset' => $importanceDataset,
+            'importanceLifeAvg' => $importanceLifeAvg, // デバッグ用
             'answerNotes' => $answerNotes,
             'workPillarScores' => $workPillarScores,
             'importanceWork' => $importanceWork,

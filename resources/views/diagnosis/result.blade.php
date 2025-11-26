@@ -334,6 +334,7 @@ function initRadarChart() {
     const lifePoint = @json($lifePointData ?? []);
     const lifeFill = @json($lifeFillData ?? []);
     const importanceData = @json($importanceDataset ?? []);
+    const importanceLifeAvg = @json($importanceLifeAvg ?? null);
 
     console.log('Radar chart data:', {
         labels: radarLabels,
@@ -342,7 +343,10 @@ function initRadarChart() {
         lifeEdgeRight: lifeEdgeRight,
         lifePoint: lifePoint,
         lifeFill: lifeFill,
-        importanceData: importanceData
+        importanceData: importanceData,
+        importanceLifeAvg: importanceLifeAvg,
+        importanceDataLength: importanceData.length,
+        labelsLength: radarLabels.length
     });
 
     // データが空の場合はチャートを作成しない
