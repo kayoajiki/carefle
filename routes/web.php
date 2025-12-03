@@ -52,6 +52,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('diary', function () {
         return view('diary');
     })->name('diary');
+    Route::get('diary/chat', function () {
+        return view('diary.chat');
+    })->name('diary.chat');
 
     // WCM
     Route::get('wcm/start', WcmForm::class)->name('wcm.start');

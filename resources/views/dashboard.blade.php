@@ -28,13 +28,47 @@
                             </p>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <a href="{{ route('diary') }}" class="btn-primary text-center">
-                                日記を開く
+                            <a href="{{ route('diary.chat') }}" class="btn-primary text-center flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                今日の内省を始める
                             </a>
-                            <a href="{{ route('career.milestones') }}" class="btn-secondary text-center">
-                                マイルストーンを見る
+                            <a href="{{ route('diary') }}" class="btn-secondary text-center">
+                                日記カレンダー
                             </a>
                         </div>
+                    </div>
+                </div>
+
+                <!-- 内省ストリークカード -->
+                <div class="card-refined surface-blue p-8 soft-shadow-refined">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="heading-3 text-xl mb-2">内省の習慣化</h2>
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-3xl font-bold text-[#6BB6FF]">🔥</span>
+                                    <div>
+                                        <p class="body-text font-semibold text-[#2E5C8A]">連続記録</p>
+                                        <p class="heading-2 text-[#6BB6FF]">{{ $reflectionStreak }}日</p>
+                                    </div>
+                                </div>
+                                <div class="h-12 w-px bg-[#2E5C8A]/20"></div>
+                                <div>
+                                    <p class="body-small text-[#1E3A5F]/60">今週の内省</p>
+                                    <p class="heading-3 text-[#2E5C8A]">{{ $weeklyReflectionCount }}回</p>
+                                </div>
+                                <div class="h-12 w-px bg-[#2E5C8A]/20"></div>
+                                <div>
+                                    <p class="body-small text-[#1E3A5F]/60">今月の内省</p>
+                                    <p class="heading-3 text-[#2E5C8A]">{{ $monthlyReflectionCount }}回</p>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ route('diary.chat') }}" class="btn-primary">
+                            内省を始める
+                        </a>
                     </div>
                 </div>
 

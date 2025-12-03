@@ -55,9 +55,10 @@ class BedrockService
      *
      * @param string $message
      * @param array $conversationHistory
+     * @param string|null $customSystemPrompt
      * @return string|null
      */
-    public function chat(string $message, array $conversationHistory = []): ?string
+    public function chat(string $message, array $conversationHistory = [], ?string $customSystemPrompt = null): ?string
     {
         // 認証情報がない場合のチェック
         if ($this->client === null) {
@@ -79,11 +80,42 @@ class BedrockService
                 ];
             }
 
-            // Add current user message
-            $messages[] = [
-                'role' => 'user',
-                'content' => $message,
-            ];
+            // 最初のメッセージがuserでない場合は、最初のassistantメッセージを削除
+            if (!empty($messages) && $messages[0]['role'] !== 'user') {
+                // 最初のassistantメッセージを削除
+                array_shift($messages);
+            }
+            
+            // 最後のメッセージがuserでない場合のみ、現在のユーザーメッセージを追加
+            $lastMessage = end($messages);
+            if (empty($messages) || ($lastMessage && $lastMessage['role'] !== 'user')) {
+                $messages[] = [
+                    'role' => 'user',
+                    'content' => $message,
+                ];
+            } elseif ($lastMessage && $lastMessage['role'] === 'user' && $lastMessage['content'] !== $message) {
+                // 最後のメッセージがuserだが内容が異なる場合は更新
+                $messages[count($messages) - 1] = [
+                    'role' => 'user',
+                    'content' => $message,
+                ];
+            }
+            
+            // 重複するuserメッセージを削除（連続している場合）
+            $cleanedMessages = [];
+            $lastRole = null;
+            foreach ($messages as $msg) {
+                if ($msg['role'] === 'user' && $lastRole === 'user') {
+                    // 連続するuserメッセージはスキップ（最後のものを保持）
+                    continue;
+                }
+                $cleanedMessages[] = $msg;
+                $lastRole = $msg['role'];
+            }
+            $messages = $cleanedMessages;
+
+            // Use custom system prompt if provided, otherwise use default
+            $systemPrompt = $customSystemPrompt ?? $this->systemPrompt;
 
             // Prepare the request body for Claude
             $body = [
@@ -91,7 +123,7 @@ class BedrockService
                 'max_tokens' => $this->maxTokens,
                 'temperature' => $this->temperature,
                 'top_p' => $this->topP,
-                'system' => $this->systemPrompt,
+                'system' => $systemPrompt,
                 'messages' => $messages,
             ];
 
@@ -112,10 +144,28 @@ class BedrockService
             return null;
 
         } catch (AwsException $e) {
+            $errorCode = $e->getAwsErrorCode();
+            $errorMessage = $e->getMessage();
+            
             Log::error('AWS Bedrock error', [
-                'error_code' => $e->getAwsErrorCode(),
-                'error_message' => $e->getMessage(),
+                'error_code' => $errorCode,
+                'error_message' => $errorMessage,
             ]);
+            
+            // より詳細なエラーメッセージを返す（デバッグ用）
+            if (str_contains($errorMessage, 'use case details')) {
+                Log::warning('Anthropic use case form may need to be submitted', [
+                    'model_id' => $this->modelId,
+                ]);
+            }
+            
+            // デバッグ情報を追加（完全なエラーメッセージを記録）
+            Log::info('Bedrock API call failed', [
+                'model_id' => $this->modelId,
+                'error_code' => $errorCode,
+                'error_message' => $errorMessage, // 完全なメッセージを記録
+            ]);
+            
             return null;
         } catch (\Exception $e) {
             Log::error('Bedrock service error', [

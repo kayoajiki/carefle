@@ -16,6 +16,9 @@ class Diary extends Model
         'motivation',
         'content',
         'photo',
+        'reflection_type',
+        'linked_milestone_id',
+        'chat_conversation_id',
     ];
 
     protected function casts(): array
@@ -40,5 +43,21 @@ class Diary extends Model
     public function getPhotoUrlAttribute(): ?string
     {
         return $this->photo ? asset('storage/' . $this->photo) : null;
+    }
+
+    /**
+     * Get the linked milestone.
+     */
+    public function linkedMilestone(): BelongsTo
+    {
+        return $this->belongsTo(CareerMilestone::class, 'linked_milestone_id');
+    }
+
+    /**
+     * Get the chat conversation.
+     */
+    public function chatConversation(): BelongsTo
+    {
+        return $this->belongsTo(ReflectionChatConversation::class, 'chat_conversation_id');
     }
 }

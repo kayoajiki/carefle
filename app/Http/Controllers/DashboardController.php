@@ -42,6 +42,20 @@ class DashboardController extends Controller
             ->orderByDesc('created_at')
             ->first();
 
+        // 内省ストリーク（連続記録日数）を計算
+        $reflectionStreak = $this->calculateReflectionStreak($user->id);
+        
+        // 今月の内省回数
+        $monthlyReflectionCount = Diary::where('user_id', $user->id)
+            ->whereYear('date', now()->year)
+            ->whereMonth('date', now()->month)
+            ->count();
+
+        // 今週の内省回数
+        $weeklyReflectionCount = Diary::where('user_id', $user->id)
+            ->whereBetween('date', [now()->startOfWeek(), now()->endOfWeek()])
+            ->count();
+
         return view('dashboard', [
             'latestDiagnosis' => $latestDiagnosis,
             'draftDiagnosis' => $draftDiagnosis,
@@ -49,7 +63,44 @@ class DashboardController extends Controller
             'lifeEventCount' => $lifeEventCount,
             'latestWcmSheet' => $latestWcmSheet,
             'latestAssessment' => $latestAssessment,
+            'reflectionStreak' => $reflectionStreak,
+            'monthlyReflectionCount' => $monthlyReflectionCount,
+            'weeklyReflectionCount' => $weeklyReflectionCount,
         ]);
+    }
+
+    /**
+     * 内省ストリーク（連続記録日数）を計算
+     */
+    private function calculateReflectionStreak(int $userId): int
+    {
+        $diaries = Diary::where('user_id', $userId)
+            ->orderByDesc('date')
+            ->get()
+            ->pluck('date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->unique()
+            ->sort()
+            ->reverse()
+            ->values();
+
+        if ($diaries->isEmpty()) {
+            return 0;
+        }
+
+        $streak = 0;
+        $expectedDate = now()->format('Y-m-d');
+        
+        foreach ($diaries as $date) {
+            if ($date === $expectedDate) {
+                $streak++;
+                $expectedDate = date('Y-m-d', strtotime($expectedDate . ' -1 day'));
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
     }
 }
 
