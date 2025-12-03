@@ -8,6 +8,8 @@ use App\Models\LifeEvent;
 use App\Models\WcmSheet;
 use App\Models\Diary;
 use App\Models\PersonalityAssessment;
+use App\Models\CareerMilestone;
+use App\Models\ReflectionChatConversation;
 
 class DashboardController extends Controller
 {
@@ -56,6 +58,37 @@ class DashboardController extends Controller
             ->whereBetween('date', [now()->startOfWeek(), now()->endOfWeek()])
             ->count();
 
+        // マイルストーン進捗
+        $activeMilestones = CareerMilestone::where('user_id', $user->id)
+            ->whereIn('status', ['planned', 'in_progress'])
+            ->with(['actionItems'])
+            ->orderBy('target_date')
+            ->limit(5)
+            ->get();
+
+        $milestoneProgress = [];
+        foreach ($activeMilestones as $milestone) {
+            $totalActions = $milestone->actionItems()->count();
+            $completedActions = $milestone->actionItems()->where('status', 'completed')->count();
+            $completionRate = $totalActions > 0 ? round(($completedActions / $totalActions) * 100, 1) : 0;
+            
+            $milestoneProgress[] = [
+                'id' => $milestone->id,
+                'title' => $milestone->title,
+                'completion_rate' => $completionRate,
+                'total_actions' => $totalActions,
+                'completed_actions' => $completedActions,
+                'target_date' => $milestone->target_date,
+            ];
+        }
+
+        // AI伴走の履歴（最近の会話）
+        $recentConversations = ReflectionChatConversation::where('user_id', $user->id)
+            ->with(['diary'])
+            ->orderByDesc('updated_at')
+            ->limit(5)
+            ->get();
+
         return view('dashboard', [
             'latestDiagnosis' => $latestDiagnosis,
             'draftDiagnosis' => $draftDiagnosis,
@@ -66,6 +99,8 @@ class DashboardController extends Controller
             'reflectionStreak' => $reflectionStreak,
             'monthlyReflectionCount' => $monthlyReflectionCount,
             'weeklyReflectionCount' => $weeklyReflectionCount,
+            'milestoneProgress' => $milestoneProgress,
+            'recentConversations' => $recentConversations,
         ]);
     }
 

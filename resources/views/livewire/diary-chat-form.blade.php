@@ -6,11 +6,22 @@
                 container.scrollTop = container.scrollHeight;
             }
         });
+    },
+    isMessageEmpty() {
+        try {
+            if (!$wire || !$wire.currentMessage) return true;
+            const msg = $wire.currentMessage;
+            if (typeof msg === 'string') {
+                return !msg.trim();
+            }
+            return !msg;
+        } catch (e) {
+            return true;
+        }
     }
 }" 
 x-init="scrollToBottom()"
 @scroll-to-bottom.window="scrollToBottom()">
-    
     @if(session('message'))
         <div class="mb-4 bg-green-50 border border-green-200 text-green-800 body-small p-3 rounded-lg">
             {{ session('message') }}
@@ -77,7 +88,7 @@ x-init="scrollToBottom()"
         @forelse($messages as $index => $message)
             @if($message['role'] === 'assistant')
                 {{-- AIメッセージ（左側） --}}
-                <div class="flex items-start gap-3">
+                <div class="flex items-start gap-3" wire:key="assistant-{{ $index }}-{{ md5($message['content'] ?? '') }}">
                     <div class="flex-shrink-0 w-8 h-8 rounded-full bg-[#6BB6FF] flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -91,6 +102,60 @@ x-init="scrollToBottom()"
                             <p class="body-small text-[#1E3A5F]/60 mt-1 ml-1">
                                 {{ \Carbon\Carbon::parse($message['timestamp'])->format('H:i') }}
                             </p>
+                        @endif
+                        
+                        {{-- 選択肢ボタン（最初のメッセージの後、かつ選択肢が表示される場合） --}}
+                        @if($index === 0 && $showSelectionButtons && $message['role'] === 'assistant')
+                            <div class="mt-3 grid grid-cols-2 gap-2">
+                                <button
+                                    wire:click="selectTopic('work')"
+                                    class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
+                                >
+                                    仕事
+                                </button>
+                                <button
+                                    wire:click="selectTopic('family')"
+                                    class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
+                                >
+                                    家族
+                                </button>
+                                <button
+                                    wire:click="selectTopic('love')"
+                                    class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
+                                >
+                                    恋愛
+                                </button>
+                                <button
+                                    wire:click="selectTopic('relationships')"
+                                    class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
+                                >
+                                    人間関係
+                                </button>
+                                <button
+                                    wire:click="selectTopic('health')"
+                                    class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
+                                >
+                                    健康
+                                </button>
+                                <button
+                                    wire:click="selectTopic('goals')"
+                                    class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
+                                >
+                                    目標
+                                </button>
+                                <button
+                                    wire:click="selectTopic('learning')"
+                                    class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
+                                >
+                                    学び
+                                </button>
+                                <button
+                                    wire:click="selectTopic('other')"
+                                    class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
+                                >
+                                    その他
+                                </button>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -125,24 +190,6 @@ x-init="scrollToBottom()"
                 </button>
             </div>
         @endforelse
-
-        {{-- ローディングインジケーター --}}
-        @if($isLoading)
-            <div class="flex items-start gap-3">
-                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-[#6BB6FF] flex items-center justify-center">
-                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                </div>
-                <div class="bg-[#E8F4FF] rounded-2xl rounded-tl-sm px-4 py-3">
-                    <div class="flex gap-1">
-                        <div class="w-2 h-2 bg-[#6BB6FF] rounded-full animate-bounce" style="animation-delay: 0s;"></div>
-                        <div class="w-2 h-2 bg-[#6BB6FF] rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
-                        <div class="w-2 h-2 bg-[#6BB6FF] rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
-                    </div>
-                </div>
-            </div>
-        @endif
     </div>
 
     {{-- 入力エリア --}}
@@ -160,7 +207,7 @@ x-init="scrollToBottom()"
             </div>
             <button
                 type="submit"
-                :disabled="$wire.isLoading || !trim($wire.currentMessage)"
+                x-bind:disabled="!$wire || $wire.isLoading || isMessageEmpty()"
                 class="px-6 py-3 rounded-xl bg-[#6BB6FF] text-white body-text font-medium hover:bg-[#5AA5E6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

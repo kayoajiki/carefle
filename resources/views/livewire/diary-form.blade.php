@@ -118,6 +118,43 @@
         @enderror
     </div>
 
+    {{-- 提案されたアクションアイテム --}}
+    @if($showActionItems && !empty($suggestedActionItems))
+        <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="body-text font-semibold text-[#2E5C8A]">関連するマイルストーンへのアクション提案</h3>
+                <button
+                    wire:click="dismissActionItems"
+                    class="text-[#1E3A5F]/60 hover:text-[#2E5C8A] transition-colors"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-3">
+                @foreach($suggestedActionItems as $index => $action)
+                    <div class="bg-white rounded-lg p-4 border border-blue-100">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex-1">
+                                <h4 class="body-text font-medium text-[#2E5C8A] mb-1">{{ $action['title'] }}</h4>
+                                @if(!empty($action['description']))
+                                    <p class="body-small text-[#1E3A5F]/80">{{ $action['description'] }}</p>
+                                @endif
+                            </div>
+                            <button
+                                wire:click="acceptActionItem({{ $index }})"
+                                class="px-4 py-2 bg-[#6BB6FF] text-white body-small font-medium rounded-lg hover:bg-[#5AA5E6] transition-colors whitespace-nowrap"
+                            >
+                                追加
+                            </button>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     {{-- 保存ボタン --}}
     <div class="flex justify-end">
         <button

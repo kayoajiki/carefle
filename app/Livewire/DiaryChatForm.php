@@ -19,6 +19,7 @@ class DiaryChatForm extends Component
     public $conversationId = null;
     public $motivation = 50;
     public $showMotivationSlider = false;
+    public $showSelectionButtons = false; // 選択肢ボタンを表示するかどうか
 
     protected ReflectionChatService $chatService;
 
@@ -79,16 +80,42 @@ class DiaryChatForm extends Component
                 'content' => $initialMessage,
                 'timestamp' => now()->toDateTimeString(),
             ];
+            
+            // 今日の振り返りの場合は選択肢を表示
+            if ($this->reflectionType === 'daily') {
+                $this->showSelectionButtons = true;
+            }
         } catch (\Exception $e) {
             Log::error('Failed to generate initial message', ['error' => $e->getMessage()]);
             $this->messages[] = [
                 'role' => 'assistant',
-                'content' => 'こんにちは！今日はどんな1日でしたか？',
+                'content' => 'こんにちは。今日も1日お疲れ様でした。',
                 'timestamp' => now()->toDateTimeString(),
             ];
+            if ($this->reflectionType === 'daily') {
+                $this->showSelectionButtons = true;
+            }
         } finally {
             $this->isLoading = false;
         }
+    }
+
+    public function selectTopic($topic)
+    {
+        // 選択肢ボタンを非表示
+        $this->showSelectionButtons = false;
+        
+        // 選択に応じたメッセージを生成
+        $response = $this->chatService->generateResponseForSelection($topic, $this->reflectionType);
+        
+        // AIの応答を追加
+        $this->messages[] = [
+            'role' => 'assistant',
+            'content' => $response,
+            'timestamp' => now()->toDateTimeString(),
+        ];
+        
+        $this->dispatch('scroll-to-bottom');
     }
 
     public function sendMessage()
@@ -104,19 +131,18 @@ class DiaryChatForm extends Component
             'timestamp' => now()->toDateTimeString(),
         ];
         $this->messages[] = $userMessage;
+        $userMessageContent = $this->currentMessage;
         $this->currentMessage = '';
 
-        // AI応答を生成
         $this->isLoading = true;
-        $this->dispatch('scroll-to-bottom');
 
         try {
             $response = $this->chatService->generateResponse(
-                $userMessage['content'],
+                $userMessageContent,
                 $this->messages,
                 $this->reflectionType
             );
-
+            
             if ($response) {
                 $this->messages[] = [
                     'role' => 'assistant',
@@ -139,6 +165,10 @@ class DiaryChatForm extends Component
                 ];
             }
         } catch (\Exception $e) {
+            // ローディングメッセージを削除
+            if (!empty($this->messages) && end($this->messages)['content'] === 'loading') {
+                array_pop($this->messages);
+            }
             $this->messages[] = [
                 'role' => 'assistant',
                 'content' => 'エラーが発生しました。しばらく時間をおいて再度お試しください。',

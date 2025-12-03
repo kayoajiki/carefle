@@ -5,8 +5,11 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Diary;
+use App\Models\CareerMilestone;
+use App\Services\ActionItemGeneratorService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class DiaryForm extends Component
 {
@@ -18,6 +21,8 @@ class DiaryForm extends Component
     public $photo;
     public $existingPhoto;
     public $diaryId = null;
+    public $suggestedActionItems = [];
+    public $showActionItems = false;
 
     protected $rules = [
         'date' => 'required|date',
@@ -120,6 +125,7 @@ class DiaryForm extends Component
         $this->photo = null;
         
         // 保存した日記を再取得してexistingPhotoを確実に更新
+        $savedDiary = null;
         if ($this->diaryId) {
             $savedDiary = Diary::where('user_id', Auth::id())
                 ->where('id', $this->diaryId)
@@ -128,6 +134,12 @@ class DiaryForm extends Component
             if ($savedDiary) {
                 $this->existingPhoto = $savedDiary->photo;
             }
+        }
+        
+        // 日記内容からアクションアイテムを提案（コンテンツがある場合のみ）
+        if ($savedDiary && !empty($this->content)) {
+            $this->suggestActionItems($savedDiary);
+            $this->updateMilestoneProgress($savedDiary);
         }
         
         // 親コンポーネント（DiaryCalendar）に更新を通知
@@ -151,6 +163,118 @@ class DiaryForm extends Component
         }
         
         $this->dispatch('diary-saved');
+    }
+
+    /**
+     * 日記内容からアクションアイテムを提案
+     */
+    protected function suggestActionItems(Diary $diary)
+    {
+        if (empty($diary->content)) {
+            return;
+        }
+
+        try {
+            $actionService = app(ActionItemGeneratorService::class);
+            $suggestedActions = $actionService->generateActionItemsFromDiary($diary->content);
+            
+            if (!empty($suggestedActions)) {
+                $this->suggestedActionItems = $suggestedActions;
+                $this->showActionItems = true;
+                
+                // アクションアイテムを保存（ユーザーが承認するまで保留状態）
+                // ここでは提案のみ表示し、ユーザーが承認したら保存する
+            }
+        } catch (\Exception $e) {
+            // エラーは無視（アクションアイテム生成はオプション機能）
+            Log::warning('Failed to generate action items', ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * マイルストーンの進捗を更新
+     */
+    protected function updateMilestoneProgress(Diary $diary)
+    {
+        if (empty($diary->content)) {
+            return;
+        }
+
+        try {
+            // 日記に関連するマイルストーンを取得
+            $milestones = CareerMilestone::where('user_id', Auth::id())
+                ->whereIn('status', ['planned', 'in_progress'])
+                ->get();
+
+            foreach ($milestones as $milestone) {
+                // 日記内容がマイルストーンに関連しているかチェック
+                // 簡単なキーワードマッチング（将来的にはAIで改善可能）
+                $related = false;
+                if ($milestone->title && stripos($diary->content, $milestone->title) !== false) {
+                    $related = true;
+                }
+                if ($milestone->will_theme && stripos($diary->content, $milestone->will_theme) !== false) {
+                    $related = true;
+                }
+
+                if ($related) {
+                    // マイルストーンの進捗ポイントを更新
+                    // 日記を書いたことで進捗ポイントを追加（簡単な実装）
+                    $milestone->increment('progress_points', 1);
+                    
+                    // 達成率を再計算（完了アクション数 / 全アクション数）
+                    $totalActions = $milestone->actionItems()->count();
+                    $completedActions = $milestone->actionItems()->where('status', 'completed')->count();
+                    
+                    if ($totalActions > 0) {
+                        $achievementRate = ($completedActions / $totalActions) * 100;
+                        $milestone->update(['achievement_rate' => round($achievementRate, 2)]);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to update milestone progress', ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * 提案されたアクションアイテムを承認して保存
+     */
+    public function acceptActionItem($index)
+    {
+        if (!isset($this->suggestedActionItems[$index])) {
+            return;
+        }
+
+        try {
+            $actionService = app(ActionItemGeneratorService::class);
+            $action = $this->suggestedActionItems[$index];
+            
+            // アクションアイテムを保存
+            $actionService->saveSuggestedActions([$action], $this->diaryId);
+            
+            // 提案リストから削除
+            unset($this->suggestedActionItems[$index]);
+            $this->suggestedActionItems = array_values($this->suggestedActionItems);
+            
+            if (empty($this->suggestedActionItems)) {
+                $this->showActionItems = false;
+            }
+            
+            session()->flash('message', 'アクションアイテムを追加しました');
+        } catch (\Exception $e) {
+            Log::error('Failed to save action item', ['error' => $e->getMessage()]);
+            session()->flash('error', 'アクションアイテムの保存に失敗しました');
+        }
+    }
+
+    /**
+     * 提案されたアクションアイテムを却下
+     */
+    public function dismissActionItems()
+    {
+        $this->suggestedActionItems = [];
+        $this->showActionItems = false;
     }
 
     public function render()

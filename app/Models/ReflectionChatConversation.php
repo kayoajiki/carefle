@@ -13,6 +13,7 @@ class ReflectionChatConversation extends Model
 
     protected $fillable = [
         'user_id',
+        'diary_id',
         'date',
         'conversation_history',
         'summary',
@@ -35,11 +36,11 @@ class ReflectionChatConversation extends Model
     }
 
     /**
-     * Get the diaries associated with this conversation.
+     * Get the diary associated with this conversation.
      */
-    public function diaries(): HasMany
+    public function diary(): BelongsTo
     {
-        return $this->hasMany(Diary::class, 'chat_conversation_id');
+        return $this->belongsTo(Diary::class, 'diary_id');
     }
 }
 

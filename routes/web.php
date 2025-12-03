@@ -55,6 +55,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('diary/chat', function () {
         return view('diary.chat');
     })->name('diary.chat');
+    Route::get('reflection/weekly', \App\Livewire\WeeklyReflection::class)
+        ->name('reflection.weekly');
+    Route::get('milestones/progress', \App\Livewire\MilestoneProgressVisualization::class)
+        ->name('milestones.progress');
+    Route::get('growth', \App\Livewire\GrowthVisualization::class)
+        ->name('growth');
+    Route::get('actions/log', \App\Livewire\ActionLog::class)
+        ->name('actions.log');
+    Route::get('reflection/archive', \App\Livewire\ReflectionArchive::class)
+        ->name('reflection.archive');
 
     // WCM
     Route::get('wcm/start', WcmForm::class)->name('wcm.start');

@@ -31,6 +31,11 @@ class User extends Authenticatable
         'work_experience_years',
         'education',
         'profile_completed',
+        'reflection_style',
+        'goal_setting_style',
+        'ai_companion_preferences',
+        'preferred_reflection_time',
+        'enable_adaptive_reminders',
     ];
 
     /**
@@ -57,6 +62,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'birthdate' => 'date',
             'profile_completed' => 'boolean',
+            'ai_companion_preferences' => 'array',
         ];
     }
 

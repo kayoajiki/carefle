@@ -25,32 +25,38 @@ class ReflectionChatService
     }
 
     /**
-     * 内省チャットの最初のメッセージを生成
+     * 内省チャットの最初のメッセージを生成（固定メッセージ）
      */
     public function generateInitialMessage(?string $reflectionType = null): string
     {
-        $context = $this->contextService->buildContextForUser();
-        
-        $prompt = "ユーザーが内省を始めようとしています。";
-        
-        if ($reflectionType) {
-            $typeMessages = [
-                'daily' => '今日1日の振り返りをしたいようです。',
-                'yesterday' => '昨日の振り返りをしたいようです。',
-                'weekly' => '週次の振り返りをしたいようです。',
-                'deep' => '深く内省して未来を描きたいようです。',
-                'moya_moya' => '日常の仕事の中でモヤモヤを感じたことを解きたいようです。',
-            ];
-            $prompt .= $typeMessages[$reflectionType] ?? '';
-        }
-        
-        $prompt .= "\n\nユーザーのコンテキスト:\n{$context}\n\n";
-        $prompt .= "親しみやすく、共感的な口調で、最初の質問を1つだけしてください。";
-        $prompt .= "質問は簡潔で、答えやすいものにしてください。";
+        $messages = [
+            'daily' => "こんにちは。今日も1日お疲れ様でした。\n\n今日の1日を振り返ってみましょう。良かったことや充実していた瞬間はありましたか？",
+            'yesterday' => "こんにちは。昨日のことを振り返りたいのですね。\n\n昨日の1日で、特に印象に残っていることはありますか？",
+            'weekly' => "こんにちは。今週の振り返りですね。\n\nこの1週間で、あなたにとって最も大きな学びや変化は何でしたか？",
+            'deep' => "こんにちは。深く内省したいのですね。\n\n今、あなたが最も考えてみたいテーマは何ですか？",
+            'moya_moya' => "こんにちは。モヤモヤしているのですね。\n\nどんな状況で、どんな気持ちになりましたか？",
+        ];
 
-        $response = $this->bedrockService->chat($prompt, []);
-        
-        return $response ?? "こんにちは！今日はどんな1日でしたか？";
+        return $messages[$reflectionType] ?? $messages['daily'];
+    }
+
+    /**
+     * 選択肢に応じた次のメッセージを生成
+     */
+    public function generateResponseForSelection(string $selection, ?string $reflectionType = null): string
+    {
+        $responses = [
+            'work' => "仕事についてですね。どんな出来事でしたか？",
+            'family' => "家族のことですね。どんな出来事でしたか？",
+            'love' => "恋愛についてですね。どんな出来事でしたか？",
+            'relationships' => "人間関係についてですね。どんな出来事でしたか？",
+            'health' => "健康についてですね。どんな出来事でしたか？",
+            'goals' => "目標についてですね。どんな出来事でしたか？",
+            'learning' => "学びについてですね。どんな出来事でしたか？",
+            'other' => "そうですね。どんな出来事でしたか？",
+        ];
+
+        return $responses[$selection] ?? $responses['other'];
     }
 
     /**
@@ -132,6 +138,13 @@ class ReflectionChatService
 
         // コンテキストを含めたプロンプトを構築
         $contextualPrompt = $this->buildContextualPrompt($userMessage, $context, $reflectionType);
+        
+        // プロンプトに応答の指示を追加
+        $contextualPrompt .= "\n\n【応答のポイント】\n";
+        $contextualPrompt .= "- 2-3文程度の簡潔な応答を心がける\n";
+        $contextualPrompt .= "- ユーザーの話に共感を示す\n";
+        $contextualPrompt .= "- 自然な会話の流れで、次の質問やコメントをする\n";
+        $contextualPrompt .= "- 親しみやすく、温かみのある口調を保つ";
 
         // BedrockServiceのchatメソッドを使用（システムプロンプトを動的に設定）
         $response = $this->bedrockService->chat($contextualPrompt, $messages, $this->reflectionSystemPrompt);
@@ -154,12 +167,28 @@ class ReflectionChatService
         string $context,
         ?string $reflectionType = null
     ): string {
-        $prompt = "ユーザーのコンテキスト情報:\n{$context}\n\n";
-        $prompt .= "上記のコンテキストを参考にしながら、ユーザーの内省を深めるための質問や応答をしてください。\n\n";
+        $prompt = "ユーザーが今話している内容:\n「{$userMessage}」\n\n";
+        
+        if (!empty($context)) {
+            $prompt .= "【ユーザーの背景情報（参考程度に）】\n{$context}\n\n";
+            $prompt .= "※上記の情報は参考程度に留め、会話の流れに自然に織り交ぜてください。\n";
+            $prompt .= "※情報を羅列するのではなく、ユーザーの話に共感し、自然な会話を続けてください。\n\n";
+        }
         
         if ($reflectionType) {
-            $prompt .= "内省タイプ: {$reflectionType}\n";
+            $typeNames = [
+                'daily' => '今日の振り返り',
+                'yesterday' => '昨日の振り返り',
+                'weekly' => '週次の振り返り',
+                'deep' => '深い内省',
+                'moya_moya' => 'モヤモヤの解消',
+            ];
+            $typeName = $typeNames[$reflectionType] ?? $reflectionType;
+            $prompt .= "内省のタイプ: {$typeName}\n\n";
         }
+        
+        $prompt .= "ユーザーの話を自然に受け止め、共感を示しながら、次の質問やコメントをしてください。\n";
+        $prompt .= "会話は自然な流れを大切にし、無理に深く掘り下げる必要はありません。\n";
         
         return $prompt;
     }

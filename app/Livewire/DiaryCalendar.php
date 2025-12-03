@@ -14,6 +14,7 @@ class DiaryCalendar extends Component
     public $currentYear;
     public $selectedDate = null;
     public $selectedDiary = null;
+    public $selectedDiaryId = null;
     public $showForm = false;
 
     public function mount()
@@ -56,6 +57,7 @@ class DiaryCalendar extends Component
             ->first();
         
         $this->selectedDiary = $diary;
+        $this->selectedDiaryId = $diary?->id;
     }
 
     public function closeForm()
