@@ -90,3 +90,4 @@
 - IAMユーザーに`AmazonBedrockFullAccess`ポリシーがアタッチされているか確認
 - リージョンが正しいか確認（us-east-1推奨）
 
+

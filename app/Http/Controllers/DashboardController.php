@@ -90,6 +90,7 @@ class DashboardController extends Controller
             ->get();
 
         return view('dashboard', [
+            'user' => $user,
             'latestDiagnosis' => $latestDiagnosis,
             'draftDiagnosis' => $draftDiagnosis,
             'hasLifeHistory' => $hasLifeHistory,

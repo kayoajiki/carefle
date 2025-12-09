@@ -32,3 +32,4 @@ if mysql -h "$DB_HOST" -u "$DB_USERNAME" -p -e "SELECT 1;" 2>&1 | grep -q "Acces
     echo "3. .envファイルのDB_PASSWORDを正しい値に修正"
 fi
 
+

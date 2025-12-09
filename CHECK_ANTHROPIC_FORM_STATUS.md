@@ -105,3 +105,4 @@ If you have already filled out the form, try again in 15 minutes.
    - `storage/logs/laravel.log` を確認
    - エラーメッセージの詳細を確認
 
+

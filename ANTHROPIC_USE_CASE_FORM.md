@@ -76,3 +76,4 @@ Fill out the Anthropic use case details form before using the model.
 - アクセスキーが正しいか確認
 - IAMユーザーに`AmazonBedrockFullAccess`ポリシーがアタッチされているか確認
 
+

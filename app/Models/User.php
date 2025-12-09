@@ -36,6 +36,9 @@ class User extends Authenticatable
         'ai_companion_preferences',
         'preferred_reflection_time',
         'enable_adaptive_reminders',
+        'goal_image',
+        'goal_image_url',
+        'goal_display_mode',
     ];
 
     /**
@@ -63,6 +66,7 @@ class User extends Authenticatable
             'birthdate' => 'date',
             'profile_completed' => 'boolean',
             'ai_companion_preferences' => 'array',
+            'goal_display_mode' => 'string',
         ];
     }
 

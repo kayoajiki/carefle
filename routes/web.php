@@ -18,6 +18,7 @@ use App\Livewire\CareerMilestoneForm;
 use App\Livewire\CareerHistoryUploadForm;
 use App\Livewire\ResumeUploadForm;
 use App\Http\Controllers\DiagnosisController;
+use Illuminate\Http\Request;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CareerHistoryController;
@@ -81,6 +82,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('chat', function () {
         return view('chat.index');
     })->name('chat.index');
+
+    // マイゴール
+    Route::get('my-goal', \App\Livewire\MyGoal::class)->name('my-goal');
+    Route::post('my-goal/display-mode', function (Request $request) {
+        $mode = $request->string('mode')->toString();
+        if (!in_array($mode, ['text', 'image'], true)) {
+            return back();
+        }
+        $user = $request->user();
+        if ($user) {
+            $user->update(['goal_display_mode' => $mode]);
+        }
+        return back();
+    })->name('my-goal.display-mode');
     
     // チャットAPI
     Route::post('chat/message', [ChatController::class, 'sendMessage'])

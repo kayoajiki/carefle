@@ -18,14 +18,11 @@
         <div class="min-h-screen bg-gradient-to-b from-[#E9F2FF] to-[#F6FBFF]">
             <div class="w-full max-w-7xl mx-auto content-padding section-spacing-sm space-y-12">
                 <!-- ヘッダー & CTA -->
-                <div class="card-refined surface-blue p-10 soft-shadow-refined">
+                <div class="card-refined surface-blue p-10 soft-shadow-refined space-y-6">
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                         <div>
                             <p class="body-small text-[#5BA3D6] uppercase tracking-[0.2em]">Overview</p>
                             <h1 class="heading-2 mb-2 mt-1">ダッシュボード</h1>
-                            <p class="body-large text-[#1E3A5F]/80">
-                                今日の状態と次の一手をすばやく確認しましょう。
-                            </p>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3">
                             <a href="{{ route('diary.chat') }}" class="btn-primary text-center flex items-center justify-center gap-2">
@@ -37,8 +34,56 @@
                             <a href="{{ route('diary') }}" class="btn-secondary text-center">
                                 日記カレンダー
                             </a>
+                            <a href="{{ route('my-goal') }}" class="btn-secondary text-center">
+                                マイゴール
+                            </a>
                         </div>
                     </div>
+
+                    {{-- ゴールイメージ（案1） --}}
+                    @if($user?->goal_image)
+                        <div class="bg-white rounded-2xl border-2 border-blue-200 p-6 space-y-4">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl">💫</span>
+                                    <h2 class="heading-3 text-xl">あなたのゴールイメージ</h2>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <form method="POST" action="{{ route('my-goal.display-mode') }}" class="flex gap-1 bg-[#f4f8ff] border border-blue-100 rounded-full px-1 py-1">
+                                        @csrf
+                                        <input type="hidden" name="mode" value="text">
+                                        <button type="submit" class="px-3 py-1 rounded-full body-small {{ $user->goal_display_mode === 'text' ? 'bg-[#2E5C8A] text-white' : 'text-[#2E5C8A]' }}">文字</button>
+                                    </form>
+                                    <form method="POST" action="{{ route('my-goal.display-mode') }}" class="flex gap-1 bg-[#f4f8ff] border border-blue-100 rounded-full px-1 py-1">
+                                        @csrf
+                                        <input type="hidden" name="mode" value="image">
+                                        <button type="submit" class="px-3 py-1 rounded-full body-small {{ $user->goal_display_mode === 'image' ? 'bg-[#2E5C8A] text-white' : 'text-[#2E5C8A]' }}">図式</button>
+                                    </form>
+                                    <a href="{{ route('my-goal') }}" class="body-small text-[#2E5C8A] hover:text-[#6BB6FF]">編集</a>
+                                </div>
+                            </div>
+
+                            @if($user->goal_display_mode === 'image')
+                                @if($user->goal_image_url)
+                                    <div class="bg-[#F6FBFF] border border-blue-100 rounded-xl p-4">
+                                        <img src="{{ $user->goal_image_url }}" alt="ゴールイメージ" class="w-full rounded-lg">
+                                    </div>
+                                @else
+                                    <div class="bg-[#F6FBFF] border border-dashed border-blue-200 rounded-xl p-6 text-center">
+                                        <p class="body-small text-[#1E3A5F]/70 mb-3">図式がまだありません。マイゴール画面で生成してください。</p>
+                                        <a href="{{ route('my-goal') }}" class="btn-primary text-sm">図式を生成する</a>
+                                    </div>
+                                @endif
+                            @else
+                                <p class="body-text text-[#1E3A5F] leading-relaxed whitespace-pre-line">{{ $user->goal_image }}</p>
+                            @endif
+                        </div>
+                    @else
+                        <div class="bg-white rounded-2xl border-2 border-dashed border-blue-200 p-6 text-center">
+                            <p class="body-text text-[#1E3A5F]/80 mb-3">まだマイゴールが設定されていません。まずは作成しましょう。</p>
+                            <a href="{{ route('my-goal') }}" class="btn-primary">マイゴールを設定する</a>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- 内省ストリークカード -->
