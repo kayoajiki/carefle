@@ -20,6 +20,8 @@ class DiaryChatForm extends Component
     public $motivation = 50;
     public $showMotivationSlider = false;
     public $showSelectionButtons = false; // 選択肢ボタンを表示するかどうか
+    public $conversationStep = 'category_selection'; // 会話ステップ: category_selection, fact_question, impression_question, feedback_and_question, user_response, closing
+    public $selectedCategory = null; // 選択された分類
 
     protected ReflectionChatService $chatService;
 
@@ -55,10 +57,83 @@ class DiaryChatForm extends Component
                 return $msg;
             }, $history);
             $this->motivation = $diary->motivation ?? 50;
+            
+            // 既存の会話からステップを判定
+            $this->determineStepFromHistory();
         } else {
             // 新しい会話を開始（マウント時は自動開始しない）
             $this->messages = [];
             $this->conversationId = null;
+            $this->conversationStep = 'category_selection';
+            $this->selectedCategory = null;
+        }
+    }
+
+    /**
+     * 会話履歴から現在のステップを判定
+     */
+    protected function determineStepFromHistory()
+    {
+        $userMessageCount = 0;
+        $assistantMessageCount = 0;
+        $hasCategorySelection = false;
+        
+        foreach ($this->messages as $msg) {
+            if ($msg['role'] === 'user') {
+                $userMessageCount++;
+            } elseif ($msg['role'] === 'assistant') {
+                $assistantMessageCount++;
+                // 分類選択のメッセージを検出
+                if (str_contains($msg['content'], 'についてですね') || str_contains($msg['content'], 'どんな出来事でしたか？')) {
+                    $hasCategorySelection = true;
+                }
+            }
+        }
+        
+        // ステップ判定ロジック
+        if (!$hasCategorySelection) {
+            $this->conversationStep = 'category_selection';
+        } elseif ($userMessageCount === 0) {
+            $this->conversationStep = 'fact_question';
+        } elseif ($userMessageCount === 1) {
+            $this->conversationStep = 'impression_question';
+        } elseif ($userMessageCount === 2) {
+            $this->conversationStep = 'feedback_and_question';
+        } elseif ($userMessageCount === 3) {
+            $this->conversationStep = 'user_response';
+        } else {
+            $this->conversationStep = 'closing';
+        }
+        
+        // 分類を抽出（最初のassistantメッセージから）
+        foreach ($this->messages as $msg) {
+            if ($msg['role'] === 'assistant') {
+                if (str_contains($msg['content'], '仕事について')) {
+                    $this->selectedCategory = 'work';
+                    break;
+                } elseif (str_contains($msg['content'], '家族')) {
+                    $this->selectedCategory = 'family';
+                    break;
+                } elseif (str_contains($msg['content'], '恋愛')) {
+                    $this->selectedCategory = 'love';
+                    break;
+                } elseif (str_contains($msg['content'], '人間関係')) {
+                    $this->selectedCategory = 'relationships';
+                    break;
+                } elseif (str_contains($msg['content'], '健康')) {
+                    $this->selectedCategory = 'health';
+                    break;
+                } elseif (str_contains($msg['content'], '目標')) {
+                    $this->selectedCategory = 'goals';
+                    break;
+                } elseif (str_contains($msg['content'], '学び')) {
+                    $this->selectedCategory = 'learning';
+                    break;
+                } elseif (str_contains($msg['content'], 'その他') || str_contains($msg['content'], 'そうですね')) {
+                    $this->selectedCategory = 'other';
+                    break;
+                }
+            }
         }
     }
 
@@ -105,7 +180,13 @@ class DiaryChatForm extends Component
         // 選択肢ボタンを非表示
         $this->showSelectionButtons = false;
         
-        // 選択に応じたメッセージを生成
+        // 分類を保存
+        $this->selectedCategory = $topic;
+        
+        // ステップをfact_questionに進める
+        $this->conversationStep = 'fact_question';
+        
+        // 選択に応じたメッセージを生成（従来の方法）
         $response = $this->chatService->generateResponseForSelection($topic, $this->reflectionType);
         
         // AIの応答を追加
@@ -114,6 +195,24 @@ class DiaryChatForm extends Component
             'content' => $response,
             'timestamp' => now()->toDateTimeString(),
         ];
+        
+        // fact_questionを生成
+        $this->isLoading = true;
+        try {
+            $factQuestion = $this->chatService->generateFactQuestion($topic, $this->reflectionType);
+            
+            if ($factQuestion) {
+                $this->messages[] = [
+                    'role' => 'assistant',
+                    'content' => $factQuestion,
+                    'timestamp' => now()->toDateTimeString(),
+                ];
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to generate fact question', ['error' => $e->getMessage()]);
+        } finally {
+            $this->isLoading = false;
+        }
         
         $this->dispatch('scroll-to-bottom');
     }
@@ -137,11 +236,70 @@ class DiaryChatForm extends Component
         $this->isLoading = true;
 
         try {
-            $response = $this->chatService->generateResponse(
-                $userMessageContent,
-                $this->messages,
-                $this->reflectionType
-            );
+            $response = null;
+            
+            // 現在のステップに応じて適切な処理を実行
+            switch ($this->conversationStep) {
+                case 'fact_question':
+                    // 印象的だったことの問いかけを生成
+                    $response = $this->chatService->generateImpressionQuestion(
+                        $this->selectedCategory ?? 'other',
+                        $userMessageContent,
+                        $this->reflectionType
+                    );
+                    if ($response) {
+                        $this->conversationStep = 'impression_question';
+                    }
+                    break;
+                    
+                case 'impression_question':
+                    // 前向きなFBと問いを生成
+                    $response = $this->chatService->generateFeedbackAndQuestion(
+                        $this->selectedCategory ?? 'other',
+                        $this->messages,
+                        $this->reflectionType
+                    );
+                    if ($response) {
+                        $this->conversationStep = 'feedback_and_question';
+                    }
+                    break;
+                    
+                case 'feedback_and_question':
+                    // ユーザーの応答を受けて、クロージングを生成
+                    $response = $this->chatService->generateClosing(
+                        $this->messages,
+                        $this->reflectionType
+                    );
+                    if ($response) {
+                        $this->conversationStep = 'closing';
+                    }
+                    break;
+                    
+                case 'user_response':
+                    // クロージングを生成（念のため）
+                    $response = $this->chatService->generateClosing(
+                        $this->messages,
+                        $this->reflectionType
+                    );
+                    if ($response) {
+                        $this->conversationStep = 'closing';
+                    }
+                    break;
+                    
+                case 'closing':
+                    // 既にクロージング済みの場合は、応答を生成しない
+                    $response = null;
+                    break;
+                    
+                default:
+                    // 従来の方法で応答を生成（フォールバック）
+                    $response = $this->chatService->generateResponse(
+                        $userMessageContent,
+                        $this->messages,
+                        $this->reflectionType
+                    );
+                    break;
+            }
             
             if ($response) {
                 $this->messages[] = [
@@ -149,8 +307,8 @@ class DiaryChatForm extends Component
                     'content' => $response,
                     'timestamp' => now()->toDateTimeString(),
                 ];
-            } else {
-                // より詳細なエラーメッセージを表示
+            } elseif ($this->conversationStep !== 'closing' && $this->conversationStep !== 'user_response') {
+                // closingステップとuser_responseステップ以外でエラーが発生した場合
                 $errorMessage = '申し訳ございません。応答を生成できませんでした。';
                 $errorMessage .= PHP_EOL . PHP_EOL;
                 $errorMessage .= '【確認事項】';
@@ -163,12 +321,22 @@ class DiaryChatForm extends Component
                     'content' => $errorMessage,
                     'timestamp' => now()->toDateTimeString(),
                 ];
+            } elseif ($this->conversationStep === 'feedback_and_question' || $this->conversationStep === 'user_response') {
+                // クロージング生成に失敗した場合のフォールバックメッセージ
+                $fallbackMessage = '今日の内省、お疲れ様でした。あなたの気づきを大切にしてくださいね。';
+                $this->messages[] = [
+                    'role' => 'assistant',
+                    'content' => $fallbackMessage,
+                    'timestamp' => now()->toDateTimeString(),
+                ];
+                $this->conversationStep = 'closing';
             }
         } catch (\Exception $e) {
-            // ローディングメッセージを削除
-            if (!empty($this->messages) && end($this->messages)['content'] === 'loading') {
-                array_pop($this->messages);
-            }
+            Log::error('Failed to send message', [
+                'error' => $e->getMessage(),
+                'step' => $this->conversationStep,
+            ]);
+            
             $this->messages[] = [
                 'role' => 'assistant',
                 'content' => 'エラーが発生しました。しばらく時間をおいて再度お試しください。',

@@ -72,33 +72,63 @@ class BedrockService
 
             // Add conversation history
             foreach ($conversationHistory as $history) {
+                // contentを文字列に変換（安全に）
+                $content = '';
+                if (is_string($history['content'])) {
+                    $content = $history['content'];
+                } elseif (is_array($history['content'])) {
+                    // 配列の場合は、JSONエンコードして文字列に変換
+                    $content = json_encode($history['content'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    if ($content === false) {
+                        Log::warning('BedrockService: Failed to encode message content', [
+                            'content_type' => gettype($history['content']),
+                        ]);
+                        $content = '';
+                    }
+                } else {
+                    $content = (string)$history['content'];
+                }
+                
+                // 空のcontentはスキップ
+                if (empty($content)) {
+                    continue;
+                }
+                
                 $messages[] = [
                     'role' => $history['role'] === 'user' ? 'user' : 'assistant',
-                    'content' => is_string($history['content']) 
-                        ? $history['content'] 
-                        : (is_array($history['content']) ? $history['content'] : (string)$history['content']),
+                    'content' => $content,
                 ];
             }
 
             // 最初のメッセージがuserでない場合は、最初のassistantメッセージを削除
-            if (!empty($messages) && $messages[0]['role'] !== 'user') {
+            while (!empty($messages) && $messages[0]['role'] !== 'user') {
                 // 最初のassistantメッセージを削除
                 array_shift($messages);
             }
             
-            // 最後のメッセージがuserでない場合のみ、現在のユーザーメッセージを追加
-            $lastMessage = end($messages);
-            if (empty($messages) || ($lastMessage && $lastMessage['role'] !== 'user')) {
+            // 会話履歴が空の場合、または最後のメッセージがuserでない場合、現在のユーザーメッセージを追加
+            if (empty($messages)) {
+                // 会話履歴が空の場合は、プロンプトを最初のuserメッセージとして追加
                 $messages[] = [
                     'role' => 'user',
                     'content' => $message,
                 ];
-            } elseif ($lastMessage && $lastMessage['role'] === 'user' && $lastMessage['content'] !== $message) {
-                // 最後のメッセージがuserだが内容が異なる場合は更新
-                $messages[count($messages) - 1] = [
-                    'role' => 'user',
-                    'content' => $message,
-                ];
+            } else {
+                // 会話履歴がある場合
+                $lastMessage = end($messages);
+                if ($lastMessage['role'] !== 'user') {
+                    // 最後のメッセージがuserでない場合は追加
+                    $messages[] = [
+                        'role' => 'user',
+                        'content' => $message,
+                    ];
+                } elseif ($lastMessage['content'] !== $message) {
+                    // 最後のメッセージがuserだが内容が異なる場合は更新
+                    $messages[count($messages) - 1] = [
+                        'role' => 'user',
+                        'content' => $message,
+                    ];
+                }
             }
             
             // 重複するuserメッセージを削除（連続している場合）
@@ -117,6 +147,17 @@ class BedrockService
             // Use custom system prompt if provided, otherwise use default
             $systemPrompt = $customSystemPrompt ?? $this->systemPrompt;
 
+            // UTF-8として正規化（不正な文字を削除）
+            $systemPrompt = $this->sanitizeUtf8($systemPrompt);
+            
+            // メッセージのcontentもUTF-8として正規化
+            foreach ($messages as &$msg) {
+                if (isset($msg['content']) && is_string($msg['content'])) {
+                    $msg['content'] = $this->sanitizeUtf8($msg['content']);
+                }
+            }
+            unset($msg);
+
             // Prepare the request body for Claude
             $body = [
                 'anthropic_version' => 'bedrock-2023-05-31',
@@ -127,11 +168,44 @@ class BedrockService
                 'messages' => $messages,
             ];
 
+            // JSONエンコードを実行
+            $jsonBody = json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            
+            if ($jsonBody === false) {
+                $error = json_last_error_msg();
+                Log::error('BedrockService: Failed to encode request body', [
+                    'json_error' => $error,
+                    'messages_count' => count($messages),
+                    'system_prompt_length' => strlen($systemPrompt),
+                    'system_prompt_preview' => substr($systemPrompt, 0, 100),
+                ]);
+                
+                // リトライ: 不正な文字を削除して再試行
+                $systemPrompt = $this->sanitizeUtf8($systemPrompt, true);
+                foreach ($messages as &$msg) {
+                    if (isset($msg['content']) && is_string($msg['content'])) {
+                        $msg['content'] = $this->sanitizeUtf8($msg['content'], true);
+                    }
+                }
+                unset($msg);
+                
+                $body['system'] = $systemPrompt;
+                $body['messages'] = $messages;
+                $jsonBody = json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                
+                if ($jsonBody === false) {
+                    Log::error('BedrockService: Retry also failed', [
+                        'json_error' => json_last_error_msg(),
+                    ]);
+                    return null;
+                }
+            }
+
             $result = $this->client->invokeModel([
                 'modelId' => $this->modelId,
                 'contentType' => 'application/json',
                 'accept' => 'application/json',
-                'body' => json_encode($body),
+                'body' => $jsonBody,
             ]);
 
             $response = json_decode($result['body'], true);
@@ -187,6 +261,28 @@ class BedrockService
         // TODO: Implement streaming response
         // This can be implemented later for real-time streaming
         yield '';
+    }
+
+    /**
+     * UTF-8文字列を正規化（不正な文字を削除）
+     *
+     * @param string $string
+     * @param bool $strict 厳密モード（不正な文字を削除）
+     * @return string
+     */
+    protected function sanitizeUtf8(string $string, bool $strict = false): string
+    {
+        // UTF-8として正規化
+        $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+        
+        if ($strict) {
+            // 厳密モード: 不正なUTF-8文字を削除
+            $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+            // 制御文字（改行・タブ以外）を削除
+            $string = preg_replace('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', '', $string);
+        }
+        
+        return $string;
     }
 }
 

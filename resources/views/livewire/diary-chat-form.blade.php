@@ -72,9 +72,18 @@ x-init="scrollToBottom()"
             {{-- 保存ボタン --}}
             <button
                 wire:click="saveConversation"
-                class="px-4 py-2 rounded-lg bg-[#6BB6FF] text-white body-small font-medium hover:bg-[#5AA5E6] transition-colors"
+                class="px-4 py-2 rounded-lg {{ $conversationStep === 'closing' ? 'bg-[#4CAF50] hover:bg-[#45A049] ring-2 ring-[#4CAF50] ring-offset-2' : 'bg-[#6BB6FF] hover:bg-[#5AA5E6]' }} text-white body-small font-medium transition-colors"
             >
-                保存
+                @if($conversationStep === 'closing')
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        保存して完了
+                    </span>
+                @else
+                    保存
+                @endif
             </button>
         </div>
     </div>

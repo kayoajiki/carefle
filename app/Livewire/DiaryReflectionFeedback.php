@@ -61,6 +61,7 @@ class DiaryReflectionFeedback extends Component
             $prompt = $this->buildFeedbackPrompt($diary, $context, $pastDiaries);
 
             // AIからフィードバックを生成
+            // 会話履歴は空配列で、プロンプトを最初のuserメッセージとして渡す
             $response = $this->bedrockService->chat(
                 $prompt,
                 [],
@@ -70,11 +71,16 @@ class DiaryReflectionFeedback extends Component
             if ($response) {
                 $this->feedback = $response;
             } else {
-                $this->error = 'フィードバックの生成に失敗しました。';
+                Log::warning('DiaryReflectionFeedback: Failed to generate feedback', [
+                    'diary_id' => $this->diaryId,
+                    'prompt_length' => strlen($prompt),
+                ]);
+                $this->error = 'フィードバックの生成に失敗しました。もう一度お試しください。';
             }
         } catch (\Exception $e) {
             Log::error('Failed to generate reflection feedback', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
                 'diary_id' => $this->diaryId,
             ]);
             $this->error = 'エラーが発生しました。しばらく時間をおいて再度お試しください。';
@@ -85,11 +91,15 @@ class DiaryReflectionFeedback extends Component
 
     protected function buildFeedbackPrompt(Diary $diary, string $context, $pastDiaries): string
     {
+        // UTF-8として正規化（不正な文字を削除）
+        $diaryContent = $this->sanitizeUtf8($diary->content);
+        $context = $this->sanitizeUtf8($context);
+        
         $prompt = "以下の日記内容に対して、内省を深めるためのフィードバックを提供してください。\n\n";
         $prompt .= "【日記内容】\n";
         $prompt .= "日付: {$diary->date->format('Y年m月d日')}\n";
         $prompt .= "モチベーション: {$diary->motivation}/100\n";
-        $prompt .= "内容:\n{$diary->content}\n\n";
+        $prompt .= "内容:\n{$diaryContent}\n\n";
 
         if (!empty($context)) {
             $prompt .= "【ユーザーの背景情報（参考）】\n{$context}\n\n";
@@ -98,7 +108,8 @@ class DiaryReflectionFeedback extends Component
         if ($pastDiaries->count() > 0) {
             $prompt .= "【過去の日記（比較用）】\n";
             foreach ($pastDiaries->take(3) as $pastDiary) {
-                $prompt .= "- {$pastDiary->date->format('Y年m月d日')}: " . substr($pastDiary->content, 0, 100) . "...\n";
+                $pastContent = $this->sanitizeUtf8($pastDiary->content);
+                $prompt .= "- {$pastDiary->date->format('Y年m月d日')}: " . mb_substr($pastContent, 0, 100) . "...\n";
             }
             $prompt .= "\n";
         }
@@ -112,7 +123,28 @@ class DiaryReflectionFeedback extends Component
         $prompt .= "- 簡潔で読みやすい文章（3-5文程度）\n\n";
         $prompt .= "フィードバックを生成してください:";
 
+        // 最終的なプロンプトもUTF-8として正規化
+        $prompt = $this->sanitizeUtf8($prompt);
+
         return $prompt;
+    }
+
+    /**
+     * UTF-8文字列を正規化（不正な文字を削除）
+     *
+     * @param string $string
+     * @return string
+     */
+    protected function sanitizeUtf8(string $string): string
+    {
+        // UTF-8として正規化
+        $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+        // 不正なUTF-8文字を削除
+        $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+        // 制御文字（改行・タブ以外）を削除
+        $string = preg_replace('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', '', $string);
+        
+        return $string;
     }
 
     public function render()

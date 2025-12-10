@@ -267,5 +267,336 @@ class ReflectionChatService
         
         return implode("\n\n", $userMessages);
     }
+
+    /**
+     * 出来事・事実の問いかけを生成
+     */
+    public function generateFactQuestion(string $category, ?string $reflectionType = null): ?string
+    {
+        $context = $this->contextService->buildContextForUser();
+        
+        $categoryNames = [
+            'work' => '仕事',
+            'family' => '家族',
+            'love' => '恋愛',
+            'relationships' => '人間関係',
+            'health' => '健康',
+            'goals' => '目標',
+            'learning' => '学び',
+            'other' => 'その他',
+        ];
+        $categoryName = $categoryNames[$category] ?? $category;
+
+        $typeNames = [
+            'daily' => '今日の振り返り',
+            'yesterday' => '昨日の振り返り',
+            'weekly' => '週次の振り返り',
+            'deep' => '深い内省',
+            'moya_moya' => 'モヤモヤの解消',
+        ];
+        $typeName = $typeNames[$reflectionType] ?? ($reflectionType ?? '振り返り');
+
+        $prompt = "ユーザーが選択した分類: {$categoryName}\n";
+        $prompt .= "内省のタイプ: {$typeName}\n\n";
+        
+        if (!empty($context)) {
+            $prompt .= "【ユーザーの背景情報（参考程度に）】\n{$context}\n\n";
+            $prompt .= "※上記の情報は参考程度に留め、会話の流れに自然に織り交ぜてください。\n\n";
+        }
+        
+        $prompt .= "ユーザーに対して、出来事、やったこと、事実について簡潔に質問してください。\n";
+        $prompt .= "- 1つの質問に絞る\n";
+        $prompt .= "- 具体的で答えやすい質問\n";
+        $prompt .= "- 親しみやすく、温かみのある口調\n";
+        $prompt .= "- 2-3文程度の簡潔な応答を心がける";
+
+        $response = $this->bedrockService->chat($prompt, [], $this->reflectionSystemPrompt);
+
+        if ($response === null) {
+            Log::warning('ReflectionChatService: Failed to generate fact question', [
+                'category' => $category,
+                'reflection_type' => $reflectionType,
+            ]);
+        }
+
+        return $response;
+    }
+
+    /**
+     * 印象的だったことの問いかけを生成
+     */
+    public function generateImpressionQuestion(string $category, string $factResponse, ?string $reflectionType = null): ?string
+    {
+        $context = $this->contextService->buildContextForUser();
+        
+        $categoryNames = [
+            'work' => '仕事',
+            'family' => '家族',
+            'love' => '恋愛',
+            'relationships' => '人間関係',
+            'health' => '健康',
+            'goals' => '目標',
+            'learning' => '学び',
+            'other' => 'その他',
+        ];
+        $categoryName = $categoryNames[$category] ?? $category;
+
+        $typeNames = [
+            'daily' => '今日の振り返り',
+            'yesterday' => '昨日の振り返り',
+            'weekly' => '週次の振り返り',
+            'deep' => '深い内省',
+            'moya_moya' => 'モヤモヤの解消',
+        ];
+        $typeName = $typeNames[$reflectionType] ?? ($reflectionType ?? '振り返り');
+
+        $prompt = "ユーザーが選択した分類: {$categoryName}\n";
+        $prompt .= "内省のタイプ: {$typeName}\n";
+        $prompt .= "ユーザーの前回の回答: {$factResponse}\n\n";
+        
+        if (!empty($context)) {
+            $prompt .= "【ユーザーの背景情報（参考程度に）】\n{$context}\n\n";
+            $prompt .= "※上記の情報は参考程度に留め、会話の流れに自然に織り交ぜてください。\n\n";
+        }
+        
+        $prompt .= "ユーザーに対して、印象的だったことについて簡潔に質問してください。\n";
+        $prompt .= "- 1つの質問に絞る\n";
+        $prompt .= "- 前回の回答を踏まえた質問\n";
+        $prompt .= "- 親しみやすく、温かみのある口調\n";
+        $prompt .= "- 2-3文程度の簡潔な応答を心がける";
+
+        // 会話履歴として、ユーザーの前回の回答を含める
+        $messages = [
+            [
+                'role' => 'user',
+                'content' => $factResponse,
+            ],
+        ];
+
+        // プロンプトを会話履歴の最後のuserメッセージとして追加するため、
+        // プロンプトを直接$messageとして渡す
+        $response = $this->bedrockService->chat($prompt, $messages, $this->reflectionSystemPrompt);
+
+        if ($response === null) {
+            Log::warning('ReflectionChatService: Failed to generate impression question', [
+                'category' => $category,
+                'reflection_type' => $reflectionType,
+            ]);
+        }
+
+        return $response;
+    }
+
+    /**
+     * 前向きなFBと問いを生成（自然な会話形式）
+     */
+    public function generateFeedbackAndQuestion(string $category, array $conversationHistory, ?string $reflectionType = null): ?string
+    {
+        $context = $this->contextService->buildContextForUser();
+        
+        $categoryNames = [
+            'work' => '仕事',
+            'family' => '家族',
+            'love' => '恋愛',
+            'relationships' => '人間関係',
+            'health' => '健康',
+            'goals' => '目標',
+            'learning' => '学び',
+            'other' => 'その他',
+        ];
+        $categoryName = $categoryNames[$category] ?? $category;
+
+        $typeNames = [
+            'daily' => '今日の振り返り',
+            'yesterday' => '昨日の振り返り',
+            'weekly' => '週次の振り返り',
+            'deep' => '深い内省',
+            'moya_moya' => 'モヤモヤの解消',
+        ];
+        $typeName = $typeNames[$reflectionType] ?? ($reflectionType ?? '振り返り');
+
+        // 会話履歴を構築（timestampを除く）
+        $messages = [];
+        foreach ($conversationHistory as $history) {
+            if (isset($history['role']) && isset($history['content'])) {
+                // timestampフィールドを除外し、contentを文字列に変換
+                $messages[] = [
+                    'role' => $history['role'],
+                    'content' => is_string($history['content']) ? $history['content'] : (string)$history['content'],
+                ];
+            }
+        }
+
+        // 会話履歴が空の場合は、エラーを返す
+        if (empty($messages)) {
+            Log::warning('ReflectionChatService: Empty conversation history for feedback and question', [
+                'category' => $category,
+            ]);
+            return null;
+        }
+
+        // 会話履歴のテキスト表現を作成（プロンプト用）
+        $conversationText = '';
+        foreach ($messages as $msg) {
+            $role = $msg['role'] === 'user' ? 'ユーザー' : 'AI';
+            $conversationText .= "{$role}: {$msg['content']}\n";
+        }
+        
+        // 最後のメッセージがuserでない場合は、エラーを返す
+        $lastMessage = end($messages);
+        if ($lastMessage['role'] !== 'user') {
+            Log::warning('ReflectionChatService: Last message is not user message', [
+                'category' => $category,
+                'last_message_role' => $lastMessage['role'] ?? 'unknown',
+            ]);
+            return null;
+        }
+
+        $prompt = "ユーザーが選択した分類: {$categoryName}\n";
+        $prompt .= "内省のタイプ: {$typeName}\n\n";
+        $prompt .= "会話履歴:\n{$conversationText}\n\n";
+        
+        if (!empty($context)) {
+            $prompt .= "【ユーザーの背景情報（参考程度に）】\n{$context}\n\n";
+            $prompt .= "※上記の情報は参考程度に留め、会話の流れに自然に織り交ぜてください。\n\n";
+        }
+        
+        $prompt .= "ユーザーの回答を踏まえて、自然な会話形式で以下を提供してください：\n\n";
+        $prompt .= "1. 前向きなフィードバック（2-3文程度）\n";
+        $prompt .= "   - ユーザーの行動や気づきを認める\n";
+        $prompt .= "   - ポジティブな視点を示す\n";
+        $prompt .= "   - 励ましの言葉を含める\n";
+        $prompt .= "   - 「ここがいいですね」「この視点があると思いますよ」「つまりこういうふうに感じているのですね」など、寄り添いと励ましを込めた表現を使う\n\n";
+        $prompt .= "2. 深めるための問いを1つ\n";
+        $prompt .= "   - ユーザーがさらに考えを深められる問い\n";
+        $prompt .= "   - 前向きで建設的な問い\n";
+        $prompt .= "   - 簡潔で明確な問い\n\n";
+        $prompt .= "【重要】\n";
+        $prompt .= "- 【フィードバック】や【問いかけ】といった形式は使わない\n";
+        $prompt .= "- フィードバックと問いを自然な会話の流れで統合した1つのメッセージとして提供する\n";
+        $prompt .= "- 例：「それは素晴らしい気づきですね。その経験から、どんな学びや気づきがありましたか？」\n";
+        $prompt .= "- 例：「ここがいいですね。この視点があると思いますよ。この経験を通して、どんなことを感じましたか？」\n";
+        $prompt .= "- 例：「つまりこういうふうに感じているのですね。その気持ちを大切にしながら、この経験から何を学べそうですか？」\n";
+
+        // 最初のメッセージがuserでない場合は削除（Bedrock APIの要件）
+        while (!empty($messages) && $messages[0]['role'] !== 'user') {
+            array_shift($messages);
+        }
+        
+        // 会話履歴が空になった場合は、エラーを返す
+        if (empty($messages)) {
+            Log::warning('ReflectionChatService: No user messages in conversation history', [
+                'category' => $category,
+            ]);
+            return null;
+        }
+        
+        // プロンプトを会話履歴の最後のuserメッセージとして追加するため、
+        // 会話履歴の最後のuserメッセージを削除してから、プロンプトを渡す
+        // これにより、BedrockService::chat()がプロンプトを最後のuserメッセージとして追加できる
+        $lastUserMessage = array_pop($messages);
+        
+        // 会話履歴の最後がassistantメッセージになるようにする
+        // これにより、BedrockService::chat()がプロンプトを最後のuserメッセージとして追加できる
+        $response = $this->bedrockService->chat($prompt, $messages, $this->reflectionSystemPrompt);
+
+        if ($response === null) {
+            Log::error('ReflectionChatService: Failed to generate feedback and question', [
+                'category' => $category,
+                'reflection_type' => $reflectionType,
+                'messages_count' => count($messages),
+                'last_message_role' => !empty($messages) ? end($messages)['role'] : 'none',
+            ]);
+            
+            // リトライ: より簡潔なプロンプトで再試行
+            $retryPrompt = "ユーザーの回答を踏まえて、自然な会話形式で前向きなフィードバックと、深めるための問いを1つ提供してください。\n";
+            $retryPrompt .= "フィードバックと問いを自然な会話の流れで統合した1つのメッセージとして提供してください。\n";
+            $retryPrompt .= "形式（【フィードバック】や【問いかけ】）は使わず、自然な会話形式で。\n\n";
+            $retryPrompt .= "会話履歴:\n{$conversationText}";
+            
+            $response = $this->bedrockService->chat($retryPrompt, $messages, $this->reflectionSystemPrompt);
+            
+            if ($response === null) {
+                Log::error('ReflectionChatService: Retry also failed for feedback and question', [
+                    'category' => $category,
+                ]);
+            }
+        }
+
+        return $response;
+    }
+
+    /**
+     * クロージングメッセージを生成
+     */
+    public function generateClosing(array $conversationHistory, ?string $reflectionType = null): ?string
+    {
+        $context = $this->contextService->buildContextForUser();
+
+        $typeNames = [
+            'daily' => '今日の振り返り',
+            'yesterday' => '昨日の振り返り',
+            'weekly' => '週次の振り返り',
+            'deep' => '深い内省',
+            'moya_moya' => 'モヤモヤの解消',
+        ];
+        $typeName = $typeNames[$reflectionType] ?? ($reflectionType ?? '振り返り');
+
+        // 会話履歴を構築（timestampを除く）
+        $messages = [];
+        foreach ($conversationHistory as $history) {
+            if (isset($history['role']) && isset($history['content'])) {
+                // timestampフィールドを除外し、contentを文字列に変換
+                $messages[] = [
+                    'role' => $history['role'],
+                    'content' => is_string($history['content']) ? $history['content'] : (string)$history['content'],
+                ];
+            }
+        }
+
+        // 最初のメッセージがuserでない場合は削除（Bedrock APIの要件）
+        while (!empty($messages) && $messages[0]['role'] !== 'user') {
+            array_shift($messages);
+        }
+        
+        // 会話履歴が空になった場合は、エラーを返す
+        if (empty($messages)) {
+            Log::warning('ReflectionChatService: No user messages in conversation history for closing', [
+                'reflection_type' => $reflectionType,
+            ]);
+            return null;
+        }
+
+        // 会話履歴のテキスト表現を作成（プロンプト用）
+        $conversationText = '';
+        foreach ($messages as $msg) {
+            $role = $msg['role'] === 'user' ? 'ユーザー' : 'AI';
+            $conversationText .= "{$role}: {$msg['content']}\n";
+        }
+
+        $prompt = "内省のタイプ: {$typeName}\n\n";
+        $prompt .= "会話履歴:\n{$conversationText}\n\n";
+        
+        if (!empty($context)) {
+            $prompt .= "【ユーザーの背景情報（参考程度に）】\n{$context}\n\n";
+            $prompt .= "※上記の情報は参考程度に留め、会話の流れに自然に織り交ぜてください。\n\n";
+        }
+        
+        $prompt .= "内省チャットを締めくくるメッセージを生成してください。\n";
+        $prompt .= "- 今日の内省を認める\n";
+        $prompt .= "- 前向きな言葉で締めくくる\n";
+        $prompt .= "- 簡潔に（2-3文程度）\n";
+        $prompt .= "- 親しみやすく、温かみのある口調を保つ";
+
+        $response = $this->bedrockService->chat($prompt, $messages, $this->reflectionSystemPrompt);
+
+        if ($response === null) {
+            Log::warning('ReflectionChatService: Failed to generate closing', [
+                'reflection_type' => $reflectionType,
+            ]);
+        }
+
+        return $response;
+    }
 }
 
