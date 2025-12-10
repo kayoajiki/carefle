@@ -21,6 +21,8 @@ class MyGoal extends Component
     public string $step = 'questions'; // questions | candidates | completed
     public bool $isGeneratingQuestions = false;
     public int $currentQuestionIndex = 0;
+    public bool $isEditingGoal = false;
+    public string $editingGoalText = '';
 
     protected GoalRecommendationService $goalService;
     protected NanobananaImageService $imageService;
@@ -192,6 +194,34 @@ class MyGoal extends Component
             $this->displayMode = 'image';
             session()->flash('saved', '図式を生成しました');
         }
+    }
+
+    public function startEditingGoal(): void
+    {
+        $this->editingGoalText = $this->currentGoal ?? '';
+        $this->isEditingGoal = true;
+    }
+
+    public function cancelEditingGoal(): void
+    {
+        $this->isEditingGoal = false;
+        $this->editingGoalText = '';
+    }
+
+    public function saveEditedGoal(): void
+    {
+        $trimmed = trim($this->editingGoalText);
+        if ($trimmed === '') {
+            $this->addError('editingGoalText', 'ゴールイメージを入力してください。');
+            return;
+        }
+
+        $this->goalService->updateGoalImage($trimmed);
+        $this->currentGoal = $trimmed;
+        $this->selectedGoal = $trimmed;
+        $this->isEditingGoal = false;
+        $this->editingGoalText = '';
+        session()->flash('saved', 'ゴールイメージを更新しました');
     }
 
     public function render()

@@ -26,33 +26,69 @@
                         <div>
                             <p class="body-small text-blue-600 mb-2">現在のゴールイメージ</p>
                         </div>
-                        <div class="flex items-center gap-2 bg-[#f4f8ff] border border-blue-100 rounded-full px-2 py-1">
-                            <button
-                                wire:click="setDisplayMode('text')"
-                                class="px-3 py-1 rounded-full body-small {{ $displayMode === 'text' ? 'bg-[#2E5C8A] text-white' : 'text-[#2E5C8A]' }}">
-                                文字
-                            </button>
-                            <button
-                                wire:click="setDisplayMode('image')"
-                                class="px-3 py-1 rounded-full body-small {{ $displayMode === 'image' ? 'bg-[#2E5C8A] text-white' : 'text-[#2E5C8A]' }}">
-                                図式
-                            </button>
+                        <div class="flex items-center gap-2">
+                            @if(!$isEditingGoal)
+                                <div class="flex items-center gap-2 bg-[#f4f8ff] border border-blue-100 rounded-full px-2 py-1">
+                                    <button
+                                        wire:click="setDisplayMode('text')"
+                                        class="px-3 py-1 rounded-full body-small {{ $displayMode === 'text' ? 'bg-[#2E5C8A] text-white' : 'text-[#2E5C8A]' }}">
+                                        文字
+                                    </button>
+                                    <button
+                                        wire:click="setDisplayMode('image')"
+                                        class="px-3 py-1 rounded-full body-small {{ $displayMode === 'image' ? 'bg-[#2E5C8A] text-white' : 'text-[#2E5C8A]' }}">
+                                        図式
+                                    </button>
+                                </div>
+                                <button
+                                    wire:click="startEditingGoal"
+                                    class="px-3 py-1 rounded-full body-small bg-[#2E5C8A] text-white hover:bg-[#1E3A5F] transition-colors">
+                                    編集
+                                </button>
+                            @endif
                         </div>
                     </div>
 
-                    @if($displayMode === 'image')
-                        @if($currentGoalImageUrl)
-                            <div class="bg-[#F6FBFF] border border-blue-100 rounded-xl p-4">
-                                <img src="{{ $currentGoalImageUrl }}" alt="ゴールイメージ" class="w-full rounded-lg">
+                    @if($isEditingGoal)
+                        {{-- 編集モード --}}
+                        <div class="space-y-4">
+                            <textarea
+                                wire:model="editingGoalText"
+                                rows="5"
+                                class="w-full rounded-xl border-2 border-[#2E5C8A]/20 bg-white text-[#2E5C8A] px-4 py-3 body-text leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"
+                                placeholder="ゴールイメージを入力してください"></textarea>
+                            @error('editingGoalText')
+                                <p class="body-small text-red-600">{{ $message }}</p>
+                            @enderror
+                            <div class="flex items-center justify-end gap-2">
+                                <button
+                                    wire:click="cancelEditingGoal"
+                                    class="btn-secondary">
+                                    キャンセル
+                                </button>
+                                <button
+                                    wire:click="saveEditedGoal"
+                                    class="btn-primary">
+                                    保存
+                                </button>
                             </div>
-                        @else
-                            <div class="bg-[#F6FBFF] border border-dashed border-blue-200 rounded-xl p-6 text-center">
-                                <p class="body-small text-[#1E3A5F]/70 mb-3">図式がまだありません。生成しますか？</p>
-                                <button wire:click="generateGoalImage" class="btn-primary">図式を生成する</button>
-                            </div>
-                        @endif
+                        </div>
                     @else
-                        <p class="body-text text-[#1E3A5F] whitespace-pre-line leading-relaxed">{{ $currentGoal }}</p>
+                        {{-- 表示モード --}}
+                        @if($displayMode === 'image')
+                            @if($currentGoalImageUrl)
+                                <div class="bg-[#F6FBFF] border border-blue-100 rounded-xl p-4">
+                                    <img src="{{ $currentGoalImageUrl }}" alt="ゴールイメージ" class="w-full rounded-lg">
+                                </div>
+                            @else
+                                <div class="bg-[#F6FBFF] border border-dashed border-blue-200 rounded-xl p-6 text-center">
+                                    <p class="body-small text-[#1E3A5F]/70 mb-3">図式がまだありません。生成しますか？</p>
+                                    <button wire:click="generateGoalImage" class="btn-primary">図式を生成する</button>
+                                </div>
+                            @endif
+                        @else
+                            <p class="body-text text-[#1E3A5F] whitespace-pre-line leading-relaxed">{{ $currentGoal }}</p>
+                        @endif
                     @endif
                 </div>
             @endif
