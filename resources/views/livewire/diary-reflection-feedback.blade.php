@@ -4,9 +4,18 @@
         @if(!$feedback && !$isLoading)
             <button
                 wire:click="generateFeedback"
-                class="px-4 py-2 bg-[#6BB6FF] text-white body-small font-medium rounded-lg hover:bg-[#5AA5E6] transition-colors"
+                wire:loading.attr="disabled"
+                wire:target="generateFeedback"
+                class="px-4 py-2 bg-[#6BB6FF] text-white body-small font-medium rounded-lg hover:bg-[#5AA5E6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                フィードバックを生成
+                <span wire:loading.remove wire:target="generateFeedback">フィードバックを生成</span>
+                <span wire:loading wire:target="generateFeedback" class="flex items-center gap-2">
+                    <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    生成中...
+                </span>
             </button>
         @endif
     </div>
@@ -41,9 +50,18 @@
             <div class="flex justify-end mt-4">
                 <button
                     wire:click="generateFeedback"
-                    class="px-4 py-2 bg-white border border-[#6BB6FF] text-[#6BB6FF] body-small font-medium rounded-lg hover:bg-[#E8F4FF] transition-colors"
+                    wire:loading.attr="disabled"
+                    wire:target="generateFeedback"
+                    class="px-4 py-2 bg-white border border-[#6BB6FF] text-[#6BB6FF] body-small font-medium rounded-lg hover:bg-[#E8F4FF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    再生成
+                    <span wire:loading.remove wire:target="generateFeedback">再生成</span>
+                    <span wire:loading wire:target="generateFeedback" class="flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4 text-[#6BB6FF]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        生成中...
+                    </span>
                 </button>
             </div>
         </div>

@@ -116,7 +116,7 @@
                     </div>
                     <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6" wire:key="diary-form-{{ $selectedDate }}">
                         <div>
-                            @livewire('diary-form', ['date' => $selectedDate, 'diaryId' => $selectedDiary?->id], key('diary-form-' . $selectedDate . '-' . now()->timestamp))
+                            @livewire('diary-form', ['date' => $selectedDate, 'diaryId' => $selectedDiaryId], key('diary-form-' . $selectedDate . '-' . ($selectedDiaryId ?? 'new')))
                         </div>
                         @if($selectedDiaryId)
                             <div>

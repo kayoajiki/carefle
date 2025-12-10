@@ -118,9 +118,95 @@
         @enderror
     </div>
 
+    {{-- 目標・目的との接続情報（ローディング中） --}}
+    <div wire:loading wire:target="save" class="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+        <div class="flex items-center justify-center gap-3 py-8">
+            <svg class="animate-spin h-6 w-6 text-[#6BB6FF]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="body-text text-[#2E5C8A]">目標・目的との接続を分析中...</span>
+        </div>
+    </div>
+
+    {{-- 目標・目的との接続情報 --}}
+    @if(!empty($goalConnections))
+        <div class="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6" wire:loading.remove wire:target="save">
+            <div class="flex items-center gap-2 mb-4">
+                <svg class="w-5 h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                <h3 class="body-text font-semibold text-[#2E5C8A]">目標・目的との接続</h3>
+            </div>
+            <div class="space-y-3">
+                @foreach($goalConnections as $connection)
+                    <div class="bg-white rounded-lg p-4 border border-blue-100">
+                        <div class="flex items-start justify-between gap-4 mb-2">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    @if($connection['type'] === 'milestone')
+                                        <span class="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 text-blue-800 body-small font-medium">
+                                            マイルストーン
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-1 rounded-md bg-indigo-100 text-indigo-800 body-small font-medium">
+                                            Willテーマ
+                                        </span>
+                                    @endif
+                                    @if($connection['connected'])
+                                        <span class="body-text font-medium text-[#2E5C8A]">
+                                            {{ $connection['connected']['title'] }}
+                                        </span>
+                                    @endif
+                                </div>
+                                @if($connection['will_theme'])
+                                    <p class="body-small text-[#1E3A5F]/80 mb-2">
+                                        <span class="font-medium">テーマ:</span> {{ $connection['will_theme'] }}
+                                    </p>
+                                @endif
+                                @if($connection['reason'])
+                                    <p class="body-small text-[#1E3A5F]">
+                                        {{ $connection['reason'] }}
+                                    </p>
+                                @endif
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <div class="text-right">
+                                    <div class="body-small text-[#1E3A5F]/60 mb-1">接続度</div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div 
+                                                class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 transition-all duration-300"
+                                                style="width: {{ $connection['score'] }}%"
+                                            ></div>
+                                        </div>
+                                        <span class="body-text font-semibold text-[#2E5C8A] w-10 text-right">
+                                            {{ $connection['score'] }}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    {{-- アクションアイテム生成中（ローディング中） --}}
+    <div wire:loading wire:target="save" class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <div class="flex items-center justify-center gap-3 py-8">
+            <svg class="animate-spin h-6 w-6 text-[#6BB6FF]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="body-text text-[#2E5C8A]">アクションアイテムを生成中...</span>
+        </div>
+    </div>
+
     {{-- 提案されたアクションアイテム --}}
     @if($showActionItems && !empty($suggestedActionItems))
-        <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-6" wire:loading.remove wire:target="save">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="body-text font-semibold text-[#2E5C8A]">関連するマイルストーンへのアクション提案</h3>
                 <button
@@ -160,8 +246,17 @@
         <button
             wire:click="save"
             class="btn-primary"
+            wire:loading.attr="disabled"
+            wire:target="save"
         >
-            保存
+            <span wire:loading.remove wire:target="save">保存＆アクション提案</span>
+            <span wire:loading wire:target="save" class="flex items-center gap-2">
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                AI分析中...
+            </span>
         </button>
     </div>
 </div>

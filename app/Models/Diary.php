@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Diary extends Model
@@ -59,5 +60,13 @@ class Diary extends Model
     public function chatConversation(): BelongsTo
     {
         return $this->belongsTo(ReflectionChatConversation::class, 'chat_conversation_id');
+    }
+
+    /**
+     * Get the goal connections for this diary.
+     */
+    public function goalConnections(): HasMany
+    {
+        return $this->hasMany(DiaryGoalConnection::class);
     }
 }

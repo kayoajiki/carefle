@@ -6,7 +6,9 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Diary;
 use App\Models\CareerMilestone;
+use App\Models\DiaryGoalConnection;
 use App\Services\ActionItemGeneratorService;
+use App\Services\GoalConnectionService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -23,6 +25,7 @@ class DiaryForm extends Component
     public $diaryId = null;
     public $suggestedActionItems = [];
     public $showActionItems = false;
+    public $goalConnections = [];
 
     protected $rules = [
         'date' => 'required|date',
@@ -66,6 +69,7 @@ class DiaryForm extends Component
         $this->motivation = $diary->motivation;
         $this->content = $diary->content;
         $this->existingPhoto = $diary->photo;
+        $this->loadGoalConnections($diary->id);
     }
 
     public function save()
@@ -140,6 +144,11 @@ class DiaryForm extends Component
         if ($savedDiary && !empty($this->content)) {
             $this->suggestActionItems($savedDiary);
             $this->updateMilestoneProgress($savedDiary);
+            // 接続情報の検出と読み込み（detectGoalConnections内でgoalConnectionsも更新される）
+            $this->detectGoalConnections($savedDiary);
+        } else {
+            // コンテンツがない場合は既存の接続情報をクリア
+            $this->goalConnections = [];
         }
         
         // 親コンポーネント（DiaryCalendar）に更新を通知
@@ -275,6 +284,74 @@ class DiaryForm extends Component
     {
         $this->suggestedActionItems = [];
         $this->showActionItems = false;
+    }
+
+    /**
+     * 日記とマイルストーン・WCMシートのWillテーマの接続を検出
+     */
+    protected function detectGoalConnections(Diary $diary)
+    {
+        if (empty($diary->content)) {
+            $this->goalConnections = [];
+            return;
+        }
+
+        try {
+            $connectionService = app(GoalConnectionService::class);
+            $connections = $connectionService->detectConnections($diary);
+
+            // 既存の接続を削除
+            DiaryGoalConnection::where('diary_id', $diary->id)->delete();
+
+            // 新しい接続を保存（最大3件まで）
+            $savedConnections = [];
+            foreach (array_slice($connections, 0, 3) as $connection) {
+                $savedConnections[] = DiaryGoalConnection::create($connection);
+            }
+
+            // 保存した接続情報を読み込んでgoalConnectionsを更新
+            $this->loadGoalConnections($diary->id);
+        } catch (\Exception $e) {
+            Log::warning('Failed to detect goal connections', [
+                'error' => $e->getMessage(),
+                'diary_id' => $diary->id,
+            ]);
+            // エラー時は既存の接続情報を読み込む
+            $this->loadGoalConnections($diary->id);
+        }
+    }
+
+    /**
+     * 接続情報を読み込む
+     */
+    protected function loadGoalConnections($diaryId)
+    {
+        if (!$diaryId) {
+            $this->goalConnections = [];
+            return;
+        }
+
+        $connections = DiaryGoalConnection::where('diary_id', $diaryId)
+            ->with(['milestone', 'wcmSheet'])
+            ->orderBy('connection_score', 'desc')
+            ->get();
+
+        $this->goalConnections = $connections->map(function ($connection) {
+            $connected = $connection->connected();
+            return [
+                'id' => $connection->id,
+                'type' => $connection->connection_type,
+                'score' => $connection->connection_score,
+                'reason' => $connection->connection_reason,
+                'will_theme' => $connection->will_theme,
+                'connected' => $connected ? [
+                    'id' => $connected->id,
+                    'title' => $connection->connection_type === 'milestone' 
+                        ? $connected->title 
+                        : ($connected->title ?? 'WCMシート'),
+                ] : null,
+            ];
+        })->toArray();
     }
 
     public function render()

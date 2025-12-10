@@ -250,7 +250,36 @@ class ReflectionChatService
             ]
         );
 
+        // 接続情報を検出（コンテンツがある場合のみ）
+        if (!empty($content)) {
+            $this->detectGoalConnections($diary);
+        }
+
         return $diary;
+    }
+
+    /**
+     * 日記とマイルストーン・WCMシートのWillテーマの接続を検出
+     */
+    protected function detectGoalConnections(Diary $diary): void
+    {
+        try {
+            $connectionService = app(\App\Services\GoalConnectionService::class);
+            $connections = $connectionService->detectConnections($diary);
+
+            // 既存の接続を削除
+            \App\Models\DiaryGoalConnection::where('diary_id', $diary->id)->delete();
+
+            // 新しい接続を保存（最大3件まで）
+            foreach (array_slice($connections, 0, 3) as $connection) {
+                \App\Models\DiaryGoalConnection::create($connection);
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to detect goal connections', [
+                'error' => $e->getMessage(),
+                'diary_id' => $diary->id,
+            ]);
+        }
     }
 
     /**
