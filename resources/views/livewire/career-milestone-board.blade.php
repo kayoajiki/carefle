@@ -118,7 +118,7 @@
                                     @if($action->description)
                                         <p class="body-small text-slate-500">{{ $action->description }}</p>
                                     @endif
-                                    <div class="flex gap-2">
+                                    <div class="flex flex-wrap items-center gap-2">
                                         @if($action->status === 'completed')
                                             <span class="body-small text-green-600">完了済み</span>
                                         @else
@@ -128,6 +128,44 @@
                                                 ✓ 完了
                                             </button>
                                         @endif
+                                        
+                                        {{-- 移動先選択 --}}
+                                        <div class="relative" x-data="{ open: false }">
+                                            <button type="button"
+                                                @click="open = !open"
+                                                class="btn-secondary text-xs">
+                                                移動
+                                            </button>
+                                            <div x-show="open"
+                                                @click.away="open = false"
+                                                x-transition
+                                                class="absolute top-full left-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-10 min-w-[200px] max-h-60 overflow-y-auto"
+                                                style="display: none;">
+                                                <div class="p-2 space-y-1">
+                                                    @foreach($milestones as $milestone)
+                                                        @if($milestone->id !== $detailMilestone->id)
+                                                            <button type="button"
+                                                                wire:click="moveActionItem({{ $action->id }}, {{ $milestone->id }})"
+                                                                @click="open = false"
+                                                                class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 body-small text-slate-600">
+                                                                {{ $milestone->title }}
+                                                            </button>
+                                                        @endif
+                                                    @endforeach
+                                                    @if($milestones->count() <= 1)
+                                                        <p class="px-3 py-2 body-small text-slate-400">他のマイルストーンがありません</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        {{-- 削除ボタン --}}
+                                        <button type="button"
+                                            wire:click="deleteActionItem({{ $action->id }})"
+                                            wire:confirm="この行動メモを削除しますか？"
+                                            class="btn-secondary text-xs text-red-600 hover:text-red-700">
+                                            削除
+                                        </button>
                                     </div>
                                 </div>
                             @empty

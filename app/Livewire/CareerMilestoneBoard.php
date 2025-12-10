@@ -61,6 +61,33 @@ class CareerMilestoneBoard extends Component
         $action->save();
     }
 
+    public function deleteActionItem(int $actionItemId): void
+    {
+        $action = MilestoneActionItem::where('id', $actionItemId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($action) {
+            $action->delete();
+        }
+    }
+
+    public function moveActionItem(int $actionItemId, int $targetMilestoneId): void
+    {
+        $action = MilestoneActionItem::where('id', $actionItemId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        $targetMilestone = CareerMilestone::where('id', $targetMilestoneId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($action && $targetMilestone) {
+            $action->career_milestone_id = $targetMilestoneId;
+            $action->save();
+        }
+    }
+
     public function handleMilestoneSaved(?int $milestoneId = null): void
     {
         $this->closeForm();
