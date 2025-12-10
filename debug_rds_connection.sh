@@ -80,3 +80,4 @@ echo "3. php artisan cache:clear を実行"
 echo "4. 再度接続テスト"
 
 
+

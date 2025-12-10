@@ -542,3 +542,4 @@ php artisan migrate:rollback --step=1
 問題が発生した場合は、上記のトラブルシューティング手順を参照してください。
 
 
+

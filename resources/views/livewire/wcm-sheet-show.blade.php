@@ -46,15 +46,66 @@
         {{-- 下部：Will / Can / Must --}}
         <div class="space-y-8 mb-12">
             <div class="card-refined p-8 border-2 border-blue-200">
-                <div class="heading-3 text-xl mb-4">Will</div>
+                <div class="flex items-center justify-between mb-4">
+                    <div class="heading-3 text-xl">Will</div>
+                    <button
+                        wire:click="generateWill"
+                        wire:loading.attr="disabled"
+                        wire:target="generateWill"
+                        class="btn-secondary text-sm"
+                    >
+                        <span wire:loading.remove wire:target="generateWill">AI自動生成入力</span>
+                        <span wire:loading wire:target="generateWill" class="flex items-center gap-2">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            生成中...
+                        </span>
+                    </button>
+                </div>
                 <textarea wire:model.debounce.800ms="will_text" rows="10" class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"></textarea>
             </div>
             <div class="card-refined p-8 border-2 border-amber-200">
-                <div class="heading-3 text-xl mb-4">Can</div>
+                <div class="flex items-center justify-between mb-4">
+                    <div class="heading-3 text-xl">Can</div>
+                    <button
+                        wire:click="generateCan"
+                        wire:loading.attr="disabled"
+                        wire:target="generateCan"
+                        class="btn-secondary text-sm"
+                    >
+                        <span wire:loading.remove wire:target="generateCan">AI自動生成入力</span>
+                        <span wire:loading wire:target="generateCan" class="flex items-center gap-2">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            生成中...
+                        </span>
+                    </button>
+                </div>
                 <textarea wire:model.debounce.800ms="can_text" rows="10" class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"></textarea>
             </div>
             <div class="card-refined p-8 border-2 border-green-200">
-                <div class="heading-3 text-xl mb-4">Must</div>
+                <div class="flex items-center justify-between mb-4">
+                    <div class="heading-3 text-xl">Must</div>
+                    <button
+                        wire:click="generateMust"
+                        wire:loading.attr="disabled"
+                        wire:target="generateMust"
+                        class="btn-secondary text-sm"
+                    >
+                        <span wire:loading.remove wire:target="generateMust">AI自動生成入力</span>
+                        <span wire:loading wire:target="generateMust" class="flex items-center gap-2">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            生成中...
+                        </span>
+                    </button>
+                </div>
                 <textarea wire:model.debounce.800ms="must_text" rows="10" class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"></textarea>
             </div>
         </div>

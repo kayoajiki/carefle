@@ -35,12 +35,23 @@
   - **注意**: 既に`GoalRecommendationService`は存在し、ゴールイメージ生成機能を実装済み。この機能を拡張する形で実装
 
 ### 3. Will-Can-Mustシートの自動生成機能（優先度：中）
-- **内容**: 診断結果や日記内容からAIがWCMシートを自動生成
+- **内容**: `/wcm/sheet/{id}`の集約版で、Will/Can/Mustそれぞれに「AI自動生成入力ボタン」を追加
 - **目的**: 入力負担を軽減し、思考の手助けとしてAIを活用
 - **実装方針**:
-  - `WcmForm`に「AIで自動生成」ボタンを追加
+  - `/wcm/start`の質問入力はそのまま（変更なし）
+  - `WcmSheetShow`コンポーネントに、Will/Can/Mustそれぞれに「AI自動生成入力ボタン」を追加
   - `WcmAutoGenerationService`を作成
-  - 生成後は手動で編集可能
+  - 生成後は手書きで編集可能（既存のtextareaで編集）
+  - 生成中はローディングアニメーションを表示
+- **情報収集の仕様**:
+  - 日記：直近1ヶ月分を収集（`Diary`モデルから取得）
+  - 診断結果：スコア・コメント含む、すべて含める（`Diagnosis`、`DiagnosisAnswer`、`PersonalityAssessment`）
+  - 既存WCMシート：最新版のみ参考として含める（`WcmSheet`の最新版）
+  - 生成形式：15項目（Will 5、Can 5、Must 5）を個別に生成し、テキストとして結合
+- **実装ファイル**:
+  - `app/Services/WcmAutoGenerationService.php`（新規作成）
+  - `app/Livewire/WcmSheetShow.php`（修正：AI生成ボタンとメソッド追加）
+  - `resources/views/livewire/wcm-sheet-show.blade.php`（修正：ボタンとローディング表示追加）
 
 ### 5. キャリアコンパス（言語化版）（優先度：中）
 - **内容**: 4項目（現職満足度診断、人生史、Will-Can-Must、自己診断結果）を埋めることで、1枚のシートとして統合表示
@@ -138,4 +149,5 @@
 - ミニマンダラ機能は現状維持（削除しない）
 - `will_theme`フィールドはマイルストーンのWillテーマとして使用中
 - 内省チャットの構造化フローは実装済み
+
 

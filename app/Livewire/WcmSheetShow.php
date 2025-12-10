@@ -3,7 +3,9 @@
 namespace App\Livewire;
 
 use App\Models\WcmSheet;
+use App\Services\WcmAutoGenerationService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -104,6 +106,78 @@ class WcmSheetShow extends Component
 
         // 画面はそのまま、一覧だけ再取得させる
         session()->flash('saved', '削除しました');
+    }
+
+    /**
+     * WillをAI生成
+     */
+    public function generateWill(): void
+    {
+        try {
+            $service = app(WcmAutoGenerationService::class);
+            $generated = $service->generateWill(Auth::id(), $this->will_text);
+            
+            if ($generated !== null) {
+                $this->will_text = $generated;
+                $this->autosave();
+                session()->flash('saved', 'WillをAI生成しました');
+            } else {
+                session()->flash('error', 'Willの生成に失敗しました。しばらく時間をおいて再度お試しください。');
+            }
+        } catch (\Exception $e) {
+            Log::error('WcmSheetShow: Failed to generate Will', [
+                'error' => $e->getMessage(),
+            ]);
+            session()->flash('error', 'Willの生成中にエラーが発生しました。');
+        }
+    }
+
+    /**
+     * CanをAI生成
+     */
+    public function generateCan(): void
+    {
+        try {
+            $service = app(WcmAutoGenerationService::class);
+            $generated = $service->generateCan(Auth::id(), $this->can_text);
+            
+            if ($generated !== null) {
+                $this->can_text = $generated;
+                $this->autosave();
+                session()->flash('saved', 'CanをAI生成しました');
+            } else {
+                session()->flash('error', 'Canの生成に失敗しました。しばらく時間をおいて再度お試しください。');
+            }
+        } catch (\Exception $e) {
+            Log::error('WcmSheetShow: Failed to generate Can', [
+                'error' => $e->getMessage(),
+            ]);
+            session()->flash('error', 'Canの生成中にエラーが発生しました。');
+        }
+    }
+
+    /**
+     * MustをAI生成
+     */
+    public function generateMust(): void
+    {
+        try {
+            $service = app(WcmAutoGenerationService::class);
+            $generated = $service->generateMust(Auth::id(), $this->must_text);
+            
+            if ($generated !== null) {
+                $this->must_text = $generated;
+                $this->autosave();
+                session()->flash('saved', 'MustをAI生成しました');
+            } else {
+                session()->flash('error', 'Mustの生成に失敗しました。しばらく時間をおいて再度お試しください。');
+            }
+        } catch (\Exception $e) {
+            Log::error('WcmSheetShow: Failed to generate Must', [
+                'error' => $e->getMessage(),
+            ]);
+            session()->flash('error', 'Mustの生成中にエラーが発生しました。');
+        }
     }
 }
 

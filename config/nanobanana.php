@@ -17,3 +17,4 @@ return [
     'prompt_template' => env('NANOBANANA_PROMPT_TEMPLATE', "次のゴールイメージを視覚化してください。\nゴール: {goal_text}\nスタイル: {style_hint}\n出力: シンプルなイラストで、温かいトーン。余白多め。文字は不要。"),
 ];
 
+

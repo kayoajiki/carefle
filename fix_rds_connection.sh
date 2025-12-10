@@ -33,3 +33,4 @@ if mysql -h "$DB_HOST" -u "$DB_USERNAME" -p -e "SELECT 1;" 2>&1 | grep -q "Acces
 fi
 
 
+
