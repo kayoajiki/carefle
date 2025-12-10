@@ -90,10 +90,15 @@ class ActionPlanGeneratorService
             // アクションプランをパース
             $actionPlan = $this->parseActionPlan($response);
 
+            // アクションを優先度順にソートし、最大5個に制限
+            $actions = $actionPlan['actions'] ?? [];
+            $actions = $this->sortActionsByPriority($actions);
+            $actions = array_slice($actions, 0, 5); // 最大5個に制限
+
             return [
                 'title' => $actionPlan['title'] ?? 'アクションプラン',
                 'description' => $actionPlan['description'] ?? '',
-                'actions' => $actionPlan['actions'] ?? [],
+                'actions' => $actions,
                 'source_type' => $data['type'],
                 'source_id' => $data['type'] === 'wcm' 
                     ? $data['wcm_sheet']->id 
@@ -142,9 +147,9 @@ class ActionPlanGeneratorService
         }
 
         $prompt .= "【アクションプランの要件】\n";
-        $prompt .= "- 具体的で実行可能なアクションを5-10個提案する\n";
+        $prompt .= "- 具体的で実行可能なアクションを5個提案する\n";
         $prompt .= "- 各アクションには、タイトル、説明、優先度（高/中/低）、推定所要時間を含める\n";
-        $prompt .= "- アクションは段階的に実行できる順序で並べる\n";
+        $prompt .= "- 優先度の高いものから順に並べる（高→中→低）\n";
         $prompt .= "- 現実的で達成可能な内容にする\n\n";
         $prompt .= "以下のJSON形式で返してください:\n";
         $prompt .= '{"title": "アクションプランのタイトル", "description": "概要", "actions": [{"title": "アクション名", "description": "説明", "priority": "高|中|低", "estimated_time": "所要時間"}]}';
@@ -191,6 +196,28 @@ class ActionPlanGeneratorService
         }
 
         return null;
+    }
+
+    /**
+     * アクションを優先度順にソート
+     */
+    protected function sortActionsByPriority(array $actions): array
+    {
+        $priorityOrder = ['高' => 1, '中' => 2, '低' => 3];
+        
+        usort($actions, function ($a, $b) use ($priorityOrder) {
+            $priorityA = $priorityOrder[$a['priority'] ?? '低'] ?? 3;
+            $priorityB = $priorityOrder[$b['priority'] ?? '低'] ?? 3;
+            
+            if ($priorityA !== $priorityB) {
+                return $priorityA <=> $priorityB;
+            }
+            
+            // 優先度が同じ場合は元の順序を保持
+            return 0;
+        });
+        
+        return $actions;
     }
 }
 
