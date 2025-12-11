@@ -113,6 +113,53 @@ x-init="scrollToBottom()"
                             </p>
                         @endif
                         
+                        {{-- 最後のクロージングメッセージの後にボタンを表示 --}}
+                        @if($conversationStep === 'closing' && $index === count($messages) - 1 && $message['role'] === 'assistant')
+                            <div class="mt-4 flex flex-col sm:flex-row gap-3">
+                                <button
+                                    wire:click="saveConversationAndClose"
+                                    wire:loading.attr="disabled"
+                                    wire:target="saveConversationAndClose"
+                                    class="px-6 py-3 rounded-xl bg-[#4CAF50] text-white body-text font-medium hover:bg-[#45A049] transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <span wire:loading.remove wire:target="saveConversationAndClose">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        保存して閉じる
+                                    </span>
+                                    <span wire:loading wire:target="saveConversationAndClose" class="flex items-center gap-2">
+                                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        保存中...
+                                    </span>
+                                </button>
+                                <button
+                                    wire:click="deleteConversationAndClose"
+                                    wire:loading.attr="disabled"
+                                    wire:target="deleteConversationAndClose"
+                                    wire:confirm="このチャットを削除して閉じますか？"
+                                    class="px-6 py-3 rounded-xl bg-white border-2 border-red-400 text-red-600 body-text font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <span wire:loading.remove wire:target="deleteConversationAndClose">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        削除して閉じる
+                                    </span>
+                                    <span wire:loading wire:target="deleteConversationAndClose" class="flex items-center gap-2">
+                                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        削除中...
+                                    </span>
+                                </button>
+                            </div>
+                        @endif
+                        
                         {{-- 選択肢ボタン（最初のメッセージの後、かつ選択肢が表示される場合） --}}
                         @if($index === 0 && $showSelectionButtons && $message['role'] === 'assistant')
                             <div class="mt-3 grid grid-cols-2 gap-2">

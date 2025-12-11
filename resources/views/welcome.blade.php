@@ -5,9 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>キャリフレ - Career Fre</title>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="icon" href="{{ asset('images/carekuma/carekuma-favicon.ico') }}" sizes="any">
+        <link rel="icon" href="{{ asset('images/carekuma/carekuma-favicon.svg') }}" type="image/svg+xml">
+        <link rel="apple-touch-icon" href="{{ asset('images/carekuma/carekuma-apple-touch-icon.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -119,6 +119,19 @@
             <div class="space-y-6 text-center">
                 <div class="inline-flex items-center gap-2 text-xs md:text-sm font-semibold badge-step rounded-full px-3 py-1 tracking-wide w-fit mx-auto">
                     自己理解の旅を始める「キャリフレ」
+                </div>
+
+                <!-- キャリくま -->
+                <div class="flex justify-center">
+                    <div class="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48">
+                        <img 
+                            src="{{ asset('images/carekuma/carekuma-full.png') }}" 
+                            alt="キャリくま" 
+                            class="w-full h-full object-contain"
+                            loading="eager"
+                            onerror="this.onerror=null; this.src='{{ asset('images/carekuma/carekuma-full.jpg') }}';"
+                        />
+                    </div>
                 </div>
 
                 <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight brand-headline">

@@ -72,7 +72,10 @@ class DiaryForm extends Component
         $this->loadGoalConnections($diary->id);
     }
 
-    public function save()
+    /**
+     * 保存処理の共通ロジック
+     */
+    protected function performSave(): Diary
     {
         $this->validate();
 
@@ -106,6 +109,7 @@ class DiaryForm extends Component
                 ->firstOrFail();
             $existingDiary->update($data);
             session()->flash('message', '日記を更新しました');
+            $savedDiary = $existingDiary;
         } else {
             // diaryIdが設定されていない場合は、日付で既存の日記を検索
             $existingDiary = Diary::where('user_id', Auth::id())
@@ -117,11 +121,13 @@ class DiaryForm extends Component
                 $existingDiary->update($data);
                 $this->diaryId = $existingDiary->id;
                 session()->flash('message', '日記を更新しました');
+                $savedDiary = $existingDiary;
             } else {
                 // 新規作成
                 $diary = Diary::create($data);
                 $this->diaryId = $diary->id;
                 session()->flash('message', '日記を保存しました');
+                $savedDiary = $diary;
             }
         }
 
@@ -129,26 +135,51 @@ class DiaryForm extends Component
         $this->photo = null;
         
         // 保存した日記を再取得してexistingPhotoを確実に更新
-        $savedDiary = null;
-        if ($this->diaryId) {
-            $savedDiary = Diary::where('user_id', Auth::id())
-                ->where('id', $this->diaryId)
-                ->first();
-            
-            if ($savedDiary) {
-                $this->existingPhoto = $savedDiary->photo;
-            }
+        if ($savedDiary) {
+            $this->existingPhoto = $savedDiary->photo;
         }
         
-        // 日記内容からアクションアイテムを提案（コンテンツがある場合のみ）
+        return $savedDiary;
+    }
+
+    /**
+     * 保存のみ（AI稼働なし）
+     */
+    public function save()
+    {
+        $savedDiary = $this->performSave();
+        
+        // 既存の接続情報を読み込む（AI処理は実行しない）
+        if ($savedDiary) {
+            $this->loadGoalConnections($savedDiary->id);
+        } else {
+            $this->goalConnections = [];
+        }
+        
+        // 親コンポーネント（DiaryCalendar）に更新を通知
+        $this->dispatch('diary-saved');
+    }
+
+    /**
+     * 保存 + アクション提案（AI稼働）
+     */
+    public function saveWithActionSuggestion()
+    {
+        $savedDiary = $this->performSave();
+        
+        // AI処理を実行（コンテンツがある場合のみ）
         if ($savedDiary && !empty($this->content)) {
             $this->suggestActionItems($savedDiary);
             $this->updateMilestoneProgress($savedDiary);
             // 接続情報の検出と読み込み（detectGoalConnections内でgoalConnectionsも更新される）
             $this->detectGoalConnections($savedDiary);
         } else {
-            // コンテンツがない場合は既存の接続情報をクリア
-            $this->goalConnections = [];
+            // コンテンツがない場合は既存の接続情報を読み込む
+            if ($savedDiary) {
+                $this->loadGoalConnections($savedDiary->id);
+            } else {
+                $this->goalConnections = [];
+            }
         }
         
         // 親コンポーネント（DiaryCalendar）に更新を通知

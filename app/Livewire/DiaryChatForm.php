@@ -412,6 +412,90 @@ class DiaryChatForm extends Component
         }
     }
 
+    /**
+     * チャットを保存して閉じる
+     */
+    public function saveConversationAndClose()
+    {
+        if (empty($this->messages)) {
+            session()->flash('error', '保存する会話がありません。');
+            return;
+        }
+
+        try {
+            $conversation = $this->chatService->saveConversation(
+                $this->date,
+                $this->messages
+            );
+
+            $diary = $this->chatService->saveAsDiary(
+                $this->date,
+                $this->messages,
+                $this->motivation,
+                $this->reflectionType
+            );
+
+            $this->conversationId = $conversation->id;
+            
+            // アクションアイテムを生成（オプション）
+            $this->generateActionItems($diary);
+
+            session()->flash('message', '内省を保存しました。');
+            $this->dispatch('diary-saved');
+            
+            // 日記カレンダーページにリダイレクト
+            return redirect()->route('diary');
+        } catch (\Exception $e) {
+            Log::error('Failed to save conversation and close', ['error' => $e->getMessage()]);
+            session()->flash('error', '保存に失敗しました: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * チャットを削除して閉じる
+     */
+    public function deleteConversationAndClose()
+    {
+        try {
+            // 会話を削除
+            if ($this->conversationId) {
+                $conversation = ReflectionChatConversation::where('id', $this->conversationId)
+                    ->where('user_id', Auth::id())
+                    ->first();
+                
+                if ($conversation) {
+                    // 関連する日記のchat_conversation_idをクリア
+                    Diary::where('chat_conversation_id', $this->conversationId)
+                        ->where('user_id', Auth::id())
+                        ->update(['chat_conversation_id' => null]);
+                    
+                    // 会話を削除
+                    $conversation->delete();
+                }
+            }
+            
+            // 日付で日記を検索して削除（チャットから作成された日記の場合）
+            $diary = Diary::where('user_id', Auth::id())
+                ->whereDate('date', $this->date)
+                ->whereNotNull('chat_conversation_id')
+                ->first();
+            
+            if ($diary && $diary->chat_conversation_id === $this->conversationId) {
+                // チャットから作成された日記のみ削除
+                $diary->delete();
+            }
+            
+            session()->flash('message', 'チャットを削除しました。');
+            $this->dispatch('diary-saved');
+            
+            // 日記カレンダーページにリダイレクト
+            return redirect()->route('diary');
+        } catch (\Exception $e) {
+            Log::error('Failed to delete conversation and close', ['error' => $e->getMessage()]);
+            session()->flash('error', '削除に失敗しました: ' . $e->getMessage());
+        }
+    }
+
     public function render()
     {
         return view('livewire.diary-chat-form');

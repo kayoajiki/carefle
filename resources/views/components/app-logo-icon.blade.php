@@ -1,4 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 42" {{ $attributes }}>
+<img 
+    src="{{ asset('images/carekuma/carekuma-full.jpg') }}" 
+    alt="キャリくま" 
+    class="w-full h-full object-contain"
+    {{ $attributes }}
+    onerror="this.onerror=null; this.src='{{ asset('images/carekuma/carekuma-full.png') }}'; this.onerror=function(){this.style.display='none'; this.nextElementSibling.style.display='block';};"
+/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 42" {{ $attributes }} style="display: none;">
     <path 
         fill="currentColor" 
         fill-rule="evenodd" 
