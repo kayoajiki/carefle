@@ -123,12 +123,13 @@
 
                 <!-- キャリくま -->
                 <div class="flex justify-center">
-                    <div class="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48">
+                    <div class="w-24 h-24 md:w-32 md:h-32 lg:w-36 lg:h-36 max-w-[144px] max-h-[144px]">
                         <img 
                             src="{{ asset('images/carekuma/carekuma-full.png') }}" 
                             alt="キャリくま" 
                             class="w-full h-full object-contain"
                             loading="eager"
+                            style="max-width: 100%; max-height: 100%;"
                             onerror="this.onerror=null; this.src='{{ asset('images/carekuma/carekuma-full.jpg') }}';"
                         />
                     </div>
