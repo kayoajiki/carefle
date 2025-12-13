@@ -182,70 +182,17 @@
     </section>
 
     <!-- =========================
-         FEATURES / キャリフレの機能
+         HOW IT WORKS / 使い方の流れ
     ========================== -->
-    <section id="features" class="px-6 md:px-8 section-pad bg-white/60">
+    <section id="how-it-works" class="px-6 md:px-8 section-pad bg-white/60">
         <div class="max-w-7xl mx-auto">
-            <div class="space-y-6 text-center mb-12 md:mb-16">
-                <h2 class="text-2xl md:text-3xl font-bold brand-headline leading-tight">
+            <div class="text-center mb-12 md:mb-16">
+                <h2 class="text-2xl md:text-3xl font-bold brand-headline leading-tight mb-4">
                     診断・記録・内省・行動計画。<br class="hidden md:block">
                     すべてがあなたの手の中に。
                 </h2>
                 <p class="text-lg md:text-xl text-dim leading-relaxed max-w-3xl mx-auto">
-                    自分で気づくためのツールを提供します。
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                <!-- 診断 -->
-                <div class="card-base p-6 bg-white border border-[#6BB6FF] text-center">
-                    <div class="text-[#6BB6FF] text-4xl mb-4">📊</div>
-                    <h3 class="font-semibold text-[#2E5C8A] text-lg mb-3">診断</h3>
-                    <p class="text-dim text-sm leading-relaxed">
-                        現職満足度診断と自己診断で、<br>「今の自分」を可視化します。
-                    </p>
-                </div>
-
-                <!-- 記録 -->
-                <div class="card-base p-6 bg-white border border-[#6BB6FF] text-center">
-                    <div class="text-[#6BB6FF] text-4xl mb-4">📝</div>
-                    <h3 class="font-semibold text-[#2E5C8A] text-lg mb-3">記録</h3>
-                    <p class="text-dim text-sm leading-relaxed">
-                        日記・人生史・マイルストーンで、<br>「過去と現在」を言語化します。
-                    </p>
-                </div>
-
-                <!-- 内省 -->
-                <div class="card-base p-6 bg-white border border-[#6BB6FF] text-center">
-                    <div class="text-[#6BB6FF] text-4xl mb-4">💭</div>
-                    <h3 class="font-semibold text-[#2E5C8A] text-lg mb-3">内省</h3>
-                    <p class="text-dim text-sm leading-relaxed">
-                        AIフィードバックと振り返りで、<br>深い気づきを得ます。
-                    </p>
-                </div>
-
-                <!-- 行動計画 -->
-                <div class="card-base p-6 bg-white border border-[#6BB6FF] text-center">
-                    <div class="text-[#6BB6FF] text-4xl mb-4">🎯</div>
-                    <h3 class="font-semibold text-[#2E5C8A] text-lg mb-3">行動計画</h3>
-                    <p class="text-dim text-sm leading-relaxed">
-                        WCMシートとマイルストーンで、<br>「未来」を具体化します。
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- =========================
-         HOW IT WORKS / 使い方の流れ
-    ========================== -->
-    <section id="how-it-works" class="px-6 md:px-8 section-pad bg-white/0">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 md:mb-16">
-                <h2 class="text-2xl md:text-3xl font-bold brand-headline leading-tight mb-4">
-                    自分を知る → 記録する → 内省する → 行動する
-                </h2>
-                <p class="text-lg md:text-xl text-dim leading-relaxed max-w-3xl mx-auto">
+                    自分を知る → 記録する → 内省する → 行動する<br class="hidden md:block">
                     4つのステップで、あなたの自己理解が深まります。
                 </p>
             </div>
@@ -254,9 +201,11 @@
             <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-12">
                 <!-- Step 1 -->
                 <div class="card-base p-6 bg-white border-2 border-[#6BB6FF] text-center flex-1 max-w-xs">
+                    <div class="text-[#6BB6FF] text-3xl mb-3">📊</div>
                     <div class="text-xs font-semibold badge-step rounded-full px-3 py-1 mb-3 w-fit mx-auto">STEP 1</div>
                     <h3 class="font-bold text-[#2E5C8A] text-lg mb-2">診断する</h3>
-                    <p class="text-dim text-sm">「今の自分」を可視化</p>
+                    <p class="text-dim text-sm mb-2">「今の自分」を可視化</p>
+                    <p class="text-dim text-xs">現職満足度診断と自己診断</p>
                 </div>
 
                 <!-- 矢印 -->
@@ -265,9 +214,11 @@
 
                 <!-- Step 2 -->
                 <div class="card-base p-6 bg-white border-2 border-[#6BB6FF] text-center flex-1 max-w-xs">
+                    <div class="text-[#6BB6FF] text-3xl mb-3">📝</div>
                     <div class="text-xs font-semibold badge-step rounded-full px-3 py-1 mb-3 w-fit mx-auto">STEP 2</div>
                     <h3 class="font-bold text-[#2E5C8A] text-lg mb-2">記録する</h3>
-                    <p class="text-dim text-sm">「過去と現在」を言語化</p>
+                    <p class="text-dim text-sm mb-2">「過去と現在」を言語化</p>
+                    <p class="text-dim text-xs">日記・人生史・マイルストーン</p>
                 </div>
 
                 <!-- 矢印 -->
@@ -276,9 +227,11 @@
 
                 <!-- Step 3 -->
                 <div class="card-base p-6 bg-white border-2 border-[#6BB6FF] text-center flex-1 max-w-xs">
+                    <div class="text-[#6BB6FF] text-3xl mb-3">💭</div>
                     <div class="text-xs font-semibold badge-step rounded-full px-3 py-1 mb-3 w-fit mx-auto">STEP 3</div>
                     <h3 class="font-bold text-[#2E5C8A] text-lg mb-2">内省する</h3>
-                    <p class="text-dim text-sm">深い気づきを得る</p>
+                    <p class="text-dim text-sm mb-2">深い気づきを得る</p>
+                    <p class="text-dim text-xs">AIフィードバックと振り返り</p>
                 </div>
 
                 <!-- 矢印 -->
@@ -287,9 +240,11 @@
 
                 <!-- Step 4 -->
                 <div class="card-base p-6 bg-white border-2 border-[#6BB6FF] text-center flex-1 max-w-xs">
+                    <div class="text-[#6BB6FF] text-3xl mb-3">🎯</div>
                     <div class="text-xs font-semibold badge-step rounded-full px-3 py-1 mb-3 w-fit mx-auto">STEP 4</div>
                     <h3 class="font-bold text-[#2E5C8A] text-lg mb-2">行動する</h3>
-                    <p class="text-dim text-sm">「未来」を具体化</p>
+                    <p class="text-dim text-sm mb-2">「未来」を具体化</p>
+                    <p class="text-dim text-xs">WCMシートとマイルストーン</p>
                 </div>
             </div>
 
