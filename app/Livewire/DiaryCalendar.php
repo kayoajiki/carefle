@@ -95,8 +95,9 @@ class DiaryCalendar extends Component
         $firstDay = Carbon::create($this->currentYear, $this->currentMonth, 1);
         $lastDay = $firstDay->copy()->endOfMonth();
         
-        $startDate = $firstDay->copy()->startOfWeek();
-        $endDate = $lastDay->copy()->endOfWeek();
+        // 週の始まりを日曜日（0）、終わりを土曜日（6）に設定
+        $startDate = $firstDay->copy()->startOfWeek(0); // 0 = 日曜日
+        $endDate = $lastDay->copy()->endOfWeek(6); // 6 = 土曜日
 
         $days = [];
         $current = $startDate->copy();

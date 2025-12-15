@@ -164,10 +164,10 @@
         </div>
     </section>
 
-    <!-- =========================
+    {{-- =========================
          CAREEKUMA COMIC / キャリくまの説明漫画
-    ========================== -->
-    <section id="carekuma-comic" class="px-6 md:px-8 pt-8 pb-12 md:pt-12 md:pb-16 bg-white/0">
+    ========================== --}}
+    {{-- <section id="carekuma-comic" class="px-6 md:px-8 pt-8 pb-12 md:pt-12 md:pb-16 bg-white/0">
         <div class="max-w-4xl mx-auto">
             <div class="card-base p-4 md:p-6 bg-white border border-[#6BB6FF]">
                 <img 
@@ -179,7 +179,7 @@
                 />
             </div>
         </div>
-    </section>
+    </section> --}}
 
     <!-- =========================
          HOW IT WORKS / 使い方の流れ
