@@ -57,6 +57,14 @@
                     <flux:navlist.item icon="document-text" :href="route('resume.upload')" :current="request()->routeIs('resume.*')" wire:navigate>履歴書アップロード</flux:navlist.item>
                     <flux:navlist.item icon="document-duplicate" :href="route('career-history.upload')" :current="request()->routeIs('career-history.*')" wire:navigate>職務経歴書アップロード</flux:navlist.item>
                 </flux:navlist.group>
+
+                @if(auth()->user() && auth()->user()->isAdmin())
+                <flux:navlist.group heading="管理" class="grid">
+                    <flux:navlist.item icon="chart-bar" :href="route('admin.dashboard')" :current="request()->routeIs('admin.dashboard')" wire:navigate>管理ダッシュボード</flux:navlist.item>
+                    <flux:navlist.item icon="users" :href="route('admin.users.index')" :current="request()->routeIs('admin.users.*')" wire:navigate>ユーザー管理</flux:navlist.item>
+                    <flux:navlist.item icon="document-text" :href="route('admin.activity-logs.index')" :current="request()->routeIs('admin.activity-logs.*')" wire:navigate>アクティビティログ</flux:navlist.item>
+                </flux:navlist.group>
+                @endif
             </flux:navlist>
 
             <flux:spacer />

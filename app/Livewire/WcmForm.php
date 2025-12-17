@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\WcmSheet;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -75,6 +76,10 @@ class WcmForm extends Component
                     $progressService->updateProgress($userId, 'wcm_created');
                 }
                 
+                // アクティビティログに記録
+                $activityLogService = app(ActivityLogService::class);
+                $activityLogService->logWcmSheetCompleted($userId, $sheet->id);
+                
                 return redirect()->route('wcm.sheet', ['id' => $sheet->id]);
             }
         }
@@ -100,7 +105,18 @@ class WcmForm extends Component
             $progressService = app(\App\Services\OnboardingProgressService::class);
             $progressService->updateProgress($userId, 'wcm_created');
         }
-
+        
+        // Update user's last_activity_at
+        $user = Auth::user();
+        if ($user) {
+            $user->last_activity_at = now();
+            $user->save();
+        }
+        
+        // アクティビティログに記録
+        $activityLogService = app(ActivityLogService::class);
+        $activityLogService->logWcmSheetCompleted($userId, $sheet->id);
+        
         return redirect()->route('wcm.sheet', ['id' => $sheet->id]);
     }
 

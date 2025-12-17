@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\PersonalityAssessment;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 
 class PersonalityAssessmentForm extends Component
@@ -246,6 +247,17 @@ class PersonalityAssessmentForm extends Component
         } else {
             $assessment = PersonalityAssessment::create($data);
             
+            // Update user's last_activity_at
+            $user = Auth::user();
+            if ($user) {
+                $user->last_activity_at = now();
+                $user->save();
+            }
+            
+            // アクティビティログに記録
+            $activityLogService = app(ActivityLogService::class);
+            $activityLogService->logPersonalityAssessmentCompleted(Auth::id(), $assessment->id, $this->assessmentType);
+            
             // 初回自己診断入力時にオンボーディング進捗を更新
             $hasOtherAssessments = PersonalityAssessment::where('user_id', Auth::id())
                 ->where('id', '!=', $assessment->id)
@@ -317,6 +329,11 @@ class PersonalityAssessmentForm extends Component
         $assessment = PersonalityAssessment::where('user_id', Auth::id())
             ->where('id', $id)
             ->firstOrFail();
+        
+        // アクティビティログに記録
+        $activityLogService = app(ActivityLogService::class);
+        $activityLogService->logPersonalityAssessmentDeleted(Auth::id(), $id);
+        
         $assessment->delete();
         session()->flash('message', '診断結果を削除しました');
     }

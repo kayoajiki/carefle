@@ -42,6 +42,9 @@ class OnboardingProgressService
     {
         $progress = $this->getOrCreateProgress($userId);
         
+        // Check if step was already completed
+        $wasAlreadyCompleted = $progress->isStepCompleted($step);
+        
         // Mark step as completed
         $progress->markStepCompleted($step);
         
@@ -60,6 +63,15 @@ class OnboardingProgressService
         }
         
         $progress->save();
+        
+        // Log activity for specific steps (only if newly completed)
+        if (!$wasAlreadyCompleted) {
+            $activityLogService = app(\App\Services\ActivityLogService::class);
+            
+            if ($step === 'diary_7days') {
+                $activityLogService->log7DayDiaryCompleted($userId);
+            }
+        }
     }
 
     /**

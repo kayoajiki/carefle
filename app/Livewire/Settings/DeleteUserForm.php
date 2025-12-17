@@ -3,6 +3,7 @@
 namespace App\Livewire\Settings;
 
 use App\Livewire\Actions\Logout;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -19,7 +20,14 @@ class DeleteUserForm extends Component
             'password' => ['required', 'string', 'current_password'],
         ]);
 
-        tap(Auth::user(), $logout(...))->delete();
+        $user = Auth::user();
+        $userId = $user->id;
+
+        // アクティビティログに記録（削除前に記録）
+        $activityLogService = app(ActivityLogService::class);
+        $activityLogService->logUserAccountDeleted($userId);
+
+        tap($user, $logout(...))->delete();
 
         $this->redirect('/', navigate: true);
     }

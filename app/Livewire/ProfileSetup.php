@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
@@ -118,6 +119,10 @@ class ProfileSetup extends Component
             'education' => $validated['education'] ?? null,
             'profile_completed' => true,
         ]);
+
+        // アクティビティログに記録
+        $activityLogService = app(ActivityLogService::class);
+        $activityLogService->logProfileCompleted($user->id);
 
         return $this->redirect(route('diagnosis.start'));
     }

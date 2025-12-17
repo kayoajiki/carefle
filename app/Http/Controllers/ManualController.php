@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ContextDetectionService;
 use App\Services\ContextualManualGeneratorService;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -35,6 +36,12 @@ class ManualController extends Controller
 
         // コンテキスト別取説を生成
         $manual = $this->manualService->generateContextualManual($user->id, $context);
+
+        // アクティビティログに記録（生成成功時のみ）
+        if ($manual) {
+            $activityLogService = app(ActivityLogService::class);
+            $activityLogService->logContextualManualGenerated($user->id, $context);
+        }
 
         if (!$manual) {
             // 生成できない場合（記録数が不足している場合）

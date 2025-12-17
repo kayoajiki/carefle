@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Question;
 use App\Models\Diagnosis;
 use App\Models\DiagnosisAnswer;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 
 class DiagnosisForm extends Component
@@ -161,9 +162,20 @@ class DiagnosisForm extends Component
             'is_draft' => false,
         ]);
 
+        // Update user's last_activity_at
+        $user = Auth::user();
+        if ($user) {
+            $user->last_activity_at = now();
+            $user->save();
+        }
+
         // オンボーディング進捗を更新
         $progressService = app(\App\Services\OnboardingProgressService::class);
         $progressService->updateProgress(Auth::id(), 'diagnosis');
+
+        // アクティビティログに記録
+        $activityLogService = app(ActivityLogService::class);
+        $activityLogService->logDiagnosisCompleted(Auth::id(), $this->diagnosisId);
 
         return redirect()->route('diagnosis.result', $this->diagnosisId);
     }

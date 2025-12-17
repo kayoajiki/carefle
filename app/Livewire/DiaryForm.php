@@ -9,6 +9,7 @@ use App\Models\CareerMilestone;
 use App\Models\DiaryGoalConnection;
 use App\Services\ActionItemGeneratorService;
 use App\Services\GoalConnectionService;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -147,12 +148,24 @@ class DiaryForm extends Component
         // 保存した日記を再取得してexistingPhotoを確実に更新
         if ($savedDiary) {
             $this->existingPhoto = $savedDiary->photo;
+            
+            // Update user's last_activity_at
+            $user = Auth::user();
+            if ($user) {
+                $user->last_activity_at = now();
+                $user->save();
+            }
         }
         
         // 初回日記保存時にオンボーディング進捗を更新
         // 初回日記ステップが未完了の場合、日記を保存したら完了としてマーク
         if (!$isDiaryFirstCompleted && ($isFirstDiary || $wasNewDiary || !empty($savedDiary->content))) {
             $progressService->updateProgress(Auth::id(), 'diary_first');
+            
+            // アクティビティログに記録（初回日記作成のみ）
+            $activityLogService = app(ActivityLogService::class);
+            $activityLogService->logDiaryCreated(Auth::id(), $savedDiary->id, $savedDiary->date->format('Y-m-d'));
+            
             session()->flash('message', '日記を保存しました！🎉 初回の記録、おめでとうございます！');
         } else {
             // 連続記録日数を計算して褒めメッセージを追加

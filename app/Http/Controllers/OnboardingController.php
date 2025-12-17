@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\MiniManualGeneratorService;
 use App\Services\OnboardingProgressService;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 
 class OnboardingController extends Controller
@@ -57,6 +58,10 @@ class OnboardingController extends Controller
         // 持ち味レポ生成を進捗に記録
         if (!$this->progressService->checkStepCompletion($user->id, 'manual_generated')) {
             $this->progressService->updateProgress($user->id, 'manual_generated');
+            
+            // アクティビティログに記録
+            $activityLogService = app(ActivityLogService::class);
+            $activityLogService->logStrengthsReportGenerated($user->id);
         }
 
         return view('onboarding.mini-manual', [

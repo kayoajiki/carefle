@@ -39,6 +39,9 @@ class User extends Authenticatable
         'goal_image',
         'goal_image_url',
         'goal_display_mode',
+        'is_admin',
+        'last_login_at',
+        'last_activity_at',
     ];
 
     /**
@@ -67,6 +70,9 @@ class User extends Authenticatable
             'profile_completed' => 'boolean',
             'ai_companion_preferences' => 'array',
             'goal_display_mode' => 'string',
+            'is_admin' => 'boolean',
+            'last_login_at' => 'datetime',
+            'last_activity_at' => 'datetime',
         ];
     }
 
@@ -88,5 +94,21 @@ class User extends Authenticatable
     public function diaries()
     {
         return $this->hasMany(Diary::class);
+    }
+
+    /**
+     * Check if the user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin === true;
+    }
+
+    /**
+     * Get the user's activity logs.
+     */
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
     }
 }

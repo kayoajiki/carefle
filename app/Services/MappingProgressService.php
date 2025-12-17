@@ -9,6 +9,7 @@ use App\Models\Diary;
 use App\Models\LifeEvent;
 use App\Models\WcmSheet;
 use App\Models\CareerMilestone;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Log;
 
 class MappingProgressService
@@ -143,13 +144,25 @@ class MappingProgressService
     {
         $progress = $this->getOrCreateProgress($userId);
         
+        // Check if item was already completed
+        $wasAlreadyCompleted = $progress->isItemCompleted($item);
+        
         // Mark item as completed
         $progress->markItemCompleted($item);
+        
+        // Get section for this item
+        $section = $this->getSectionForItem($item);
+        
+        // Check if section is now complete
+        $sectionItems = $this->getSectionItems($section);
+        $isSectionComplete = $progress->isSectionComplete($section, $sectionItems);
         
         // Update current section
         $nextItem = $this->getNextItem($userId);
         if ($nextItem) {
             $progress->current_section = $this->getSectionForItem($nextItem);
+        } else {
+            $progress->current_section = null;
         }
         
         // Set started_at if not set
@@ -163,6 +176,12 @@ class MappingProgressService
         }
         
         $progress->save();
+        
+        // Log activity for section completion (only if newly completed)
+        if (!$wasAlreadyCompleted && $isSectionComplete) {
+            $activityLogService = app(ActivityLogService::class);
+            $activityLogService->logMappingProgressCompleted($userId, $section);
+        }
     }
 
     /**
@@ -183,12 +202,22 @@ class MappingProgressService
         
         $progress = $this->getOrCreateProgress($userId);
         $completedItems = $progress->completed_items ?? [];
+        $newlyCompletedItems = [];
+        $completedSections = [];
         
         foreach ($allItems as $item) {
             // データベースから判定
             if ($this->checkItemCompletionFromDatabase($userId, $item)) {
                 if (!in_array($item, $completedItems, true)) {
                     $progress->markItemCompleted($item);
+                    $newlyCompletedItems[] = $item;
+                    
+                    // Check if section is now complete
+                    $section = $this->getSectionForItem($item);
+                    $sectionItems = $this->getSectionItems($section);
+                    if ($progress->isSectionComplete($section, $sectionItems) && !in_array($section, $completedSections, true)) {
+                        $completedSections[] = $section;
+                    }
                 }
             }
         }
@@ -212,6 +241,14 @@ class MappingProgressService
         }
         
         $progress->save();
+        
+        // Log activity for newly completed sections
+        if (!empty($completedSections)) {
+            $activityLogService = app(ActivityLogService::class);
+            foreach ($completedSections as $section) {
+                $activityLogService->logMappingProgressCompleted($userId, $section);
+            }
+        }
     }
 
     /**
