@@ -43,6 +43,12 @@ Route::middleware(['auth'])->group(function () {
         ->name('onboarding.mini-manual');
     Route::get('onboarding/mini-manual/pdf', [\App\Http\Controllers\OnboardingController::class, 'downloadMiniManualPdf'])
         ->name('onboarding.mini-manual.pdf');
+    
+    // コンテキスト別取説
+    Route::get('manual', [\App\Http\Controllers\ManualController::class, 'index'])
+        ->name('manual.index');
+    Route::get('manual/context/{context}', [\App\Http\Controllers\ManualController::class, 'showContextualManual'])
+        ->name('manual.context');
     Route::get('diagnosis/start', [DiagnosisController::class, 'start'])
         ->name('diagnosis.start');
     Route::get('diagnosis/result/{id}', [DiagnosisController::class, 'result'])
