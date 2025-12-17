@@ -57,8 +57,11 @@ class DiaryReflectionFeedback extends Component
                 ->limit(5)
                 ->get();
 
+            // 連続記録日数を計算
+            $streak = $this->calculateStreak(Auth::id());
+
             // プロンプトを構築
-            $prompt = $this->buildFeedbackPrompt($diary, $context, $pastDiaries);
+            $prompt = $this->buildFeedbackPrompt($diary, $context, $pastDiaries, $streak);
 
             // AIからフィードバックを生成
             // 会話履歴は空配列で、プロンプトを最初のuserメッセージとして渡す
@@ -89,7 +92,7 @@ class DiaryReflectionFeedback extends Component
         }
     }
 
-    protected function buildFeedbackPrompt(Diary $diary, string $context, $pastDiaries): string
+    protected function buildFeedbackPrompt(Diary $diary, string $context, $pastDiaries, int $streak = 0): string
     {
         // UTF-8として正規化（不正な文字を削除）
         $diaryContent = $this->sanitizeUtf8($diary->content);
@@ -114,10 +117,24 @@ class DiaryReflectionFeedback extends Component
             $prompt .= "\n";
         }
 
+        // 連続記録日数の情報を追加
+        if ($streak > 0) {
+            $streakMessage = match(true) {
+                $streak >= 30 => "ユーザーは{$streak}日連続で日記を記録しています。これは素晴らしい継続力です。",
+                $streak >= 14 => "ユーザーは{$streak}日連続で日記を記録しています。習慣化ができています。",
+                $streak >= 7 => "ユーザーは{$streak}日連続で日記を記録しています。1週間続けられています。",
+                default => "ユーザーは{$streak}日連続で日記を記録しています。",
+            };
+            $prompt .= "【記録状況】\n{$streakMessage}\n\n";
+        }
+
         $prompt .= "【フィードバックのポイント】\n";
         $prompt .= "- 日記の内容に対して共感を示す\n";
         $prompt .= "- 気づきや成長のポイントを指摘する\n";
         $prompt .= "- 過去の日記と比較して変化や成長を感じられる点を伝える\n";
+        if ($streak >= 3) {
+            $prompt .= "- 連続記録日数に触れて、継続を褒める\n";
+        }
         $prompt .= "- より深い内省を促す質問を1-2個含める\n";
         $prompt .= "- 励ましの言葉を含める\n";
         $prompt .= "- 簡潔で読みやすい文章（3-5文程度）\n\n";
@@ -127,6 +144,40 @@ class DiaryReflectionFeedback extends Component
         $prompt = $this->sanitizeUtf8($prompt);
 
         return $prompt;
+    }
+
+    /**
+     * 連続記録日数を計算
+     */
+    protected function calculateStreak(int $userId): int
+    {
+        $diaries = Diary::where('user_id', $userId)
+            ->orderByDesc('date')
+            ->get()
+            ->pluck('date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->unique()
+            ->sort()
+            ->reverse()
+            ->values();
+
+        if ($diaries->isEmpty()) {
+            return 0;
+        }
+
+        $streak = 0;
+        $expectedDate = now()->format('Y-m-d');
+        
+        foreach ($diaries as $date) {
+            if ($date === $expectedDate) {
+                $streak++;
+                $expectedDate = date('Y-m-d', strtotime($expectedDate . ' -1 day'));
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
     }
 
     /**
@@ -158,5 +209,3 @@ class DiaryReflectionFeedback extends Component
         ]);
     }
 }
-
-

@@ -285,4 +285,3 @@ class BedrockService
         return $string;
     }
 }
-

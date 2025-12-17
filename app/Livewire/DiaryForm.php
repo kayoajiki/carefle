@@ -101,6 +101,9 @@ class DiaryForm extends Component
             $data['photo'] = $this->existingPhoto;
         }
 
+        // 初回日記かどうかをチェック（保存前）
+        $isFirstDiary = !Diary::where('user_id', Auth::id())->exists();
+
         // 既存の日記を確認
         if ($this->diaryId) {
             // diaryIdが設定されている場合は更新
@@ -137,6 +140,22 @@ class DiaryForm extends Component
         // 保存した日記を再取得してexistingPhotoを確実に更新
         if ($savedDiary) {
             $this->existingPhoto = $savedDiary->photo;
+        }
+        
+        // 初回日記保存時にオンボーディング進捗を更新
+        if ($isFirstDiary && !$this->diaryId) {
+            $progressService = app(\App\Services\OnboardingProgressService::class);
+            $progressService->updateProgress(Auth::id(), 'diary_first');
+            session()->flash('message', '日記を保存しました！🎉 初回の記録、おめでとうございます！');
+        } else {
+            // 連続記録日数を計算して褒めメッセージを追加
+            $streak = $this->calculateStreak(Auth::id());
+            if ($streak > 0) {
+                $praiseMessage = $this->getPraiseMessage($streak);
+                if ($praiseMessage) {
+                    session()->flash('message', '日記を保存しました！' . $praiseMessage);
+                }
+            }
         }
         
         return $savedDiary;
@@ -383,6 +402,54 @@ class DiaryForm extends Component
                 ] : null,
             ];
         })->toArray();
+    }
+
+    /**
+     * 連続記録日数を計算
+     */
+    protected function calculateStreak(int $userId): int
+    {
+        $diaries = Diary::where('user_id', $userId)
+            ->orderByDesc('date')
+            ->get()
+            ->pluck('date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->unique()
+            ->sort()
+            ->reverse()
+            ->values();
+
+        if ($diaries->isEmpty()) {
+            return 0;
+        }
+
+        $streak = 0;
+        $expectedDate = now()->format('Y-m-d');
+        
+        foreach ($diaries as $date) {
+            if ($date === $expectedDate) {
+                $streak++;
+                $expectedDate = date('Y-m-d', strtotime($expectedDate . ' -1 day'));
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
+    }
+
+    /**
+     * 連続記録日数に応じた褒めメッセージを取得
+     */
+    protected function getPraiseMessage(int $streak): ?string
+    {
+        return match(true) {
+            $streak >= 30 => ' 30日連続記録達成！素晴らしい継続力です！🌟',
+            $streak >= 14 => ' 2週間連続記録達成！習慣化ができていますね！✨',
+            $streak >= 7 => ' 7日連続記録達成！1週間続けられました！🎉',
+            $streak >= 3 => ' ' . $streak . '日連続記録中！この調子で続けましょう！💪',
+            default => null,
+        };
     }
 
     public function render()

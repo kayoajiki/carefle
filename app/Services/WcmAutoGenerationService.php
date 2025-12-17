@@ -395,4 +395,3 @@ class WcmAutoGenerationService
         return implode("\n", $items);
     }
 }
-

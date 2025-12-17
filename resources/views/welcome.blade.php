@@ -232,7 +232,7 @@
                     <h3 class="font-bold text-[#2E5C8A] text-lg mb-2">内省する</h3>
                     <p class="text-dim text-sm mb-2">深い気づきを得る</p>
                     <p class="text-dim text-xs">AIフィードバックと振り返り</p>
-                </div>
+                        </div>
 
                 <!-- 矢印 -->
                 <div class="text-[#6BB6FF] text-3xl hidden md:block">→</div>
@@ -245,8 +245,8 @@
                     <h3 class="font-bold text-[#2E5C8A] text-lg mb-2">行動する</h3>
                     <p class="text-dim text-sm mb-2">「未来」を具体化</p>
                     <p class="text-dim text-xs">WCMシートとマイルストーン</p>
-                </div>
-            </div>
+                        </div>
+                    </div>
 
             <!-- 得られるもの -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
@@ -308,14 +308,14 @@
                         <p class="text-dim text-sm leading-relaxed">
                             レーダーチャートやタイムラインで、いつでも振り返ることができます。
                         </p>
-                    </div>
                 </div>
+            </div>
 
                 <!-- 右: メッセージ -->
                 <div class="card-base p-6 md:p-8 bg-white border border-[#6BB6FF]">
                     <h3 class="text-xl font-bold text-[#2E5C8A] mb-4">
                         日常的な自己理解の習慣が、あなたを変えます
-                    </h3>
+                </h3>
                     <p class="text-dim text-sm leading-relaxed mb-6">
                         悩み続ける時間を「進んでいる実感がある時間」に置き換える——それがキャリフレの目的です。
                     </p>

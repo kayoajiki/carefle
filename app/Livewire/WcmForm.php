@@ -63,6 +63,18 @@ class WcmForm extends Component
                     'version'   => $maxVersion + 1,
                     'is_draft'  => false,
                 ]);
+                
+                // 初回WCMシート作成時にオンボーディング進捗を更新
+                $hasOtherWcmSheets = WcmSheet::where('user_id', $userId)
+                    ->where('id', '!=', $sheet->id)
+                    ->where('is_draft', false)
+                    ->exists();
+                
+                if (!$hasOtherWcmSheets) {
+                    $progressService = app(\App\Services\OnboardingProgressService::class);
+                    $progressService->updateProgress($userId, 'wcm_created');
+                }
+                
                 return redirect()->route('wcm.sheet', ['id' => $sheet->id]);
             }
         }
@@ -77,6 +89,17 @@ class WcmForm extends Component
             'version'   => $maxVersion + 1,
             'is_draft'  => false,
         ]);
+
+        // 初回WCMシート作成時にオンボーディング進捗を更新
+        $hasOtherWcmSheets = WcmSheet::where('user_id', $userId)
+            ->where('id', '!=', $sheet->id)
+            ->where('is_draft', false)
+            ->exists();
+        
+        if (!$hasOtherWcmSheets) {
+            $progressService = app(\App\Services\OnboardingProgressService::class);
+            $progressService->updateProgress($userId, 'wcm_created');
+        }
 
         return redirect()->route('wcm.sheet', ['id' => $sheet->id]);
     }

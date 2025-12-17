@@ -4,11 +4,19 @@ namespace App\View\Composers;
 
 use App\Models\Diagnosis;
 use App\Models\WcmSheet;
+use App\Services\FeatureDiscoveryService;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 
 class SidebarComposer
 {
+    protected FeatureDiscoveryService $featureService;
+
+    public function __construct(FeatureDiscoveryService $featureService)
+    {
+        $this->featureService = $featureService;
+    }
+
     /**
      * Bind data to the view.
      */
@@ -32,9 +40,15 @@ class SidebarComposer
             ->latest('updated_at')
             ->first();
 
+        // 機能のアンロック状態を取得
+        $unlockedFeatures = $this->featureService->getUnlockedFeatures($user->id);
+        $discoveryHints = $this->featureService->getDiscoveryHints($user->id);
+
         $view->with([
             'latestDiagnosisId' => $latestDiagnosis?->id,
             'latestWcmSheetId' => $latestWcmSheet?->id,
+            'unlockedFeatures' => $unlockedFeatures,
+            'discoveryHints' => $discoveryHints,
         ]);
     }
 }

@@ -17,6 +17,9 @@
 
         <div class="min-h-screen bg-gradient-to-b from-[#E9F2FF] to-[#F6FBFF]">
             <div class="w-full max-w-7xl mx-auto content-padding section-spacing-sm space-y-12">
+                <!-- オンボーディング進捗バー -->
+                <livewire:onboarding-progress-bar />
+                
                 <!-- ヘッダー & CTA -->
                 <div class="card-refined surface-blue p-10 soft-shadow-refined space-y-6">
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -111,6 +114,46 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- 7日間記録の進捗バー（オンボーディング中のみ表示） --}}
+                        @if(isset($diary7DaysProgress) && $diary7DaysProgress['show'])
+                            <div class="mt-6 p-4 bg-[#E8F4FF] rounded-xl border border-[#6BB6FF]/20">
+                                <div class="flex items-center justify-between mb-3">
+                                    <p class="body-text font-semibold text-[#2E5C8A]">プチ取説まで</p>
+                                    <p class="body-small text-[#1E3A5F]/70">{{ $diary7DaysProgress['current'] }}/{{ $diary7DaysProgress['target'] }}日</p>
+                                </div>
+                                
+                                {{-- 7日間カレンダーミニマップ --}}
+                                @if(isset($diary7DaysCalendar))
+                                    <div class="flex items-center justify-between gap-1 mb-3">
+                                        @foreach($diary7DaysCalendar as $day)
+                                            <div class="flex-1 flex flex-col items-center">
+                                                <p class="text-[10px] text-[#1E3A5F]/50 mb-1">{{ $day['dayOfWeek'] }}</p>
+                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center {{ $day['hasDiary'] ? 'bg-[#6BB6FF] text-white' : 'bg-white/60 text-[#1E3A5F]/30' }} border {{ $day['hasDiary'] ? 'border-[#6BB6FF]' : 'border-[#2E5C8A]/20' }}">
+                                                    <span class="text-xs font-semibold">{{ $day['day'] }}</span>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                                
+                                <div class="w-full bg-white/60 rounded-full h-2 overflow-hidden mb-2">
+                                    <div 
+                                        class="h-2 bg-[#6BB6FF] transition-all duration-500"
+                                        style="width: {{ $diary7DaysProgress['percentage'] }}%"
+                                    ></div>
+                                </div>
+                                @if($diary7DaysProgress['remaining'] > 0)
+                                    <p class="body-small text-[#1E3A5F]/70 text-center">
+                                        あと{{ $diary7DaysProgress['remaining'] }}日でプチ取説が生成されます！
+                                    </p>
+                                @else
+                                    <p class="body-small text-[#2E5C8A] font-semibold text-center">
+                                        🎉 7日間の記録が完了しました！プチ取説を生成できます
+                                    </p>
+                                @endif
+                            </div>
+                        @endif
                         <a href="{{ route('diary.chat') }}" class="btn-primary">
                             内省を始める
                         </a>
@@ -283,7 +326,7 @@
                             @endforeach
                         </div>
                         <div class="mt-6">
-                            <a href="{{ route('milestones.progress') }}" class="btn-secondary w-full text-center">
+                            <a href="{{ route('career.milestones') }}" class="btn-secondary w-full text-center">
                                 詳細を見る
                             </a>
                         </div>

@@ -227,4 +227,3 @@ class GoalConnectionService
         return null;
     }
 }
-

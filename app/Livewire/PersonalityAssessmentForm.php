@@ -244,7 +244,17 @@ class PersonalityAssessmentForm extends Component
             $assessment->update($data);
             session()->flash('message', '診断結果を更新しました');
         } else {
-            PersonalityAssessment::create($data);
+            $assessment = PersonalityAssessment::create($data);
+            
+            // 初回自己診断入力時にオンボーディング進捗を更新
+            $hasOtherAssessments = PersonalityAssessment::where('user_id', Auth::id())
+                ->where('id', '!=', $assessment->id)
+                ->exists();
+            
+            if (!$hasOtherAssessments) {
+                $progressService = app(\App\Services\OnboardingProgressService::class);
+                $progressService->updateProgress(Auth::id(), 'assessment');
+            }
             session()->flash('message', '診断結果を保存しました');
             $this->resetForm();
         }

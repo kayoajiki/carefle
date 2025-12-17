@@ -205,9 +205,12 @@
 
         <button
             type="submit"
-            class="w-full px-6 py-3 rounded-lg font-semibold text-base accent-bg accent-text shadow-md hover:opacity-90 transition mt-2"
+            wire:loading.attr="disabled"
+            wire:target="save"
+            class="w-full px-6 py-3 rounded-lg font-semibold text-base accent-bg accent-text shadow-md hover:opacity-90 transition mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-            診断を始める
+            <span wire:loading.remove wire:target="save">診断を始める</span>
+            <span wire:loading wire:target="save">保存中...</span>
         </button>
     </form>
 

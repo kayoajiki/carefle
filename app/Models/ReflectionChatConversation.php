@@ -43,4 +43,3 @@ class ReflectionChatConversation extends Model
         return $this->belongsTo(Diary::class, 'diary_id');
     }
 }
-

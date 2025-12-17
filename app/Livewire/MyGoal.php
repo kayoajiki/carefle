@@ -229,4 +229,3 @@ class MyGoal extends Component
         return view('livewire.my-goal');
     }
 }
-

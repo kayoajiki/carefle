@@ -123,12 +123,12 @@
                         Current Position
                     </p>
                     <h1 class="heading-2 text-3xl md:text-4xl mb-3">
-                        あなたの現在地レポート
-                    </h1>
+            あなたの現在地レポート
+        </h1>
                     <p class="body-large text-[#1E3A5F]">
                         「いまの仕事」と「いまの暮らし」の凸凹を俯瞰して、次の一歩に使えるヒントをまとめました。
-                    </p>
-                </div>
+        </p>
+    </div>
                 <div class="flex flex-wrap gap-3">
                     <span class="px-4 py-2 rounded-full bg-white text-[#2E5C8A] body-small font-semibold soft-shadow-refined">
                         {{ now()->format('Y.m.d') }} 更新
@@ -165,8 +165,8 @@
                 </div>
                 <p class="body-small text-[#4A5A73]">
                     各領域への重要度の評価。満足度と比較することで、優先的に取り組むべき領域が見えてきます。
-                </p>
-            </div>
+            </p>
+    </div>
 
             <div class="card-refined p-8 space-y-4">
                 <div class="body-small font-medium text-[#4B7BB5]">満足度ー重要度</div>
@@ -204,8 +204,8 @@
                 </div>
 
                 <div class="w-full max-w-sm md:max-w-md mx-auto mb-6">
-                    <canvas id="radarChart" width="400" height="400"></canvas>
-                </div>
+            <canvas id="radarChart" width="400" height="400"></canvas>
+        </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-3 text-xs text-[#4A5A73]">
                         <span class="inline-flex items-center gap-1">
@@ -218,8 +218,8 @@
                     <a href="{{ route('diagnosis.importance', ['id' => $diagnosis->id]) }}" class="btn-primary text-sm px-5 py-2">
                         今度は重要度を確認する
                     </a>
-                </div>
-            </div>
+        </div>
+    </div>
 
             <div class="card-refined p-8 flex flex-col gap-6">
                 <div>
@@ -227,7 +227,7 @@
                     <p class="body-small text-[#4A5A73]">
                         満足度と重要度の差分から、優先的に取り組むべき領域と活用できる強みをピックアップしました。
                     </p>
-                </div>
+        </div>
                 <div class="space-y-4">
                     <div class="border border-[#2E5C8A]/15 rounded-2xl p-5 flex items-start gap-4">
                         <span class="w-12 h-12 rounded-2xl bg-[#F4F7FF] text-[#2E5C8A] flex items-center justify-center font-semibold">
@@ -279,18 +279,18 @@
                         </div>
                     </div>
                 @endforeach
-            </div>
         </div>
-        @endif
+    </div>
+    @endif
 
-        <!-- actions -->
+    <!-- actions -->
         <div class="flex flex-col md:flex-row gap-4">
             <a href="/diagnosis/start" class="btn-secondary flex-1 text-center">
-                もう一度チェックする
-            </a>
+            もう一度チェックする
+        </a>
             <a href="/dashboard" class="btn-primary flex-1 text-center">
-                ダッシュボードに戻る
-            </a>
+            ダッシュボードに戻る
+        </a>
         </div>
     </div>
     </flux:main>
@@ -490,12 +490,12 @@ function waitForChartJS(callback) {
 // DOMContentLoadedとLivewireナビゲーションの両方に対応
 function initChartWhenReady() {
     waitForChartJS(() => {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initRadarChart);
-        } else {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initRadarChart);
+    } else {
             // DOMが既に読み込まれている場合は少し遅延させてから実行
             setTimeout(initRadarChart, 50);
-        }
+    }
     });
 }
 
@@ -510,4 +510,3 @@ document.addEventListener('livewire:navigated', () => {
 initChartWhenReady();
 </script>
  
-

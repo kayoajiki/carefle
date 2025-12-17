@@ -10,6 +10,7 @@ use App\Models\Diary;
 use App\Models\PersonalityAssessment;
 use App\Models\CareerMilestone;
 use App\Models\ReflectionChatConversation;
+use App\Services\OnboardingProgressService;
 
 class DashboardController extends Controller
 {
@@ -58,6 +59,13 @@ class DashboardController extends Controller
             ->whereBetween('date', [now()->startOfWeek(), now()->endOfWeek()])
             ->count();
 
+        // 7日間記録の進捗を計算（オンボーディング用）
+        $progressService = app(OnboardingProgressService::class);
+        $diary7DaysProgress = $this->calculateDiary7DaysProgress($user->id, $progressService);
+
+        // 過去7日間の記録状況を取得（カレンダーミニマップ用）
+        $diary7DaysCalendar = $this->getDiary7DaysCalendar($user->id);
+
         // マイルストーン進捗
         $activeMilestones = CareerMilestone::where('user_id', $user->id)
             ->whereIn('status', ['planned', 'in_progress'])
@@ -100,9 +108,104 @@ class DashboardController extends Controller
             'reflectionStreak' => $reflectionStreak,
             'monthlyReflectionCount' => $monthlyReflectionCount,
             'weeklyReflectionCount' => $weeklyReflectionCount,
+            'diary7DaysProgress' => $diary7DaysProgress,
+            'diary7DaysCalendar' => $diary7DaysCalendar,
             'milestoneProgress' => $milestoneProgress,
             'recentConversations' => $recentConversations,
         ]);
+    }
+
+    /**
+     * 過去7日間の記録状況を取得（カレンダーミニマップ用）
+     */
+    private function getDiary7DaysCalendar(int $userId): array
+    {
+        $sevenDaysAgo = now()->subDays(6)->startOfDay();
+        $today = now()->endOfDay();
+        
+        $diaryDates = Diary::where('user_id', $userId)
+            ->whereBetween('date', [$sevenDaysAgo, $today])
+            ->get()
+            ->pluck('date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->unique()
+            ->toArray();
+
+        $calendar = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $dateKey = $date->format('Y-m-d');
+            $calendar[] = [
+                'date' => $dateKey,
+                'day' => $date->format('j'),
+                'dayOfWeek' => $date->format('D'),
+                'hasDiary' => in_array($dateKey, $diaryDates),
+            ];
+        }
+
+        return $calendar;
+    }
+
+    /**
+     * 7日間記録の進捗を計算
+     */
+    private function calculateDiary7DaysProgress(int $userId, OnboardingProgressService $progressService): array
+    {
+        // オンボーディングが完了している場合は進捗を表示しない
+        if ($progressService->isOnboardingComplete($userId)) {
+            return [
+                'show' => false,
+                'current' => 0,
+                'target' => 7,
+                'remaining' => 0,
+                'percentage' => 100,
+            ];
+        }
+
+        // 初回日記が記録されているかチェック
+        if (!$progressService->checkStepCompletion($userId, 'diary_first')) {
+            return [
+                'show' => false,
+                'current' => 0,
+                'target' => 7,
+                'remaining' => 7,
+                'percentage' => 0,
+            ];
+        }
+
+        // 7日間記録が既に完了しているかチェック
+        if ($progressService->checkStepCompletion($userId, 'diary_7days')) {
+            return [
+                'show' => false,
+                'current' => 7,
+                'target' => 7,
+                'remaining' => 0,
+                'percentage' => 100,
+            ];
+        }
+
+        // 過去7日間の記録日数を計算
+        $sevenDaysAgo = now()->subDays(6)->startOfDay();
+        $today = now()->endOfDay();
+        
+        $diaryDates = Diary::where('user_id', $userId)
+            ->whereBetween('date', [$sevenDaysAgo, $today])
+            ->get()
+            ->pluck('date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->unique()
+            ->count();
+
+        $remaining = max(0, 7 - $diaryDates);
+        $percentage = round(($diaryDates / 7) * 100);
+
+        return [
+            'show' => true,
+            'current' => $diaryDates,
+            'target' => 7,
+            'remaining' => $remaining,
+            'percentage' => $percentage,
+        ];
     }
 
     /**

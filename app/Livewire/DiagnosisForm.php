@@ -161,6 +161,10 @@ class DiagnosisForm extends Component
             'is_draft' => false,
         ]);
 
+        // オンボーディング進捗を更新
+        $progressService = app(\App\Services\OnboardingProgressService::class);
+        $progressService->updateProgress(Auth::id(), 'diagnosis');
+
         return redirect()->route('diagnosis.result', $this->diagnosisId);
     }
 
