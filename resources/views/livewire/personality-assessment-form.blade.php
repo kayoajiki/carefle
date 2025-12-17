@@ -1,9 +1,8 @@
-<div class="content-padding section-spacing-sm">
-    <div class="w-full max-w-6xl mx-auto">
+<div class="w-full max-w-6xl mx-auto px-6 md:px-8 pb-6 md:pb-8">
         <!-- ヘッダー -->
-        <div class="mb-12 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-                <h1 class="heading-2 mb-4">自己診断結果</h1>
+                <h1 class="heading-2 mb-2">自己診断結果</h1>
                 <p class="body-large">
                     MBTI、ストレングスファインダー、エニアグラム、ビッグファイブ、FFSなどの診断結果を登録できます。
                 </p>
@@ -338,5 +337,4 @@
                 </div>
             </div>
         @endif
-    </div>
 </div>
