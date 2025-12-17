@@ -65,17 +65,6 @@ class WcmForm extends Component
                     'is_draft'  => false,
                 ]);
                 
-                // 初回WCMシート作成時にオンボーディング進捗を更新
-                $hasOtherWcmSheets = WcmSheet::where('user_id', $userId)
-                    ->where('id', '!=', $sheet->id)
-                    ->where('is_draft', false)
-                    ->exists();
-                
-                if (!$hasOtherWcmSheets) {
-                    $progressService = app(\App\Services\OnboardingProgressService::class);
-                    $progressService->updateProgress($userId, 'wcm_created');
-                }
-                
                 // アクティビティログに記録
                 $activityLogService = app(ActivityLogService::class);
                 $activityLogService->logWcmSheetCompleted($userId, $sheet->id);
@@ -95,17 +84,6 @@ class WcmForm extends Component
             'is_draft'  => false,
         ]);
 
-        // 初回WCMシート作成時にオンボーディング進捗を更新
-        $hasOtherWcmSheets = WcmSheet::where('user_id', $userId)
-            ->where('id', '!=', $sheet->id)
-            ->where('is_draft', false)
-            ->exists();
-        
-        if (!$hasOtherWcmSheets) {
-            $progressService = app(\App\Services\OnboardingProgressService::class);
-            $progressService->updateProgress($userId, 'wcm_created');
-        }
-        
         // Update user's last_activity_at
         $user = Auth::user();
         if ($user) {

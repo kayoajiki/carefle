@@ -141,7 +141,7 @@
         </div>
 
         <!-- score cards -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 {{ $hasImportance ? 'lg:grid-cols-3' : 'lg:grid-cols-2' }} gap-6">
             <div class="card-refined p-8 space-y-4">
                 <div class="body-small font-medium text-[#4B7BB5]">満足度</div>
                 <div class="heading-1 text-5xl text-[#1E3A5F]">
@@ -155,40 +155,54 @@
                 </p>
             </div>
 
-            <div class="card-refined p-8 space-y-4">
-                <div class="body-small font-medium text-[#4B7BB5]">重要度</div>
-                <div class="heading-1 text-5xl text-[#1E3A5F]">
-                    {{ $lifeScore }}<span class="text-2xl font-semibold"> /100</span>
+            @if($hasImportance)
+                <div class="card-refined p-8 space-y-4">
+                    <div class="body-small font-medium text-[#4B7BB5]">重要度</div>
+                    <div class="heading-1 text-5xl text-[#1E3A5F]">
+                        {{ $lifeScore }}<span class="text-2xl font-semibold"> /100</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-[#E3ECF9] rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-[#8FBEDC] to-[#4F9EDB]" style="width: {{ $lifeScore }}%;"></div>
+                    </div>
+                    <p class="body-small text-[#4A5A73]">
+                        各領域への重要度の評価。満足度と比較することで、優先的に取り組むべき領域が明確になり、より効果的な行動計画を立てられます。
+                    </p>
                 </div>
-                <div class="w-full h-2.5 bg-[#E3ECF9] rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-[#8FBEDC] to-[#4F9EDB]" style="width: {{ $lifeScore }}%;"></div>
+            @else
+                <div class="card-refined p-8 space-y-4 bg-gradient-to-br from-[#E3ECF9] to-[#F0F7FF]">
+                    <div class="body-small font-medium text-[#4B7BB5] mb-2">重要度を入力すると、より深く理解できます</div>
+                    <p class="body-text text-[#1E3A5F] mb-4">
+                        現在は満足度のみの診断結果です。重要度を入力することで、満足度と重要度を比較し、優先的に取り組むべき領域が明確になります。
+                    </p>
+                    <a href="{{ route('diagnosis.importance', $diagnosis->id) }}" class="inline-block px-6 py-3 bg-[#6BB6FF] text-white rounded-lg font-semibold hover:bg-[#5B8DCC] transition-colors text-center">
+                        重要度を入力する
+                    </a>
                 </div>
-                <p class="body-small text-[#4A5A73]">
-                    各領域への重要度の評価。満足度と比較することで、優先的に取り組むべき領域が見えてきます。
-            </p>
-    </div>
+            @endif
 
-            <div class="card-refined p-8 space-y-4">
-                <div class="body-small font-medium text-[#4B7BB5]">満足度ー重要度</div>
-                <div class="heading-1 text-4xl text-[#1E3A5F]">
-                    @if($balanceDelta === 0)
-                        ±0
-                    @else
-                        {{ $balanceDelta > 0 ? '+' : '' }}{{ $balanceDelta }}
-                    @endif
+            @if($hasImportance)
+                <div class="card-refined p-8 space-y-4">
+                    <div class="body-small font-medium text-[#4B7BB5]">満足度ー重要度</div>
+                    <div class="heading-1 text-4xl text-[#1E3A5F]">
+                        @if($balanceDelta === 0)
+                            ±0
+                        @else
+                            {{ $balanceDelta > 0 ? '+' : '' }}{{ $balanceDelta }}
+                        @endif
+                    </div>
+                    <p class="body-text text-[#1E3A5F]">
+                        {{ $balanceCopy }}
+                    </p>
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        <span class="px-3 py-1 rounded-full bg-[#E3ECF9] text-[#2E5C8A] body-small">
+                            強み：{{ $strongLabel }}
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-[#FFEED9] text-[#B45309] body-small">
+                            伸ばしどころ：{{ $focusLabel }}
+                        </span>
+                    </div>
                 </div>
-                <p class="body-text text-[#1E3A5F]">
-                    {{ $balanceCopy }}
-                </p>
-                <div class="flex flex-wrap gap-2 pt-2">
-                    <span class="px-3 py-1 rounded-full bg-[#E3ECF9] text-[#2E5C8A] body-small">
-                        強み：{{ $strongLabel }}
-                    </span>
-                    <span class="px-3 py-1 rounded-full bg-[#FFEED9] text-[#B45309] body-small">
-                        伸ばしどころ：{{ $focusLabel }}
-                    </span>
-                </div>
-            </div>
+            @endif
         </div>
 
         <!-- radar + insights -->

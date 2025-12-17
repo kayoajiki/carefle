@@ -36,8 +36,8 @@ class FeatureDiscoveryService
             'diary' => $this->hasCompletedStep($userId, 'diagnosis'),
             'assessment' => $this->hasCompletedStep($userId, 'diary_first'),
             'wcm' => $this->hasCompletedStep($userId, 'assessment'),
-            'life_history' => $this->hasCompletedStep($userId, 'wcm_created'),
-            'milestones' => $this->hasCompletedStep($userId, 'wcm_created'),
+            'life_history' => $this->hasCompletedStep($userId, 'assessment'),
+            'milestones' => $this->hasCompletedStep($userId, 'assessment'),
             'mapping' => $this->progressService->isOnboardingComplete($userId), // オンボーディング完了時
             default => false,
         };
@@ -93,9 +93,9 @@ class FeatureDiscoveryService
             $hints['assessment'] = '日記を書きましたね！自己診断結果を入力すると、もっと深い分析ができます。';
         }
 
-        // 自己診断完了後、WCMを案内
-        if ($this->hasCompletedStep($userId, 'assessment') && !$this->hasCompletedStep($userId, 'wcm_created')) {
-            $hints['wcm'] = '自己診断結果が記録されました！WCMシートを作成すると、未来の自分が見えてきます。';
+        // 自己診断完了後、7日間記録を案内
+        if ($this->hasCompletedStep($userId, 'assessment') && !$this->hasCompletedStep($userId, 'diary_7days')) {
+            $hints['diary'] = '自己診断結果が記録されました！日記を続けると、より深い分析ができます。';
         }
 
         return $hints;

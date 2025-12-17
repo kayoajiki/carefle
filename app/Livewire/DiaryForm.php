@@ -178,6 +178,40 @@ class DiaryForm extends Component
             }
         }
         
+        // 3日間記録の進捗をチェック
+        if (!$progressService->checkStepCompletion(Auth::id(), 'diary_3days')) {
+            $threeDaysAgo = now()->subDays(2)->startOfDay();
+            $today = now()->endOfDay();
+            
+            $diaryCount3Days = Diary::where('user_id', Auth::id())
+                ->whereBetween('date', [$threeDaysAgo, $today])
+                ->whereNotNull('content')
+                ->where('content', '!=', '')
+                ->distinct('date')
+                ->count('date');
+            
+            if ($diaryCount3Days >= 3) {
+                $progressService->updateProgress(Auth::id(), 'diary_3days');
+            }
+        }
+        
+        // 7日間記録の進捗をチェック
+        if (!$progressService->checkStepCompletion(Auth::id(), 'diary_7days')) {
+            $sevenDaysAgo = now()->subDays(6)->startOfDay();
+            $today = now()->endOfDay();
+            
+            $diaryCount7Days = Diary::where('user_id', Auth::id())
+                ->whereBetween('date', [$sevenDaysAgo, $today])
+                ->whereNotNull('content')
+                ->where('content', '!=', '')
+                ->distinct('date')
+                ->count('date');
+            
+            if ($diaryCount7Days >= 7) {
+                $progressService->updateProgress(Auth::id(), 'diary_7days');
+            }
+        }
+        
         return $savedDiary;
     }
 

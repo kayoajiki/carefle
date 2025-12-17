@@ -72,7 +72,7 @@ class OnboardingProgress extends Model
      */
     public function isOnboardingComplete(): bool
     {
-        $requiredSteps = ['diagnosis', 'diary_first', 'assessment', 'wcm_created', 'diary_7days', 'manual_generated'];
+        $requiredSteps = ['diagnosis', 'diary_first', 'assessment', 'diary_3days', 'diary_7days', 'manual_generated'];
         $completedSteps = $this->completed_steps ?? [];
         
         foreach ($requiredSteps as $step) {

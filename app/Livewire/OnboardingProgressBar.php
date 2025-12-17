@@ -56,10 +56,10 @@ class OnboardingProgressBar extends Component
                 'icon' => 'user-circle',
                 'route' => 'assessments.index',
             ],
-            'wcm_created' => [
-                'label' => 'WCM作成',
-                'icon' => 'light-bulb',
-                'route' => 'wcm.start',
+            'diary_3days' => [
+                'label' => '3日間記録',
+                'icon' => 'calendar',
+                'route' => 'diary',
             ],
             'diary_7days' => [
                 'label' => '7日間記録',

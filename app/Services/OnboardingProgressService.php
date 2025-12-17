@@ -24,7 +24,7 @@ class OnboardingProgressService
     {
         $progress = $this->getOrCreateProgress($userId);
         
-        $steps = ['diagnosis', 'diary_first', 'assessment', 'wcm_created', 'diary_7days', 'manual_generated'];
+        $steps = ['diagnosis', 'diary_first', 'assessment', 'diary_3days', 'diary_7days', 'manual_generated'];
         
         foreach ($steps as $step) {
             if (!$progress->isStepCompleted($step)) {

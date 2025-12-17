@@ -44,7 +44,7 @@
             <div class="body-small font-medium text-[#2E5C8A]">
                 Q<span x-text="currentIndex + 1"></span>/<span x-text="questions.length"></span>
             </div>
-            <div class="body-small">約3分で完了します</div>
+            <div class="body-small">約5分で完了します</div>
         </div>
         <div class="w-full bg-[#F0F7FF] rounded-full h-3 overflow-hidden">
             <div class="h-3 bg-[#6BB6FF] transition-all duration-300 rounded-full" :style="`width: ${progressPercent()}%`"></div>
@@ -80,7 +80,7 @@
         <textarea
             class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"
             rows="4"
-            placeholder="今いちばん引っかかっていること、嬉しいこと、しんどいことなど自由に。次回の面談で深く扱いやすくなります。"
+            placeholder="今一番引っ掛かっていること、嬉しいこと、しんどいことなど自由に。（診断には影響しません）"
             x-model="currentAnswer.comment"
             @input="updateComment($event.target.value)"
         ></textarea>

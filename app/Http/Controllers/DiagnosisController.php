@@ -229,6 +229,9 @@ class DiagnosisController extends Controller
             $importanceScore = round(($importanceScore + $minPillarScore) / 2);
         }
 
+        // 重要度入力状態を判定
+        $hasImportance = $totalWeight > 0 || DiagnosisImportanceAnswer::where('diagnosis_id', $diagnosis->id)->exists();
+
         return view('diagnosis.result', [
             'diagnosis' => $diagnosis,
             'workScore' => $diagnosis->work_score ?? 0,
@@ -245,6 +248,7 @@ class DiagnosisController extends Controller
             'workPillarScores' => $workPillarScores,
             'importanceWork' => $importanceWork,
             'pillarLabels' => $pillarLabels,
+            'hasImportance' => $hasImportance,
         ]);
     }
 }
