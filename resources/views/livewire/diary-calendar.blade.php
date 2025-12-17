@@ -27,29 +27,29 @@
         @endif
 
         <!-- カレンダー -->
-        <div class="card-refined p-8 mb-8">
+        <div class="card-refined p-4 md:p-8 mb-8">
             <!-- 月の切り替え -->
-            <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center justify-between mb-4 md:mb-8">
                 <button
                     wire:click="previousMonth"
-                    class="btn-secondary text-sm"
+                    class="btn-secondary text-xs md:text-sm px-2 md:px-4"
                 >
                     ← 前月
                 </button>
-                <h2 class="heading-3 text-2xl">{{ $monthName }}</h2>
+                <h2 class="heading-3 text-lg md:text-2xl">{{ $monthName }}</h2>
                 <button
                     wire:click="nextMonth"
-                    class="btn-secondary text-sm"
+                    class="btn-secondary text-xs md:text-sm px-2 md:px-4"
                 >
                     次月 →
                 </button>
             </div>
 
             <!-- カレンダーグリッド -->
-            <div class="grid grid-cols-7 gap-2">
+            <div class="grid grid-cols-7 gap-1 md:gap-2">
                 <!-- 曜日ヘッダー -->
                 @foreach(['日', '月', '火', '水', '木', '金', '土'] as $day)
-                    <div class="text-center body-small font-semibold text-[#2E5C8A] py-2">
+                    <div class="text-center text-xs md:text-sm font-semibold text-[#2E5C8A] py-1 md:py-2">
                         {{ $day }}
                     </div>
                 @endforeach
@@ -63,7 +63,7 @@
                     @endphp
                     <button
                         wire:click="selectDate('{{ $day['date'] }}')"
-                        class="aspect-square rounded-xl border-2 transition-all hover:scale-105 relative overflow-hidden
+                        class="aspect-square rounded-lg md:rounded-xl border-2 transition-all hover:scale-105 relative overflow-hidden min-h-[2.5rem] md:min-h-0
                             {{ $day['isCurrentMonth'] ? '' : 'opacity-30' }}
                             {{ $day['isToday'] ? 'border-[#6BB6FF] bg-[#6BB6FF]/10' : ($hasDiary ? 'border-[#6BB6FF]' : 'border-[#2E5C8A]/20') }}
                             {{ $hasDiary ? 'bg-[#E8F4FF]' : 'bg-white' }}
@@ -71,8 +71,8 @@
                         "
                     >
                         <!-- 日付（左上） -->
-                        <div class="absolute top-2 left-2 z-10">
-                            <span class="body-small font-semibold {{ $hasDiary ? 'text-[#2E5C8A]' : 'text-[#1E3A5F]' }}">
+                        <div class="absolute top-1 left-1 md:top-2 md:left-2 z-10">
+                            <span class="text-xs md:text-sm font-semibold {{ $hasDiary ? 'text-[#2E5C8A]' : 'text-[#1E3A5F]' }}">
                                 {{ $day['day'] }}
                             </span>
                         </div>
@@ -83,11 +83,11 @@
                                 <img 
                                     src="{{ asset('storage/' . $diary->photo) }}" 
                                     alt="日記の写真" 
-                                    class="w-full h-full object-cover rounded-xl"
+                                    class="w-full h-full object-cover rounded-lg md:rounded-xl"
                                     loading="lazy"
                                 />
                             @elseif($hasDiary)
-                                <div class="w-2.5 h-2.5 rounded-full bg-[#6BB6FF] shadow-sm"></div>
+                                <div class="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-[#6BB6FF] shadow-sm"></div>
                             @endif
                         </div>
                     </button>
