@@ -20,6 +20,9 @@
                 <!-- オンボーディング進捗バー -->
                 <livewire:onboarding-progress-bar />
                 
+                <!-- マッピング進捗バー -->
+                <livewire:mapping-progress-bar />
+                
                 <!-- ヘッダー & CTA -->
                 <div class="card-refined surface-blue p-10 soft-shadow-refined space-y-6">
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">

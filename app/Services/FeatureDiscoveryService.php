@@ -38,7 +38,7 @@ class FeatureDiscoveryService
             'wcm' => $this->hasCompletedStep($userId, 'assessment'),
             'life_history' => $this->hasCompletedStep($userId, 'wcm_created'),
             'milestones' => $this->hasCompletedStep($userId, 'wcm_created'),
-            'mapping' => $this->hasCompletedStep($userId, 'manual_generated'),
+            'mapping' => $this->progressService->isOnboardingComplete($userId), // オンボーディング完了時
             default => false,
         };
     }

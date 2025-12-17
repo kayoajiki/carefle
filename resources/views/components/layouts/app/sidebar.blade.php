@@ -43,6 +43,9 @@
                     @if(in_array('assessment', $unlockedFeatures ?? []))
                         <flux:navlist.item icon="user-circle" :href="route('assessments.index')" :current="request()->routeIs('assessments.*')" wire:navigate>自己診断結果</flux:navlist.item>
                     @endif
+                    @if(in_array('mapping', $unlockedFeatures ?? []))
+                        <flux:navlist.item icon="map" :href="route('mapping.index')" :current="request()->routeIs('mapping.*')" wire:navigate>曼荼羅マッピング</flux:navlist.item>
+                    @endif
                 </flux:navlist.group>
 
                 <flux:navlist.group heading="相談・サポート" class="grid">

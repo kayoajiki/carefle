@@ -49,6 +49,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('manual.index');
     Route::get('manual/context/{context}', [\App\Http\Controllers\ManualController::class, 'showContextualManual'])
         ->name('manual.context');
+    
+    // 曼荼羅マッピング
+    Route::get('mapping', [\App\Http\Controllers\MappingController::class, 'index'])
+        ->name('mapping.index');
     Route::get('diagnosis/start', [DiagnosisController::class, 'start'])
         ->name('diagnosis.start');
     Route::get('diagnosis/result/{id}', [DiagnosisController::class, 'result'])
