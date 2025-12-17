@@ -16,6 +16,11 @@
                 <div class="mt-8">
                     <livewire:user-mapping-visualization />
                 </div>
+
+                {{-- 変容の可視化（Phase 8.2） --}}
+                <div class="mt-8">
+                    <livewire:transformation-visualization />
+                </div>
             </div>
         </div>
     </flux:main>

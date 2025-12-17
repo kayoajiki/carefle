@@ -97,6 +97,9 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // 過去の記録へのアクセス（Phase 8.1）
+        $pastRecords = $this->getPastRecords($user->id);
+
         return view('dashboard', [
             'user' => $user,
             'latestDiagnosis' => $latestDiagnosis,
@@ -112,6 +115,7 @@ class DashboardController extends Controller
             'diary7DaysCalendar' => $diary7DaysCalendar,
             'milestoneProgress' => $milestoneProgress,
             'recentConversations' => $recentConversations,
+            'pastRecords' => $pastRecords,
         ]);
     }
 
@@ -240,6 +244,59 @@ class DashboardController extends Controller
         }
 
         return $streak;
+    }
+
+    /**
+     * 過去の記録を取得（Phase 8.1: 自分を思い出す機能）
+     */
+    private function getPastRecords(int $userId): array
+    {
+        $thirtyDaysAgo = now()->subDays(30);
+
+        // 過去の日記（30日以上前、最新5件）
+        $pastDiaries = Diary::where('user_id', $userId)
+            ->where('date', '<', $thirtyDaysAgo)
+            ->whereNotNull('content')
+            ->where('content', '!=', '')
+            ->orderBy('date', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($diary) {
+                return [
+                    'id' => $diary->id,
+                    'date' => $diary->date->format('Y年n月j日'),
+                    'date_key' => $diary->date->format('Y-m-d'),
+                    'content_preview' => mb_substr($diary->content, 0, 50) . '...',
+                    'motivation' => $diary->motivation,
+                ];
+            });
+
+        // 過去の診断結果（30日以上前、最新3件）
+        $pastDiagnoses = Diagnosis::where('user_id', $userId)
+            ->where('is_completed', true)
+            ->where('created_at', '<', $thirtyDaysAgo)
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get()
+            ->map(function ($diagnosis) {
+                return [
+                    'id' => $diagnosis->id,
+                    'date' => $diagnosis->created_at->format('Y年n月j日'),
+                    'work_score' => $diagnosis->work_score,
+                    'life_score' => $diagnosis->life_score,
+                ];
+            });
+
+        // 持ち味レポが生成済みかチェック
+        $progressService = app(OnboardingProgressService::class);
+        $hasStrengthsReport = $progressService->checkStepCompletion($userId, 'manual_generated');
+
+        return [
+            'past_diaries' => $pastDiaries,
+            'past_diagnoses' => $pastDiagnoses,
+            'has_strengths_report' => $hasStrengthsReport,
+            'has_past_records' => $pastDiaries->isNotEmpty() || $pastDiagnoses->isNotEmpty() || $hasStrengthsReport,
+        ];
     }
 }
 

@@ -422,6 +422,104 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 過去の自分を思い出す（Phase 8.1） -->
+                @if($pastRecords['has_past_records'])
+                <div class="card-refined surface-blue p-10 soft-shadow-refined">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">💭</span>
+                        <h2 class="heading-2 text-2xl">過去の自分を思い出す</h2>
+                    </div>
+                    <p class="body-text text-[#1E3A5F]/70 mb-8">
+                        過去の記録を振り返ることで、自分の変容を実感できます。
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {{-- 過去の日記 --}}
+                        @if($pastRecords['past_diaries']->isNotEmpty())
+                        <div class="bg-white/50 rounded-xl p-6 border border-[#6BB6FF]/20">
+                            <div class="flex items-center gap-2 mb-4">
+                                <svg class="w-5 h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <h3 class="heading-3 text-lg">過去の日記</h3>
+                            </div>
+                            <div class="space-y-3 mb-4">
+                                @foreach($pastRecords['past_diaries']->take(3) as $diary)
+                                <a 
+                                    href="{{ route('diary') }}?date={{ $diary['date_key'] }}" 
+                                    class="block p-3 bg-white rounded-lg hover:bg-[#E8F4FF] transition-colors"
+                                >
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="body-small text-[#1E3A5F]/70">{{ $diary['date'] }}</span>
+                                        @if($diary['motivation'])
+                                        <span class="body-small text-[#6BB6FF]">モチベーション: {{ $diary['motivation'] }}</span>
+                                        @endif
+                                    </div>
+                                    <p class="body-small text-[#1E3A5F]/80">{{ $diary['content_preview'] }}</p>
+                                </a>
+                                @endforeach
+                            </div>
+                            <a href="{{ route('diary') }}" class="btn-secondary text-sm w-full text-center">
+                                日記カレンダーを見る
+                            </a>
+                        </div>
+                        @endif
+
+                        {{-- 過去の診断結果 --}}
+                        @if($pastRecords['past_diagnoses']->isNotEmpty())
+                        <div class="bg-white/50 rounded-xl p-6 border border-[#6BB6FF]/20">
+                            <div class="flex items-center gap-2 mb-4">
+                                <svg class="w-5 h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                <h3 class="heading-3 text-lg">過去の診断</h3>
+                            </div>
+                            <div class="space-y-3 mb-4">
+                                @foreach($pastRecords['past_diagnoses'] as $diagnosis)
+                                <a 
+                                    href="{{ route('diagnosis.result', $diagnosis['id']) }}" 
+                                    class="block p-3 bg-white rounded-lg hover:bg-[#E8F4FF] transition-colors"
+                                >
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="body-small text-[#1E3A5F]/70">{{ $diagnosis['date'] }}</span>
+                                    </div>
+                                    <div class="flex gap-4">
+                                        <span class="body-small text-[#1E3A5F]">仕事: {{ $diagnosis['work_score'] }}点</span>
+                                        <span class="body-small text-[#1E3A5F]">生活: {{ $diagnosis['life_score'] }}点</span>
+                                    </div>
+                                </a>
+                                @endforeach
+                            </div>
+                            <a href="{{ route('diagnosis.start') }}" class="btn-secondary text-sm w-full text-center">
+                                新しい診断を実施
+                            </a>
+                        </div>
+                        @endif
+
+                        {{-- 持ち味レポ --}}
+                        @if($pastRecords['has_strengths_report'])
+                        <div class="bg-white/50 rounded-xl p-6 border border-[#6BB6FF]/20">
+                            <div class="flex items-center gap-2 mb-4">
+                                <svg class="w-5 h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                <h3 class="heading-3 text-lg">持ち味レポ</h3>
+                            </div>
+                            <p class="body-text text-[#1E3A5F]/70 mb-4">
+                                診断と日記から見えるあなたの持ち味を確認できます。
+                            </p>
+                            <a href="{{ route('onboarding.mini-manual') }}" class="btn-primary text-sm w-full text-center">
+                                持ち味レポを見る
+                            </a>
+                            <a href="{{ route('manual.index') }}" class="btn-secondary text-sm w-full text-center mt-2">
+                                コンテキスト別取説を見る
+                            </a>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </flux:main>
