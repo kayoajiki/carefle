@@ -21,9 +21,51 @@ class DiaryPromptModal extends Component
 
     public function mount(): void
     {
-        // 一時的に完全に無効化
-        $this->show = false;
-        return;
+        $userId = Auth::id();
+        
+        if (!$userId) {
+            $this->show = false;
+            return;
+        }
+
+        $user = Auth::user();
+        
+        // プロフィールが完了していない場合は表示しない
+        if (!$user || !$user->profile_completed) {
+            $this->show = false;
+            return;
+        }
+
+        // 診断が完了していない場合は表示しない
+        if (!$this->progressService->checkStepCompletion($userId, 'diagnosis')) {
+            $this->show = false;
+            return;
+        }
+
+        // 初回日記が既に記録されている場合は表示しない
+        if ($this->progressService->checkStepCompletion($userId, 'diary_first')) {
+            $this->show = false;
+            return;
+        }
+
+        // 今日の日記が既に存在する場合は表示しない
+        $todayDiary = Diary::where('user_id', $userId)
+            ->whereDate('date', today())
+            ->first();
+        
+        if ($todayDiary) {
+            $this->show = false;
+            return;
+        }
+
+        // プロンプトを表示すべきかチェック（24時間以内に表示した場合は再表示しない）
+        if (!$this->progressService->shouldShowPrompt($userId, 'diary_first')) {
+            $this->show = false;
+            return;
+        }
+
+        // すべての条件を満たした場合のみ表示
+        $this->show = true;
     }
 
     public function writeDiary()
@@ -45,7 +87,6 @@ class DiaryPromptModal extends Component
 
     public function render()
     {
-        // 一時的に無効化
-        return view('livewire.diary-prompt-modal', ['show' => false]);
+        return view('livewire.diary-prompt-modal');
     }
 }

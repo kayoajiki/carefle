@@ -20,9 +20,35 @@ class DiagnosisPromptModal extends Component
 
     public function mount(): void
     {
-        // 一時的に完全に無効化
-        $this->show = false;
-        return;
+        $userId = Auth::id();
+        
+        if (!$userId) {
+            $this->show = false;
+            return;
+        }
+
+        $user = Auth::user();
+        
+        // プロフィールが完了していない場合は表示しない
+        if (!$user || !$user->profile_completed) {
+            $this->show = false;
+            return;
+        }
+
+        // 診断が既に完了している場合は表示しない
+        if ($this->progressService->checkStepCompletion($userId, 'diagnosis')) {
+            $this->show = false;
+            return;
+        }
+
+        // プロンプトを表示すべきかチェック（24時間以内に表示した場合は再表示しない）
+        if (!$this->progressService->shouldShowPrompt($userId, 'diagnosis')) {
+            $this->show = false;
+            return;
+        }
+
+        // すべての条件を満たした場合のみ表示
+        $this->show = true;
     }
 
     public function continueDiagnosis()
@@ -44,7 +70,6 @@ class DiagnosisPromptModal extends Component
 
     public function render()
     {
-        // 一時的に無効化
-        return view('livewire.diagnosis-prompt-modal', ['show' => false]);
+        return view('livewire.diagnosis-prompt-modal');
     }
 }

@@ -23,6 +23,12 @@
                 <!-- マッピング進捗バー -->
                 <livewire:mapping-progress-bar />
                 
+                <!-- 診断促進モーダル -->
+                <livewire:diagnosis-prompt-modal />
+                
+                <!-- 日記促進モーダル -->
+                <livewire:diary-prompt-modal />
+                
                 <!-- ヘッダー & CTA -->
                 <div class="card-refined surface-blue p-10 soft-shadow-refined space-y-6">
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
