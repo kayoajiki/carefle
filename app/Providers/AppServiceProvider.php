@@ -21,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // タイムゾーンを日本時間に設定（config/app.phpのtimezone設定を使用）
+        date_default_timezone_set(config('app.timezone'));
+        
         // サイドバーにデータを渡す
         View::composer('components.layouts.app.sidebar', SidebarComposer::class);
     }
