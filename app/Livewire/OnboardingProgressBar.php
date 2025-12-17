@@ -67,9 +67,9 @@ class OnboardingProgressBar extends Component
                 'route' => 'diary',
             ],
             'manual_generated' => [
-                'label' => 'プチ取説',
+                'label' => '持ち味レポ',
                 'icon' => 'book-open',
-                'route' => 'dashboard', // TODO: Phase 5で実装予定
+                'route' => 'onboarding.mini-manual',
             ],
         ];
 

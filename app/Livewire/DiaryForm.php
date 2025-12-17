@@ -101,8 +101,15 @@ class DiaryForm extends Component
             $data['photo'] = $this->existingPhoto;
         }
 
+        // オンボーディング進捗サービスを取得
+        $progressService = app(\App\Services\OnboardingProgressService::class);
+        
+        // 初回日記ステップが完了しているかチェック
+        $isDiaryFirstCompleted = $progressService->checkStepCompletion(Auth::id(), 'diary_first');
+        
         // 初回日記かどうかをチェック（保存前）
         $isFirstDiary = !Diary::where('user_id', Auth::id())->exists();
+        $wasNewDiary = !$this->diaryId; // 保存前の状態を保持
 
         // 既存の日記を確認
         if ($this->diaryId) {
@@ -143,8 +150,8 @@ class DiaryForm extends Component
         }
         
         // 初回日記保存時にオンボーディング進捗を更新
-        if ($isFirstDiary && !$this->diaryId) {
-            $progressService = app(\App\Services\OnboardingProgressService::class);
+        // 初回日記ステップが未完了の場合、日記を保存したら完了としてマーク
+        if (!$isDiaryFirstCompleted && ($isFirstDiary || $wasNewDiary || !empty($savedDiary->content))) {
             $progressService->updateProgress(Auth::id(), 'diary_first');
             session()->flash('message', '日記を保存しました！🎉 初回の記録、おめでとうございます！');
         } else {

@@ -37,6 +37,12 @@ Route::get('dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth'])->group(function () {
     Route::get('profile/setup', ProfileSetup::class)
         ->name('profile.setup');
+    
+    // プチ取説
+    Route::get('onboarding/mini-manual', [\App\Http\Controllers\OnboardingController::class, 'showMiniManual'])
+        ->name('onboarding.mini-manual');
+    Route::get('onboarding/mini-manual/pdf', [\App\Http\Controllers\OnboardingController::class, 'downloadMiniManualPdf'])
+        ->name('onboarding.mini-manual.pdf');
     Route::get('diagnosis/start', [DiagnosisController::class, 'start'])
         ->name('diagnosis.start');
     Route::get('diagnosis/result/{id}', [DiagnosisController::class, 'result'])

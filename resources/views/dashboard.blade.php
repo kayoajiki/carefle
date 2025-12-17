@@ -119,7 +119,7 @@
                         @if(isset($diary7DaysProgress) && $diary7DaysProgress['show'])
                             <div class="mt-6 p-4 bg-[#E8F4FF] rounded-xl border border-[#6BB6FF]/20">
                                 <div class="flex items-center justify-between mb-3">
-                                    <p class="body-text font-semibold text-[#2E5C8A]">プチ取説まで</p>
+                                    <p class="body-text font-semibold text-[#2E5C8A]">持ち味レポまで</p>
                                     <p class="body-small text-[#1E3A5F]/70">{{ $diary7DaysProgress['current'] }}/{{ $diary7DaysProgress['target'] }}日</p>
                                 </div>
                                 
@@ -145,11 +145,11 @@
                                 </div>
                                 @if($diary7DaysProgress['remaining'] > 0)
                                     <p class="body-small text-[#1E3A5F]/70 text-center">
-                                        あと{{ $diary7DaysProgress['remaining'] }}日でプチ取説が生成されます！
+                                        あと{{ $diary7DaysProgress['remaining'] }}日で持ち味レポが生成されます！
                                     </p>
                                 @else
                                     <p class="body-small text-[#2E5C8A] font-semibold text-center">
-                                        🎉 7日間の記録が完了しました！プチ取説を生成できます
+                                        🎉 7日間の記録が完了しました！持ち味レポを生成できます
                                     </p>
                                 @endif
                             </div>
