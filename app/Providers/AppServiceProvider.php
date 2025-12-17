@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Listeners\LogEmailVerified;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use App\View\Composers\SidebarComposer;
 
@@ -26,5 +29,8 @@ class AppServiceProvider extends ServiceProvider
         
         // サイドバーにデータを渡す
         View::composer('components.layouts.app.sidebar', SidebarComposer::class);
+        
+        // イベントリスナーを登録
+        Event::listen(Verified::class, LogEmailVerified::class);
     }
 }

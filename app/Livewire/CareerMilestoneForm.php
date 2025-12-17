@@ -157,6 +157,9 @@ class CareerMilestoneForm extends Component
             } else {
                 $milestone = CareerMilestone::create($milestoneData);
                 $this->milestoneId = $milestone->id;
+                
+                // アクティビティログに記録
+                app(\App\Services\ActivityLogService::class)->logCareerMilestoneCreated(Auth::id(), $milestone->id);
             }
 
             $this->syncActionItems($milestone);

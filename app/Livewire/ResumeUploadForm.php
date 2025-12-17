@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Resume;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -40,13 +41,21 @@ class ResumeUploadForm extends Component
             $path = $this->pdf->store('resumes/' . Auth::id(), 'public');
 
             // データベースに記録
-            Resume::create([
+            $resume = Resume::create([
                 'user_id' => Auth::id(),
                 'original_filename' => $this->pdf->getClientOriginalName(),
                 'file_path' => $path,
                 'file_size' => $this->pdf->getSize(),
                 'uploaded_at' => now(),
             ]);
+
+            // アクティビティログに記録
+            app(ActivityLogService::class)->logResumeUploaded(
+                Auth::id(),
+                $resume->id,
+                $this->pdf->getClientOriginalName(),
+                $this->pdf->getSize()
+            );
 
             // 成功メッセージ
             session()->flash('message', '履歴書をアップロードしました。');

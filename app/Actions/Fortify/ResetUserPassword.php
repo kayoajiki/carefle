@@ -3,12 +3,20 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 
 class ResetUserPassword implements ResetsUserPasswords
 {
     use PasswordValidationRules;
+
+    protected ActivityLogService $activityLogService;
+
+    public function __construct(ActivityLogService $activityLogService)
+    {
+        $this->activityLogService = $activityLogService;
+    }
 
     /**
      * Validate and reset the user's forgotten password.
@@ -24,5 +32,8 @@ class ResetUserPassword implements ResetsUserPasswords
         $user->forceFill([
             'password' => $input['password'],
         ])->save();
+
+        // アクティビティログに記録
+        $this->activityLogService->logPasswordResetCompleted($user->id);
     }
 }

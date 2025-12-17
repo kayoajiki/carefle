@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\LifeEvent;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 
 class LifeHistory extends Component
@@ -53,13 +54,17 @@ class LifeHistory extends Component
             ]);
         } else {
             // 新規登録
-            LifeEvent::create([
+            $event = LifeEvent::create([
                 'user_id' => Auth::id(),
                 'year' => $this->year,
                 'title' => $this->title,
                 'description' => $this->description,
                 'motivation' => $this->motivation,
             ]);
+
+            // アクティビティログに記録
+            $eventCount = LifeEvent::where('user_id', Auth::id())->count();
+            app(ActivityLogService::class)->logLifeEventCreated(Auth::id(), $eventCount);
         }
 
         $this->resetInput();

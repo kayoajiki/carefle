@@ -132,7 +132,11 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        $userId = $user->id;
         $user->delete();
+
+        // アクティビティログに記録
+        app(\App\Services\ActivityLogService::class)->logUserAccountDeleted($userId);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'ユーザーを削除しました。');
