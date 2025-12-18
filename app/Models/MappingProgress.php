@@ -14,6 +14,7 @@ class MappingProgress extends Model
         'user_id',
         'current_section',
         'completed_items',
+        'last_reviewed_at',
         'started_at',
         'completed_at',
     ];
@@ -22,6 +23,7 @@ class MappingProgress extends Model
     {
         return [
             'completed_items' => 'array',
+            'last_reviewed_at' => 'array',
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
         ];

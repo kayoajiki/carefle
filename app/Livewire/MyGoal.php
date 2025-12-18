@@ -12,6 +12,7 @@ class MyGoal extends Component
     public array $questions = [];
     public array $answers = [];
     public array $candidates = [];
+    public array $suggestedExamples = []; // AIが生成した解答例
 
     public ?string $selectedGoal = null;
     public ?string $currentGoal = null;
@@ -23,6 +24,7 @@ class MyGoal extends Component
     public int $currentQuestionIndex = 0;
     public bool $isEditingGoal = false;
     public string $editingGoalText = '';
+    public array $isGeneratingExample = []; // 各質問の解答例生成中フラグ
 
     protected GoalRecommendationService $goalService;
     protected NanobananaImageService $imageService;
@@ -63,6 +65,25 @@ class MyGoal extends Component
             // キャッシュがない場合は生成
             $this->loadQuestions();
         }
+        
+        // デバッグ: 質問が空の場合のログとフォールバック
+        if (empty($this->questions)) {
+            \Illuminate\Support\Facades\Log::warning('MyGoal: questions array is empty after mount', [
+                'has_cached' => !empty($cachedQuestions),
+                'cached_count' => is_array($cachedQuestions) ? count($cachedQuestions) : 0,
+            ]);
+            // 強制的にデフォルトの質問を設定
+            $this->questions = [
+                ['question' => 'あなたが将来実現したいことは何ですか？', 'example' => '例：自分らしく働き、充実した毎日を送りたい'],
+                ['question' => 'あなたが大切にしている価値観は何ですか？', 'example' => '例：誠実さ、成長、人とのつながり'],
+                ['question' => 'あなたが理想とする働き方はどのようなものですか？', 'example' => '例：柔軟な働き方ができ、自分の強みを活かせる環境'],
+                ['question' => 'あなたが人生で達成したいことは何ですか？', 'example' => '例：専門性を高め、周囲の人に貢献できる存在になる'],
+                ['question' => 'あなたが将来の自分に期待することは何ですか？', 'example' => '例：自分らしさを大切にしながら、成長し続けている'],
+            ];
+            session(['goal_questions' => $this->questions]);
+            $this->answers = array_fill(0, count($this->questions), '');
+            $this->currentQuestionIndex = 0;
+        }
     }
 
     public function loadQuestions(): void
@@ -75,9 +96,39 @@ class MyGoal extends Component
 
         try {
             $this->questions = $this->goalService->generateQuestions();
+            
+            // デバッグ: 質問が空の場合のログ
+            if (empty($this->questions)) {
+                \Illuminate\Support\Facades\Log::warning('GoalRecommendationService returned empty questions array');
+                // フォールバック: デフォルトの質問を直接設定
+                $this->questions = [
+                    ['question' => 'あなたが将来実現したいことは何ですか？', 'example' => '例：自分らしく働き、充実した毎日を送りたい'],
+                    ['question' => 'あなたが大切にしている価値観は何ですか？', 'example' => '例：誠実さ、成長、人とのつながり'],
+                    ['question' => 'あなたが理想とする働き方はどのようなものですか？', 'example' => '例：柔軟な働き方ができ、自分の強みを活かせる環境'],
+                    ['question' => 'あなたが人生で達成したいことは何ですか？', 'example' => '例：専門性を高め、周囲の人に貢献できる存在になる'],
+                    ['question' => 'あなたが将来の自分に期待することは何ですか？', 'example' => '例：自分らしさを大切にしながら、成長し続けている'],
+                ];
+            }
+            
             // セッションにキャッシュ
             session(['goal_questions' => $this->questions]);
             // 初期化
+            $this->answers = array_fill(0, count($this->questions), '');
+            $this->currentQuestionIndex = 0;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to load questions', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            // エラー時もデフォルトの質問を設定
+            $this->questions = [
+                ['question' => 'あなたが将来実現したいことは何ですか？', 'example' => '例：自分らしく働き、充実した毎日を送りたい'],
+                ['question' => 'あなたが大切にしている価値観は何ですか？', 'example' => '例：誠実さ、成長、人とのつながり'],
+                ['question' => 'あなたが理想とする働き方はどのようなものですか？', 'example' => '例：柔軟な働き方ができ、自分の強みを活かせる環境'],
+                ['question' => 'あなたが人生で達成したいことは何ですか？', 'example' => '例：専門性を高め、周囲の人に貢献できる存在になる'],
+                ['question' => 'あなたが将来の自分に期待することは何ですか？', 'example' => '例：自分らしさを大切にしながら、成長し続けている'],
+            ];
+            session(['goal_questions' => $this->questions]);
             $this->answers = array_fill(0, count($this->questions), '');
             $this->currentQuestionIndex = 0;
         } finally {
@@ -94,6 +145,63 @@ class MyGoal extends Component
         
         // 回答が更新されたらセッションに保存
         session(['goal_answers' => $this->answers]);
+        
+        // 入力内容が一定文字数以上の場合、AIで解答例を生成
+        $trimmedValue = trim($value);
+        if (strlen($trimmedValue) >= 10 && !empty($trimmedValue)) {
+            $this->generateAnswerExample($key, $trimmedValue);
+        } else {
+            // 入力が短い場合は解答例をクリア
+            if (isset($this->suggestedExamples[$key])) {
+                unset($this->suggestedExamples[$key]);
+            }
+        }
+    }
+    
+    /**
+     * AIで解答例を生成
+     */
+    public function generateAnswerExample(int $questionIndex, string $userInput): void
+    {
+        if (!isset($this->questions[$questionIndex])) {
+            return;
+        }
+        
+        $question = $this->questions[$questionIndex];
+        $questionText = is_array($question) ? ($question['question'] ?? '') : (is_string($question) ? $question : '');
+        
+        if (empty($questionText)) {
+            return;
+        }
+        
+        $this->isGeneratingExample[$questionIndex] = true;
+        
+        try {
+            $suggestedExample = $this->goalService->generateAnswerExample($questionText, $userInput);
+            if (!empty($suggestedExample)) {
+                $this->suggestedExamples[$questionIndex] = $suggestedExample;
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to generate answer example', [
+                'error' => $e->getMessage(),
+                'question_index' => $questionIndex,
+            ]);
+        } finally {
+            $this->isGeneratingExample[$questionIndex] = false;
+        }
+    }
+    
+    /**
+     * 生成された解答例を使用する
+     */
+    public function useSuggestedExample(int $questionIndex): void
+    {
+        if (isset($this->suggestedExamples[$questionIndex])) {
+            $this->answers[$questionIndex] = $this->suggestedExamples[$questionIndex];
+            session(['goal_answers' => $this->answers]);
+            // 使用後は解答例をクリア
+            unset($this->suggestedExamples[$questionIndex]);
+        }
     }
 
     public function nextQuestion(): void
@@ -168,6 +276,11 @@ class MyGoal extends Component
         $this->currentGoal = $text;
         $this->displayMode = 'text';
         $this->step = 'completed';
+        
+        // 見直し日時を更新
+        $mappingProgressService = app(\App\Services\MappingProgressService::class);
+        $mappingProgressService->markItemAsReviewed(Auth::id(), 'my_goal');
+        
         session()->flash('saved', 'マイゴールを更新しました');
     }
 
@@ -221,6 +334,11 @@ class MyGoal extends Component
         $this->selectedGoal = $trimmed;
         $this->isEditingGoal = false;
         $this->editingGoalText = '';
+        
+        // 見直し日時を更新
+        $mappingProgressService = app(\App\Services\MappingProgressService::class);
+        $mappingProgressService->markItemAsReviewed(Auth::id(), 'my_goal');
+        
         session()->flash('saved', 'ゴールイメージを更新しました');
     }
 

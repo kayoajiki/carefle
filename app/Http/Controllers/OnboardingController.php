@@ -63,6 +63,10 @@ class OnboardingController extends Controller
             $activityLogService = app(ActivityLogService::class);
             $activityLogService->logStrengthsReportGenerated($user->id);
         }
+        
+        // 見直し日時を更新
+        $mappingProgressService = app(\App\Services\MappingProgressService::class);
+        $mappingProgressService->markItemAsReviewed($user->id, 'strengths_report');
 
         return view('onboarding.mini-manual', [
             'manual' => $manual,

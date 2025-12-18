@@ -67,6 +67,8 @@ class MappingProgressBar extends Component
         foreach ($allItems as $item) {
             $isCompleted = in_array($item, $completedItems, true);
             $canComplete = $this->progressService->checkItemCompletionFromDatabase($userId, $item);
+            $medalLevel = $this->progressService->getMedalLevel($userId, $item);
+            $hasReviewAlert = $this->progressService->checkReviewAlert($userId, $item);
             
             $itemStatuses[$item] = [
                 'key' => $item,
@@ -75,6 +77,8 @@ class MappingProgressBar extends Component
                 'canComplete' => $canComplete,
                 'isCurrent' => $nextItem === $item,
                 'route' => $this->getRouteForItem($item, $latestWcmSheetId),
+                'medalLevel' => $medalLevel,
+                'hasReviewAlert' => $hasReviewAlert,
             ];
         }
 

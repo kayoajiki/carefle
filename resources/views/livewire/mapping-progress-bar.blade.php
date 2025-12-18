@@ -27,13 +27,39 @@
                         wire:navigate
                         class="flex flex-col items-center gap-2 p-3 rounded-lg transition-all {{ $item['completed'] ? 'bg-[#6BB6FF]/10 border-2 border-[#6BB6FF]' : ($item['isCurrent'] ? 'bg-[#E8F4FF] border-2 border-[#6BB6FF]/50' : 'bg-white/50 border border-[#6BB6FF]/20') }}"
                     >
-                        @if($item['completed'])
-                            <div class="w-8 h-8 rounded-full bg-[#6BB6FF] flex items-center justify-center">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                </svg>
+                        @php
+                            $medalLevel = $item['medalLevel'] ?? 'none';
+                            $medalColors = [
+                                'bronze' => '#CD7F32',
+                                'silver' => '#C0C0C0',
+                                'gold' => '#FFD700',
+                                'platinum' => '#E5E4E2',
+                            ];
+                            $medalColor = $medalColors[$medalLevel] ?? '#E8F4FF';
+                            $hasMedal = $medalLevel !== 'none';
+                        @endphp
+                        @if($hasMedal)
+                            {{-- メダルアイコン --}}
+                            <div class="relative">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, {{ $medalColor }}, {{ $medalColor }}dd); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    @if($medalLevel === 'bronze')
+                                        <span class="text-lg">🥉</span>
+                                    @elseif($medalLevel === 'silver')
+                                        <span class="text-lg">🥈</span>
+                                    @elseif($medalLevel === 'gold')
+                                        <span class="text-lg">🥇</span>
+                                    @elseif($medalLevel === 'platinum')
+                                        <span class="text-lg">💎</span>
+                                    @endif
+                                </div>
+                                @if($item['hasReviewAlert'] ?? false)
+                                    <div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center border-2 border-white">
+                                        <span class="text-xs">🔔</span>
+                                    </div>
+                                @endif
                             </div>
                         @else
+                            {{-- 未完了の場合は従来のアイコン --}}
                             <div class="w-8 h-8 rounded-full {{ $item['isCurrent'] ? 'bg-[#6BB6FF]/20' : 'bg-[#E8F4FF]' }} flex items-center justify-center">
                                 <svg class="w-5 h-5 {{ $item['isCurrent'] ? 'text-[#6BB6FF]' : 'text-[#1E3A5F]/40' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     @if($itemKey === 'life_history')

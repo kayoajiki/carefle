@@ -97,16 +97,16 @@ class ReflectionContextService
             $contextParts[] = "【WCMシート】";
             $contextParts[] = "更新日: {$latestWcm->updated_at->format('Y年n月j日')}";
             
-            if ($latestWcm->will) {
-                $contextParts[] = "Will（なりたい自分）: " . mb_substr($latestWcm->will, 0, 200);
+            if ($latestWcm->will_text) {
+                $contextParts[] = "Will（なりたい自分）: " . mb_substr($latestWcm->will_text, 0, 200);
             }
             
-            if ($latestWcm->can) {
-                $contextParts[] = "Can（できること）: " . mb_substr($latestWcm->can, 0, 200);
+            if ($latestWcm->can_text) {
+                $contextParts[] = "Can（できること）: " . mb_substr($latestWcm->can_text, 0, 200);
             }
             
-            if ($latestWcm->must) {
-                $contextParts[] = "Must（やるべきこと）: " . mb_substr($latestWcm->must, 0, 200);
+            if ($latestWcm->must_text) {
+                $contextParts[] = "Must（やるべきこと）: " . mb_substr($latestWcm->must_text, 0, 200);
             }
             $contextParts[] = "";
         }

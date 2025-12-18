@@ -163,6 +163,10 @@ class CareerMilestoneForm extends Component
             }
 
             $this->syncActionItems($milestone);
+            
+            // 見直し日時を更新
+            $mappingProgressService = app(\App\Services\MappingProgressService::class);
+            $mappingProgressService->markItemAsReviewed(Auth::id(), 'milestones');
         });
 
         session()->flash('message', 'マイルストーンを保存しました。');

@@ -95,6 +95,10 @@ class WcmForm extends Component
         $activityLogService = app(ActivityLogService::class);
         $activityLogService->logWcmSheetCompleted($userId, $sheet->id);
         
+        // 見直し日時を更新
+        $mappingProgressService = app(\App\Services\MappingProgressService::class);
+        $mappingProgressService->markItemAsReviewed($userId, 'wcm_sheet');
+        
         return redirect()->route('wcm.sheet', ['id' => $sheet->id]);
     }
 

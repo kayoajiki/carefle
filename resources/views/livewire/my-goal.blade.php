@@ -145,25 +145,60 @@
                     @if(isset($questions[$currentQuestionIndex]))
                         @php
                             $question = $questions[$currentQuestionIndex];
+                            // 質問が文字列の場合も対応
+                            $questionText = is_array($question) ? ($question['question'] ?? '') : (is_string($question) ? $question : '');
                         @endphp
                         <div class="space-y-4" wire:key="question-{{ $currentQuestionIndex }}">
                             <div class="space-y-2">
                                 <p class="body-text font-semibold text-[#2E5C8A]">
-                                    Q{{ $currentQuestionIndex + 1 }}. {{ $question['question'] ?? '' }}
+                                    Q{{ $currentQuestionIndex + 1 }}. {{ $questionText }}
                                 </p>
-                                @if(!empty($question['example']))
+                                @php
+                                    $example = is_array($question) ? ($question['example'] ?? '') : '';
+                                @endphp
+                                @if(!empty($example))
                                     <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
                                         <p class="body-small text-blue-700 font-medium mb-1">💡 回答例</p>
-                                        <p class="body-small text-[#1E3A5F]/80">{{ $question['example'] }}</p>
+                                        <p class="body-small text-[#1E3A5F]/80">{{ $example }}</p>
                                     </div>
                                 @endif
                             </div>
                             <textarea
-                                wire:model.blur="answers.{{ $currentQuestionIndex }}"
+                                wire:model.debounce.800ms="answers.{{ $currentQuestionIndex }}"
                                 wire:key="textarea-{{ $currentQuestionIndex }}"
                                 rows="5"
                                 class="w-full rounded-xl border-2 border-[#2E5C8A]/20 bg-white text-[#2E5C8A] px-4 py-3 body-text leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"
                                 placeholder="ここに回答を入力してください">{{ $answers[$currentQuestionIndex] ?? '' }}</textarea>
+                            
+                            {{-- AIが生成した解答例 --}}
+                            @if(!empty($suggestedExamples[$currentQuestionIndex] ?? null))
+                                <div class="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <p class="body-small text-green-700 font-medium">✨ AIが生成した解答例</p>
+                                        <button
+                                            wire:click="$set('suggestedExamples.{{ $currentQuestionIndex }}', null)"
+                                            class="text-green-600 hover:text-green-800 body-small">
+                                            閉じる
+                                        </button>
+                                    </div>
+                                    <p class="body-small text-[#1E3A5F]/80 whitespace-pre-line">{{ $suggestedExamples[$currentQuestionIndex] }}</p>
+                                    <button
+                                        wire:click="useSuggestedExample({{ $currentQuestionIndex }})"
+                                        class="btn-secondary text-sm w-full">
+                                        この解答例を使用する
+                                    </button>
+                                </div>
+                            @endif
+                            
+                            {{-- 解答例生成中 --}}
+                            @if($isGeneratingExample[$currentQuestionIndex] ?? false)
+                                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                        <p class="body-small text-blue-700">AIが解答例を生成中...</p>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="flex items-center justify-between pt-4">
