@@ -17,6 +17,7 @@
                     @if(in_array('diary', $unlockedFeatures ?? []))
                         <flux:navlist.item icon="document-text" :href="route('diary')" :current="request()->routeIs('diary')" wire:navigate>日記</flux:navlist.item>
                     @endif
+                    <flux:navlist.item icon="star" :href="route('my-goal')" :current="request()->routeIs('my-goal')" wire:navigate>ゴール</flux:navlist.item>
                     @if(in_array('milestones', $unlockedFeatures ?? []))
                         <flux:navlist.item icon="flag" :href="route('career.milestones')" :current="request()->routeIs('career.milestones')" wire:navigate>マイルストーン</flux:navlist.item>
                     @endif
@@ -30,6 +31,9 @@
                             <flux:navlist.item icon="chart-bar" :href="route('diagnosis.start')" :current="request()->routeIs('diagnosis.*')" wire:navigate>現職満足度診断</flux:navlist.item>
                         @endif
                     @endif
+                    @if(in_array('assessment', $unlockedFeatures ?? []))
+                        <flux:navlist.item icon="user-circle" :href="route('assessments.index')" :current="request()->routeIs('assessments.*')" wire:navigate>自己診断結果</flux:navlist.item>
+                    @endif
                     @if(in_array('life_history', $unlockedFeatures ?? []))
                         <flux:navlist.item icon="clock" :href="route('life-history.timeline')" :current="request()->routeIs('life-history.*')" wire:navigate>人生史</flux:navlist.item>
                     @endif
@@ -39,12 +43,6 @@
                         @else
                             <flux:navlist.item icon="light-bulb" :href="route('wcm.start')" :current="request()->routeIs('wcm.*')" wire:navigate>WCMシート</flux:navlist.item>
                         @endif
-                    @endif
-                    @if(in_array('assessment', $unlockedFeatures ?? []))
-                        <flux:navlist.item icon="user-circle" :href="route('assessments.index')" :current="request()->routeIs('assessments.*')" wire:navigate>自己診断結果</flux:navlist.item>
-                    @endif
-                    @if(in_array('mapping', $unlockedFeatures ?? []))
-                        <flux:navlist.item icon="map" :href="route('mapping.index')" :current="request()->routeIs('mapping.*')" wire:navigate>マッピング</flux:navlist.item>
                     @endif
                 </flux:navlist.group>
 

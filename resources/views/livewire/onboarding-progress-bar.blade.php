@@ -1,11 +1,8 @@
 @if($isComplete && ($showCompletionMessage ?? false))
     {{-- オンボーディング完了時は達成バッジのみ表示（1週間経過後は非表示） --}}
     <div class="mb-6">
-        <div class="card-refined surface-blue p-4 text-center">
-            <div class="flex items-center justify-center gap-2">
-                <span class="text-2xl">🎉</span>
-                <span class="heading-3 text-[#2E5C8A]">オンボーディング完了！</span>
-            </div>
+        <div class="card-refined surface-blue p-2 sm:p-3 text-center">
+            <p class="body-text text-[#2E5C8A] font-semibold">🎉 オンボーディング完了</p>
         </div>
     </div>
 @elseif($progress)
