@@ -404,11 +404,8 @@ class MappingProgressService
                 if ($consecutiveDays >= 180) return 'platinum';
                 if ($consecutiveDays >= 90) return 'gold';
                 if ($consecutiveDays >= 30) return 'silver';
-                // 7日間記録完了で銅
-                $onboardingService = app(OnboardingProgressService::class);
-                if ($onboardingService->checkStepCompletion($userId, 'diary_7days')) {
-                    return 'bronze';
-                }
+                // 14日間記録完了で銅
+                if ($consecutiveDays >= 14) return 'bronze';
                 return 'none';
 
             case 'strengths_report':
@@ -434,12 +431,16 @@ class MappingProgressService
                 return 'none';
 
             case 'milestones':
-                // 全ての行動アイテムが完了済みのマイルストーンのみカウント
-                $count = $this->getCompletedMilestoneCount($userId);
-                if ($count >= 10) return 'platinum';
-                if ($count >= 5) return 'gold';
-                if ($count >= 3) return 'silver';
-                if ($count >= 1) return 'bronze';
+                // 銅: 1件設定（全ての行動が完了していなくてもOK）
+                $totalCount = CareerMilestone::where('user_id', $userId)->count();
+                if ($totalCount >= 1) {
+                    // 銀以上: 全ての行動アイテムが完了済みのマイルストーンのみカウント
+                    $completedCount = $this->getCompletedMilestoneCount($userId);
+                    if ($completedCount >= 10) return 'platinum';
+                    if ($completedCount >= 5) return 'gold';
+                    if ($completedCount >= 1) return 'silver';
+                    return 'bronze'; // 1件以上設定されているが、全ての行動が完了していない
+                }
                 return 'none';
 
             case 'my_goal':
@@ -625,7 +626,7 @@ class MappingProgressService
                 'alert' => 'アラート：6ヶ月（180日）',
             ],
             'current_diaries' => [
-                'bronze' => '7日間記録完了（オンボーディング完了）',
+                'bronze' => '14日間記録完了',
                 'silver' => '30日間記録完了',
                 'gold' => '90日間記録完了',
                 'platinum' => '180日間記録完了',
@@ -646,8 +647,8 @@ class MappingProgressService
                 'alert' => 'アラート：6ヶ月（180日）',
             ],
             'milestones' => [
-                'bronze' => '1件設定してその全ての行動を完了済み',
-                'silver' => '3件設定してその全ての行動を完了済み',
+                'bronze' => '1件設定',
+                'silver' => '1件設定してその全ての行動を完了済み',
                 'gold' => '5件設定してその全ての行動を完了済み',
                 'platinum' => '10件設定してその全ての行動を完了済み',
                 'alert' => 'アラート：1ヶ月',
