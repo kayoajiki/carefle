@@ -50,7 +50,7 @@
 
                 <flux:navlist.group heading="相談・サポート" class="grid">
                     <flux:navlist.item icon="calendar" href="https://b-book.run/@careerpartner.co-14aa198d820a08a2" target="_blank" rel="noopener noreferrer">面談申し込み</flux:navlist.item>
-                    <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat.index')" :current="request()->routeIs('chat.*')" wire:navigate>チャット相談</flux:navlist.item>
+                    <flux:navlist.item icon="chat-bubble-left-right" href="https://line.me/R/ti/p/@824flemq?ts=08191453&oat_content=url" target="_blank" rel="noopener noreferrer">LINE登録はこちら</flux:navlist.item>
                 </flux:navlist.group>
 
                 <flux:navlist.group heading="プロフィール" class="grid">

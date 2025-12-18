@@ -96,10 +96,10 @@ Route::middleware(['auth'])->group(function () {
     //     return view('consultation.request');
     // })->name('consultation.request');
 
-    // チャット相談
-    Route::get('chat', function () {
-        return view('chat.index');
-    })->name('chat.index');
+    // チャット相談（LINE登録に変更したため削除）
+    // Route::get('chat', function () {
+    //     return view('chat.index');
+    // })->name('chat.index');
 
     // マイゴール
     Route::get('my-goal', \App\Livewire\MyGoal::class)->name('my-goal');
