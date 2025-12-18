@@ -44,3 +44,4 @@ class LoginResponse implements LoginResponseContract
     }
 }
 
+

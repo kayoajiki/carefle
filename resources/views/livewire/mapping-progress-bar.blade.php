@@ -134,9 +134,15 @@
             </div>
             @else
             <div class="mt-4 p-3 bg-[#6BB6FF]/10 rounded-lg border border-[#6BB6FF] text-center">
-                <p class="body-text text-[#2E5C8A] font-medium">
-                    🎉 すべてのステップが完了しました！
-                </p>
+                @if($topicMessage ?? null)
+                    <p class="body-text text-[#2E5C8A] font-medium">
+                        {{ $topicMessage }}
+                    </p>
+                @else
+                    <p class="body-text text-[#2E5C8A] font-medium">
+                        🎉 すべてのステップが完了しました！
+                    </p>
+                @endif
             </div>
             @endif
         </div>

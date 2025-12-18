@@ -238,3 +238,4 @@ private function countActiveUsers($since)
 **Phase 3（将来的に）**: アクティビティログとの組み合わせ
 - より詳細な分析が必要な場合
 
+

@@ -119,18 +119,6 @@
         <flux:header class="lg:hidden">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
-            @php
-                $topicService = app(\App\Services\TopicMessageService::class);
-                $topicMessage = $topicService->generateTopicMessage();
-            @endphp
-            @if($topicMessage)
-                <div class="flex-1 mx-3 min-w-0 overflow-hidden">
-                    <p class="text-xs sm:text-sm text-[#2E5C8A] dark:text-zinc-300 truncate font-medium">
-                        {{ $topicMessage }}
-                    </p>
-                </div>
-            @endif
-
             <flux:spacer />
 
             <flux:dropdown position="top" align="end">

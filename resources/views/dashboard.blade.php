@@ -40,6 +40,9 @@
                             <a href="{{ route('my-goal') }}" class="btn-secondary text-center">
                                 マイゴール
                             </a>
+                            <a href="{{ route('career.milestones') }}" class="btn-secondary text-center">
+                                マイルストーン
+                            </a>
                         </div>
                     </div>
 

@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Services\MappingProgressService;
+use App\Services\TopicMessageService;
 use App\Models\WcmSheet;
 use Illuminate\Support\Facades\Auth;
 
@@ -89,12 +90,17 @@ class MappingProgressBar extends Component
         $completedCount = count(array_filter($itemStatuses, fn($item) => $item['completed']));
         $progressPercentage = $totalItems > 0 ? round(($completedCount / $totalItems) * 100) : 0;
 
+        // トピックスメッセージを取得
+        $topicService = app(TopicMessageService::class);
+        $topicMessage = $topicService->generateTopicMessage($userId);
+
         return view('livewire.mapping-progress-bar', [
             'progress' => $progress,
             'isUnlocked' => $isUnlocked,
             'itemStatuses' => $itemStatuses,
             'progressPercentage' => $progressPercentage,
             'nextItem' => $nextItem,
+            'topicMessage' => $topicMessage,
         ]);
     }
     
