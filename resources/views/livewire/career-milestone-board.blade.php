@@ -93,9 +93,9 @@
                             <span class="px-3 py-1 rounded-2xl bg-slate-100">
                                 {{ $detailMilestone->target_date?->format('Y/m/d') ?? '日付未設定' }}
                             </span>
-                            @if($detailMilestone->mandala_data['center'] ?? null)
+                            @if($detailMilestone->will_theme)
                                 <span class="px-3 py-1 rounded-2xl bg-[#E6F0FF] text-[#2E5C8A]">
-                                    {{ $detailMilestone->mandala_data['center'] }}
+                                    {{ $detailMilestone->will_theme }}
                                 </span>
                             @endif
                         </div>
@@ -171,21 +171,6 @@
                             @empty
                                 <p class="body-small text-slate-500">まだ行動メモがありません。</p>
                             @endforelse
-                        </div>
-                    </div>
-
-                    <div class="space-y-3">
-                        <p class="body-small text-slate-500">ミニマンダラ</p>
-                        <div class="grid grid-cols-2 gap-3">
-                            @foreach(($detailMilestone->mandala_data['elements'] ?? []) as $index => $idea)
-                                <div class="border border-slate-200 rounded-2xl p-3">
-                                    <p class="body-small font-semibold text-[#2E5C8A]">キーワード {{ $index + 1 }}</p>
-                                    <p class="body-small text-slate-600 mt-1">{{ $idea ?: '---' }}</p>
-                                    <p class="body-small text-slate-500 mt-2">
-                                        {{ $detailMilestone->mandala_data['actions'][$index] ?? 'アクション未記入' }}
-                                    </p>
-                                </div>
-                            @endforeach
                         </div>
                     </div>
                 @else

@@ -38,7 +38,13 @@ class ActionItemGeneratorService
         $suggestedActions = [];
 
         foreach ($milestones as $milestone) {
-            $prompt = "以下の日記内容から、マイルストーン「{$milestone->title}」に関連する具体的なアクションアイテムを1-3個提案してください。\n\n";
+            // 既に3個生成されている場合は終了
+            if (count($suggestedActions) >= 3) {
+                break;
+            }
+
+            $remainingSlots = 3 - count($suggestedActions);
+            $prompt = "以下の日記内容から、マイルストーン「{$milestone->title}」に関連する具体的なアクションアイテムを1-{$remainingSlots}個提案してください。\n\n";
             $prompt .= "【日記内容】\n{$diaryContent}\n\n";
             $prompt .= "【マイルストーン】\n";
             $prompt .= "タイトル: {$milestone->title}\n";
@@ -59,6 +65,10 @@ class ActionItemGeneratorService
                 $json = $this->extractJsonFromResponse($response);
                 if ($json && isset($json['actions'])) {
                     foreach ($json['actions'] as $action) {
+                        // 最大3個まで制限
+                        if (count($suggestedActions) >= 3) {
+                            break 2; // 外側のループも抜ける
+                        }
                         $suggestedActions[] = [
                             'milestone_id' => $milestone->id,
                             'title' => $action['title'] ?? '',

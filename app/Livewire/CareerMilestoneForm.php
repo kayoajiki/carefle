@@ -18,16 +18,12 @@ class CareerMilestoneForm extends Component
     public string $summary = '';
 
     public string $mandalaCenter = '';
-    public array $mandalaIdeas = [];
-    public array $mandalaActions = [];
 
     public array $actionItems = [];
 
     public function mount(?int $milestoneId = null): void
     {
         $this->milestoneId = $milestoneId;
-        $this->mandalaIdeas = $this->mandalaIdeas ?: array_fill(0, 4, '');
-        $this->mandalaActions = $this->mandalaActions ?: array_fill(0, 4, '');
         $this->actionItems = $this->actionItems ?: [$this->blankActionItem()];
 
         if ($this->milestoneId) {
@@ -55,10 +51,8 @@ class CareerMilestoneForm extends Component
         $this->target_date = optional($milestone->target_date)?->format('Y-m-d');
         $this->summary = (string) $milestone->description;
 
-        $mandala = $milestone->mandala_data ?? [];
-        $this->mandalaCenter = $mandala['center'] ?? '';
-        $this->mandalaIdeas = $this->padArray($mandala['elements'] ?? [], 4);
-        $this->mandalaActions = $this->padArray($mandala['actions'] ?? [], 4);
+        // will_themeを優先、なければmandala_dataから取得
+        $this->mandalaCenter = $milestone->will_theme ?? ($milestone->mandala_data['center'] ?? '');
 
         $this->actionItems = $milestone->actionItems
             ->map(function (MilestoneActionItem $item) {
@@ -76,12 +70,6 @@ class CareerMilestoneForm extends Component
         }
     }
 
-    private function padArray(array $source, int $length): array
-    {
-        $slice = array_slice($source, 0, $length);
-        return array_pad($slice, $length, '');
-    }
-
     protected function rules(): array
     {
         return [
@@ -89,10 +77,6 @@ class CareerMilestoneForm extends Component
             'target_date' => 'nullable|date',
             'summary' => 'nullable|string|max:2000',
             'mandalaCenter' => 'nullable|string|max:255',
-            'mandalaIdeas' => 'array|size:4',
-            'mandalaIdeas.*' => 'nullable|string|max:120',
-            'mandalaActions' => 'array|size:4',
-            'mandalaActions.*' => 'nullable|string|max:240',
             'actionItems' => 'array|min:1',
             'actionItems.*.title' => 'nullable|string|max:255',
             'actionItems.*.due_date' => 'nullable|date',
@@ -143,11 +127,6 @@ class CareerMilestoneForm extends Component
                 'effort_score' => 0,
                 'achievement_rate' => 0,
                 'progress_points' => 0,
-                'mandala_data' => [
-                    'center' => $this->mandalaCenter,
-                    'elements' => $this->mandalaIdeas,
-                    'actions' => $this->mandalaActions,
-                ],
                 'action_overview' => $this->generateActionOverview(),
             ];
 

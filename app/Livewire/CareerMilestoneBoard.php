@@ -16,6 +16,7 @@ class CareerMilestoneBoard extends Component
 
     protected $listeners = [
         'milestoneSaved' => 'handleMilestoneSaved',
+        'closeForm' => 'closeForm',
     ];
 
     public function mount(): void
