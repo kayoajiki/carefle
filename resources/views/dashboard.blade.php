@@ -342,43 +342,6 @@
                     </div>
                 @endif
 
-                <!-- AI伴走の履歴 -->
-                @if($recentConversations->isNotEmpty())
-                    <div class="card-refined surface-blue p-8 soft-shadow-refined">
-                        <h2 class="heading-3 text-xl mb-6">最近の内省チャット</h2>
-                        <div class="space-y-3">
-                            @foreach($recentConversations as $conversation)
-                                <div class="bg-white rounded-lg p-4 border border-[#6BB6FF]/20">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <p class="body-text font-medium text-[#2E5C8A]">
-                                                {{ $conversation->date ? \Carbon\Carbon::parse($conversation->date)->format('Y年m月d日') : \Carbon\Carbon::parse($conversation->updated_at)->format('Y年m月d日') }}
-                                            </p>
-                                            @if($conversation->diary && $conversation->diary->reflection_type)
-                                                <p class="body-small text-[#1E3A5F]/60">
-                                                    @if($conversation->diary->reflection_type === 'daily')
-                                                        今日の振り返り
-                                                    @elseif($conversation->diary->reflection_type === 'yesterday')
-                                                        昨日の振り返り
-                                                    @elseif($conversation->diary->reflection_type === 'weekly')
-                                                        週次振り返り
-                                                    @elseif($conversation->diary->reflection_type === 'deep')
-                                                        深い内省
-                                                    @elseif($conversation->diary->reflection_type === 'moya_moya')
-                                                        モヤモヤ解消
-                                                    @endif
-                                                </p>
-                                            @endif
-                                        </div>
-                                        <a href="{{ route('diary.chat', ['date' => $conversation->date ? \Carbon\Carbon::parse($conversation->date)->format('Y-m-d') : now()->format('Y-m-d')]) }}" class="body-small text-[#6BB6FF] hover:underline">
-                                            開く →
-                                        </a>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
 
                 <!-- その他の機能カード -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
