@@ -4,11 +4,11 @@
 @elseif($progress)
     {{-- マッピング進捗バーを表示 --}}
     <div class="mb-6">
-        <div class="card-refined surface-blue p-6">
-            <div class="mb-4">
+        <div class="card-refined surface-blue p-4 sm:p-6">
+            <div class="mb-3 sm:mb-4">
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-2">
-                        <h3 class="heading-3 text-[#2E5C8A]">次のステップ</h3>
+                        <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#2E5C8A]">次のステップ</h3>
                         <button
                             type="button"
                             onclick="document.getElementById('medal-explanation-modal').classList.remove('hidden')"
