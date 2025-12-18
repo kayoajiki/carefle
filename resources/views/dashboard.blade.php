@@ -353,7 +353,7 @@
                             <p class="text-sm sm:text-base text-[#1E3A5F] mb-4 sm:mb-6">
                                 カウンセラーとじっくり対話して、今後の一歩を具体化しましょう。
                             </p>
-                            <a href="https://b-book.run/@careerpartner.co-14aa198d820a08a2" target="_blank" rel="noopener noreferrer" class="btn-primary w-full text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
+                            <a href="https://careerpartner.jp/carehugforI" target="_blank" rel="noopener noreferrer" class="btn-primary w-full text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
                                 面談を申し込む
                             </a>
                         </div>
