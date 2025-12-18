@@ -430,7 +430,7 @@
                 </div>
 
                 <!-- 過去の自分を思い出す（Phase 8.1） -->
-                @if($pastRecords['has_past_records'])
+                @if($pastRecords['has_past_records'] && !empty($pastRecords['past_items']))
                 <div class="card-refined surface-blue p-10 soft-shadow-refined">
                     <div class="flex items-center gap-3 mb-6">
                         <span class="text-3xl">💭</span>
@@ -440,87 +440,159 @@
                         過去の記録を振り返ることで、自分の変容を実感できます。
                     </p>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {{-- 過去の日記 --}}
-                        @if($pastRecords['past_diaries']->isNotEmpty())
-                        <div class="bg-white/50 rounded-xl p-6 border border-[#6BB6FF]/20">
-                            <div class="flex items-center gap-2 mb-4">
-                                <svg class="w-5 h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                <h3 class="heading-3 text-lg">過去の日記</h3>
-                            </div>
-                            <div class="space-y-3 mb-4">
-                                @foreach($pastRecords['past_diaries']->take(3) as $diary)
-                                <a 
-                                    href="{{ route('diary') }}?date={{ $diary['date_key'] }}" 
-                                    class="block p-3 bg-white rounded-lg hover:bg-[#E8F4FF] transition-colors"
-                                >
-                                    <div class="flex items-center justify-between mb-1">
-                                        <span class="body-small text-[#1E3A5F]/70">{{ $diary['date'] }}</span>
-                                        @if($diary['motivation'])
-                                        <span class="body-small text-[#6BB6FF]">モチベーション: {{ $diary['motivation'] }}</span>
+                    {{-- スライド形式のカルーセル --}}
+                    <div 
+                        x-data="{
+                            currentIndex: 0,
+                            items: @js($pastRecords['past_items']),
+                            autoSlideInterval: null,
+                            isPaused: false,
+                            init() {
+                                this.startAutoSlide();
+                            },
+                            startAutoSlide() {
+                                if (this.items.length <= 1) return;
+                                this.autoSlideInterval = setInterval(() => {
+                                    if (!this.isPaused) {
+                                        this.next();
+                                    }
+                                }, 5000);
+                            },
+                            stopAutoSlide() {
+                                if (this.autoSlideInterval) {
+                                    clearInterval(this.autoSlideInterval);
+                                    this.autoSlideInterval = null;
+                                }
+                            },
+                            next() {
+                                this.currentIndex = (this.currentIndex + 1) % this.items.length;
+                            },
+                            prev() {
+                                this.currentIndex = (this.currentIndex - 1 + this.items.length) % this.items.length;
+                            },
+                            goTo(index) {
+                                this.currentIndex = index;
+                            },
+                            pause() {
+                                this.isPaused = true;
+                            },
+                            resume() {
+                                this.isPaused = false;
+                            }
+                        }"
+                        @mouseenter="pause()"
+                        @mouseleave="resume()"
+                        class="relative"
+                    >
+                        {{-- スライドコンテナ --}}
+                        <div class="relative overflow-hidden rounded-xl">
+                            <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${currentIndex * 100}%)`">
+                                @foreach($pastRecords['past_items'] as $index => $item)
+                                <div class="w-full flex-shrink-0 min-w-0">
+                                    <div class="bg-white/50 rounded-xl p-4 md:p-6 border border-[#6BB6FF]/20">
+                                        @if($item['type'] === 'diagnosis')
+                                            {{-- 診断スライド --}}
+                                            <div class="flex items-center gap-2 mb-4">
+                                                <svg class="w-5 h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                                </svg>
+                                                <h3 class="heading-3 text-lg">過去の診断</h3>
+                                            </div>
+                                            <a 
+                                                href="{{ route('diagnosis.result', $item['data']['id']) }}" 
+                                                class="block p-4 bg-white rounded-lg hover:bg-[#E8F4FF] transition-colors"
+                                            >
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <span class="body-small text-[#1E3A5F]/70">{{ $item['data']['date'] }}</span>
+                                                </div>
+                                                <div class="flex gap-4">
+                                                    <span class="body-text text-[#1E3A5F] font-semibold">仕事: {{ $item['data']['work_score'] }}点</span>
+                                                    <span class="body-text text-[#1E3A5F] font-semibold">生活: {{ $item['data']['life_score'] }}点</span>
+                                                </div>
+                                            </a>
+                                            <a href="{{ route('diagnosis.start') }}" class="btn-secondary text-sm w-full text-center mt-4">
+                                                新しい診断を実施
+                                            </a>
+                                        @elseif($item['type'] === 'diary')
+                                            {{-- 日記スライド --}}
+                                            <div class="flex items-center gap-2 mb-4">
+                                                <svg class="w-5 h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                                <h3 class="heading-3 text-lg">過去の日記</h3>
+                                            </div>
+                                            <a 
+                                                href="{{ route('diary') }}?date={{ $item['data']['date_key'] }}" 
+                                                class="block p-4 bg-white rounded-lg hover:bg-[#E8F4FF] transition-colors"
+                                            >
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <span class="body-small text-[#1E3A5F]/70">{{ $item['data']['date'] }}</span>
+                                                    @if($item['data']['motivation'])
+                                                    <span class="body-small text-[#6BB6FF]">モチベーション: {{ $item['data']['motivation'] }}</span>
+                                                    @endif
+                                                </div>
+                                                <p class="body-text text-[#1E3A5F]/80">{{ $item['data']['content_preview'] }}</p>
+                                            </a>
+                                            <a href="{{ route('diary') }}" class="btn-secondary text-sm w-full text-center mt-4">
+                                                日記カレンダーを見る
+                                            </a>
+                                        @elseif($item['type'] === 'strengths_report')
+                                            {{-- 持ち味レポスライド --}}
+                                            <div class="flex items-center gap-2 mb-4">
+                                                <svg class="w-5 h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                                </svg>
+                                                <h3 class="heading-3 text-lg">持ち味レポ</h3>
+                                            </div>
+                                            <p class="body-text text-[#1E3A5F]/70 mb-4">
+                                                {{ $item['data']['description'] }}
+                                            </p>
+                                            <a href="{{ route('onboarding.mini-manual') }}" class="btn-primary text-sm w-full text-center">
+                                                持ち味レポを見る
+                                            </a>
                                         @endif
                                     </div>
-                                    <p class="body-small text-[#1E3A5F]/80">{{ $diary['content_preview'] }}</p>
-                                </a>
+                                </div>
                                 @endforeach
                             </div>
-                            <a href="{{ route('diary') }}" class="btn-secondary text-sm w-full text-center">
-                                日記カレンダーを見る
-                            </a>
                         </div>
-                        @endif
 
-                        {{-- 過去の診断結果 --}}
-                        @if($pastRecords['past_diagnoses']->isNotEmpty())
-                        <div class="bg-white/50 rounded-xl p-6 border border-[#6BB6FF]/20">
-                            <div class="flex items-center gap-2 mb-4">
-                                <svg class="w-5 h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        {{-- ナビゲーションボタン --}}
+                        @if(count($pastRecords['past_items']) > 1)
+                        <div class="flex items-center justify-between mt-6 px-2">
+                            {{-- 前のボタン --}}
+                            <button 
+                                @click="prev(); pause(); setTimeout(() => resume(), 3000)"
+                                class="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#6BB6FF]/20 hover:bg-[#6BB6FF]/30 active:bg-[#6BB6FF]/40 text-[#6BB6FF] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                :disabled="currentIndex === 0"
+                            >
+                                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                 </svg>
-                                <h3 class="heading-3 text-lg">過去の診断</h3>
-                            </div>
-                            <div class="space-y-3 mb-4">
-                                @foreach($pastRecords['past_diagnoses'] as $diagnosis)
-                                <a 
-                                    href="{{ route('diagnosis.result', $diagnosis['id']) }}" 
-                                    class="block p-3 bg-white rounded-lg hover:bg-[#E8F4FF] transition-colors"
-                                >
-                                    <div class="flex items-center justify-between mb-1">
-                                        <span class="body-small text-[#1E3A5F]/70">{{ $diagnosis['date'] }}</span>
-                                    </div>
-                                    <div class="flex gap-4">
-                                        <span class="body-small text-[#1E3A5F]">仕事: {{ $diagnosis['work_score'] }}点</span>
-                                        <span class="body-small text-[#1E3A5F]">生活: {{ $diagnosis['life_score'] }}点</span>
-                                    </div>
-                                </a>
+                            </button>
+
+                            {{-- インジケーター（ドット） --}}
+                            <div class="flex gap-2 flex-1 justify-center max-w-xs overflow-x-auto">
+                                @foreach($pastRecords['past_items'] as $index => $item)
+                                <button 
+                                    @click="goTo({{ $index }}); pause(); setTimeout(() => resume(), 3000)"
+                                    class="w-2 h-2 rounded-full transition-all duration-300 flex-shrink-0"
+                                    :class="currentIndex === {{ $index }} ? 'bg-[#6BB6FF] w-6' : 'bg-[#6BB6FF]/30 hover:bg-[#6BB6FF]/50'"
+                                    :aria-label="'スライド {{ $index + 1 }}'"
+                                ></button>
                                 @endforeach
                             </div>
-                            <a href="{{ route('diagnosis.start') }}" class="btn-secondary text-sm w-full text-center">
-                                新しい診断を実施
-                            </a>
-                        </div>
-                        @endif
 
-                        {{-- 持ち味レポ --}}
-                        @if($pastRecords['has_strengths_report'])
-                        <div class="bg-white/50 rounded-xl p-6 border border-[#6BB6FF]/20">
-                            <div class="flex items-center gap-2 mb-4">
-                                <svg class="w-5 h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            {{-- 次のボタン --}}
+                            <button 
+                                @click="next(); pause(); setTimeout(() => resume(), 3000)"
+                                class="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#6BB6FF]/20 hover:bg-[#6BB6FF]/30 active:bg-[#6BB6FF]/40 text-[#6BB6FF] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                :disabled="currentIndex === {{ count($pastRecords['past_items']) - 1 }}"
+                            >
+                                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
-                                <h3 class="heading-3 text-lg">持ち味レポ</h3>
-                            </div>
-                            <p class="body-text text-[#1E3A5F]/70 mb-4">
-                                診断と日記から見えるあなたの持ち味を確認できます。
-                            </p>
-                            <a href="{{ route('onboarding.mini-manual') }}" class="btn-primary text-sm w-full text-center">
-                                持ち味レポを見る
-                            </a>
-                            <a href="{{ route('manual.index') }}" class="btn-secondary text-sm w-full text-center mt-2">
-                                コンテキスト別取説を見る
-                            </a>
+                            </button>
                         </div>
                         @endif
                     </div>

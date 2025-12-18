@@ -252,14 +252,15 @@ class DashboardController extends Controller
     private function getPastRecords(int $userId): array
     {
         $thirtyDaysAgo = now()->subDays(30);
+        $pastItems = [];
 
-        // 過去の日記（30日以上前、最新5件）
+        // 過去の日記（30日以上前、最大10件）
         $pastDiaries = Diary::where('user_id', $userId)
             ->where('date', '<', $thirtyDaysAgo)
             ->whereNotNull('content')
             ->where('content', '!=', '')
             ->orderBy('date', 'desc')
-            ->limit(5)
+            ->limit(10)
             ->get()
             ->map(function ($diary) {
                 return [
@@ -271,12 +272,20 @@ class DashboardController extends Controller
                 ];
             });
 
-        // 過去の診断結果（30日以上前、最新3件）
+        // 日記をスライドアイテムに追加
+        foreach ($pastDiaries as $diary) {
+            $pastItems[] = [
+                'type' => 'diary',
+                'data' => $diary,
+            ];
+        }
+
+        // 過去の診断結果（30日以上前、最大10件）
         $pastDiagnoses = Diagnosis::where('user_id', $userId)
             ->where('is_completed', true)
             ->where('created_at', '<', $thirtyDaysAgo)
             ->orderBy('created_at', 'desc')
-            ->limit(3)
+            ->limit(10)
             ->get()
             ->map(function ($diagnosis) {
                 return [
@@ -287,15 +296,35 @@ class DashboardController extends Controller
                 ];
             });
 
+        // 診断をスライドアイテムに追加
+        foreach ($pastDiagnoses as $diagnosis) {
+            $pastItems[] = [
+                'type' => 'diagnosis',
+                'data' => $diagnosis,
+            ];
+        }
+
         // 持ち味レポが生成済みかチェック
         $progressService = app(OnboardingProgressService::class);
         $hasStrengthsReport = $progressService->checkStepCompletion($userId, 'manual_generated');
 
+        // 持ち味レポをスライドアイテムに追加
+        if ($hasStrengthsReport) {
+            $pastItems[] = [
+                'type' => 'strengths_report',
+                'data' => [
+                    'title' => '持ち味レポ',
+                    'description' => '診断と日記から見えるあなたの持ち味を確認できます。',
+                ],
+            ];
+        }
+
+        // ランダムに並び替え
+        shuffle($pastItems);
+
         return [
-            'past_diaries' => $pastDiaries,
-            'past_diagnoses' => $pastDiagnoses,
-            'has_strengths_report' => $hasStrengthsReport,
-            'has_past_records' => $pastDiaries->isNotEmpty() || $pastDiagnoses->isNotEmpty() || $hasStrengthsReport,
+            'past_items' => $pastItems,
+            'has_past_records' => !empty($pastItems),
         ];
     }
 }
