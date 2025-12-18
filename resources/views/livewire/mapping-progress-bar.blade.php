@@ -7,7 +7,7 @@
         <div class="card-refined surface-blue p-6">
             <div class="mb-4">
                 <div class="flex items-center justify-between mb-2">
-                    <h3 class="heading-3 text-[#2E5C8A]">曼荼羅マッピング進捗</h3>
+                    <h3 class="heading-3 text-[#2E5C8A]">次のステップ</h3>
                     <span class="body-small text-[#1E3A5F]/60">{{ $progressPercentage }}%</span>
                 </div>
                 {{-- 進捗バー --}}
