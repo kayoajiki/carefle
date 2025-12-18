@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Services\MappingProgressService;
+use App\Models\WcmSheet;
 use Illuminate\Support\Facades\Auth;
 
 class MappingProgressBar extends Component
@@ -42,26 +43,78 @@ class MappingProgressBar extends Component
         $progress = $this->progressService->getOrCreateProgress($userId);
         $nextItem = $this->progressService->getNextItem($userId);
 
-        // セクション定義
-        $sections = ['past', 'current', 'future'];
+        // 全項目を取得（セクションなし）
+        $allItems = [
+            'life_history',
+            'current_diaries',
+            'strengths_report',
+            'wcm_sheet',
+            'milestones',
+            'my_goal',
+        ];
         
-        // 各セクションの進捗を取得
-        $sectionProgresses = [];
-        foreach ($sections as $section) {
-            $sectionProgresses[$section] = $this->progressService->getSectionProgress($userId, $section);
+        $completedItems = $progress->completed_items ?? [];
+        
+        // 最新のWCMシートIDを取得
+        $latestWcmSheet = WcmSheet::where('user_id', $userId)
+            ->where('is_draft', false)
+            ->latest('updated_at')
+            ->first();
+        $latestWcmSheetId = $latestWcmSheet?->id;
+        
+        // 各項目のステータスを取得
+        $itemStatuses = [];
+        foreach ($allItems as $item) {
+            $isCompleted = in_array($item, $completedItems, true);
+            $canComplete = $this->progressService->checkItemCompletionFromDatabase($userId, $item);
+            
+            $itemStatuses[$item] = [
+                'key' => $item,
+                'label' => $this->progressService->getItemLabel($item),
+                'completed' => $isCompleted,
+                'canComplete' => $canComplete,
+                'isCurrent' => $nextItem === $item,
+                'route' => $this->getRouteForItem($item, $latestWcmSheetId),
+            ];
         }
 
         // 全体の進捗率を計算
-        $totalItems = 8; // past_diagnosis, past_diaries, life_history, current_diagnosis, current_diaries, strengths_report, wcm_sheet, milestones
-        $completedItems = count($progress->completed_items ?? []);
-        $progressPercentage = $totalItems > 0 ? round(($completedItems / $totalItems) * 100) : 0;
+        $totalItems = count($allItems);
+        $completedCount = count(array_filter($itemStatuses, fn($item) => $item['completed']));
+        $progressPercentage = $totalItems > 0 ? round(($completedCount / $totalItems) * 100) : 0;
 
         return view('livewire.mapping-progress-bar', [
             'progress' => $progress,
             'isUnlocked' => $isUnlocked,
-            'sectionProgresses' => $sectionProgresses,
+            'itemStatuses' => $itemStatuses,
             'progressPercentage' => $progressPercentage,
             'nextItem' => $nextItem,
         ]);
+    }
+    
+    /**
+     * Get route for an item.
+     */
+    protected function getRouteForItem(string $item, ?int $wcmSheetId = null): string
+    {
+        // WCMシートの場合はIDが必要
+        if ($item === 'wcm_sheet') {
+            if ($wcmSheetId) {
+                return route('wcm.sheet', ['id' => $wcmSheetId]);
+            }
+            // WCMシートが存在しない場合は作成ページへ
+            return route('wcm.start');
+        }
+        
+        $routes = [
+            'life_history' => 'life-history.timeline',
+            'current_diaries' => 'diary',
+            'strengths_report' => 'onboarding.mini-manual',
+            'milestones' => 'career.milestones',
+            'my_goal' => 'my-goal',
+        ];
+
+        $routeName = $routes[$item] ?? 'dashboard';
+        return route($routeName);
     }
 }

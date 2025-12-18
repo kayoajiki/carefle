@@ -42,7 +42,7 @@ class MappingProgressService
     /**
      * Check item completion from database.
      */
-    protected function checkItemCompletionFromDatabase(int $userId, string $item): bool
+    public function checkItemCompletionFromDatabase(int $userId, string $item): bool
     {
         switch ($item) {
             case 'past_diagnosis':
@@ -107,6 +107,11 @@ class MappingProgressService
                 // マイルストーンが3件以上
                 return CareerMilestone::where('user_id', $userId)->count() >= 3;
 
+            case 'my_goal':
+                // マイゴールが設定されている
+                $user = \App\Models\User::find($userId);
+                return $user && !empty($user->goal_image);
+
             default:
                 return false;
         }
@@ -118,14 +123,12 @@ class MappingProgressService
     public function getNextItem(int $userId): ?string
     {
         $allItems = [
-            'past_diagnosis',
-            'past_diaries',
             'life_history',
-            'current_diagnosis',
             'current_diaries',
             'strengths_report',
             'wcm_sheet',
             'milestones',
+            'my_goal',
         ];
         
         foreach ($allItems as $item) {
@@ -190,14 +193,12 @@ class MappingProgressService
     public function autoUpdateProgress(int $userId): void
     {
         $allItems = [
-            'past_diagnosis',
-            'past_diaries',
             'life_history',
-            'current_diagnosis',
             'current_diaries',
             'strengths_report',
             'wcm_sheet',
             'milestones',
+            'my_goal',
         ];
         
         $progress = $this->getOrCreateProgress($userId);
@@ -341,17 +342,15 @@ class MappingProgressService
     /**
      * Get label for an item.
      */
-    protected function getItemLabel(string $item): string
+    public function getItemLabel(string $item): string
     {
         $labels = [
-            'past_diagnosis' => '過去の診断',
-            'past_diaries' => '過去の日記',
             'life_history' => '人生史',
-            'current_diagnosis' => '最新の診断',
-            'current_diaries' => '最近の日記',
+            'current_diaries' => '日記',
             'strengths_report' => '持ち味レポ',
             'wcm_sheet' => 'WCMシート',
             'milestones' => 'マイルストーン',
+            'my_goal' => 'マイゴール',
         ];
 
         return $labels[$item] ?? $item;
