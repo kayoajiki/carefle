@@ -28,11 +28,22 @@ class OnboardingProgressBar extends Component
 
         $isComplete = $this->progressService->isOnboardingComplete($userId);
         
-        // オンボーディング完了後は非表示（nullを返す）
+        // オンボーディング完了後は完了メッセージを表示（1週間経過後は非表示）
         if ($isComplete) {
+            $progress = $this->progressService->getOrCreateProgress($userId);
+            $completedAt = $progress->completed_at;
+            $showCompletionMessage = false;
+            
+            // 完了日時が記録されていて、1週間以内の場合のみ表示
+            if ($completedAt) {
+                $oneWeekAgo = now()->subWeek();
+                $showCompletionMessage = $completedAt->isAfter($oneWeekAgo);
+            }
+            
             return view('livewire.onboarding-progress-bar', [
                 'progress' => null,
                 'isComplete' => true,
+                'showCompletionMessage' => $showCompletionMessage,
             ]);
         }
 

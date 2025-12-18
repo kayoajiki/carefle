@@ -41,6 +41,8 @@ Route::middleware(['auth'])->group(function () {
     // プチ取説
     Route::get('onboarding/mini-manual', [\App\Http\Controllers\OnboardingController::class, 'showMiniManual'])
         ->name('onboarding.mini-manual');
+    Route::post('onboarding/mini-manual/update', [\App\Http\Controllers\OnboardingController::class, 'updateMiniManual'])
+        ->name('onboarding.mini-manual.update');
     Route::get('onboarding/mini-manual/pdf', [\App\Http\Controllers\OnboardingController::class, 'downloadMiniManualPdf'])
         ->name('onboarding.mini-manual.pdf');
     

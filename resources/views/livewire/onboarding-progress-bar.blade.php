@@ -1,5 +1,5 @@
-@if($isComplete)
-    {{-- オンボーディング完了時は達成バッジのみ表示 --}}
+@if($isComplete && ($showCompletionMessage ?? false))
+    {{-- オンボーディング完了時は達成バッジのみ表示（1週間経過後は非表示） --}}
     <div class="mb-6">
         <div class="card-refined surface-blue p-4 text-center">
             <div class="flex items-center justify-center gap-2">

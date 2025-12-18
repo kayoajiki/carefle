@@ -13,10 +13,37 @@
             <div class="card-refined surface-blue p-10 soft-shadow-refined space-y-8">
                 {{-- ヘッダー --}}
                 <div class="text-center space-y-4">
-                    <h1 class="heading-1">{{ isset($manual['content']['title']) ? $manual['content']['title'] : '私の持ち味レポ' }}</h1>
-                    <p class="body-text text-[#1E3A5F]/70">
-                        生成日: {{ $manual['generated_at']->format('Y年n月j日') }}
-                    </p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1"></div>
+                        <div class="flex-1 text-center">
+                            <h1 class="heading-1">{{ isset($manual['content']['title']) ? $manual['content']['title'] : '私の持ち味レポ' }}</h1>
+                            <p class="body-text text-[#1E3A5F]/70">
+                                生成日: {{ $manual['generated_at']->format('Y年n月j日') }}
+                            </p>
+                        </div>
+                        <div class="flex-1 flex justify-end">
+                            @if($canUpdate ?? false)
+                                <form action="{{ route('onboarding.mini-manual.update') }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="btn-secondary text-sm">
+                                        更新する
+                                    </button>
+                                </form>
+                            @else
+                                @php
+                                    $latestReport = \App\Models\StrengthsReport::getLatestForUser(auth()->id());
+                                    $nextUpdateDate = $latestReport ? $latestReport->generated_at->copy()->addMonth() : null;
+                                @endphp
+                                @if($nextUpdateDate)
+                                    <div class="text-right">
+                                        <p class="body-small text-[#1E3A5F]/60">
+                                            次回更新可能: {{ $nextUpdateDate->format('Y年n月j日') }}
+                                        </p>
+                                    </div>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
                 </div>
 
                 {{-- アジェンダ --}}
