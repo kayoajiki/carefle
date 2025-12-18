@@ -34,11 +34,12 @@
             {{-- ステップ一覧（オンボーディングと同じスタイル） --}}
             <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
                 @foreach($itemStatuses as $itemKey => $item)
-                    <a 
-                        href="{{ $item['route'] }}" 
-                        wire:navigate
-                        class="flex flex-col items-center gap-2 p-3 rounded-lg transition-all {{ $item['completed'] ? 'bg-[#6BB6FF]/10 border-2 border-[#6BB6FF]' : ($item['isCurrent'] ? 'bg-[#E8F4FF] border-2 border-[#6BB6FF]/50' : 'bg-white/50 border border-[#6BB6FF]/20') }}"
-                    >
+                    <div class="group relative">
+                        <a 
+                            href="{{ $item['route'] }}" 
+                            wire:navigate
+                            class="flex flex-col items-center gap-2 p-3 rounded-lg transition-all {{ $item['completed'] ? 'bg-[#6BB6FF]/10 border-2 border-[#6BB6FF]' : ($item['isCurrent'] ? 'bg-[#E8F4FF] border-2 border-[#6BB6FF]/50' : 'bg-white/50 border border-[#6BB6FF]/20') }}"
+                        >
                         @php
                             $medalLevel = $item['medalLevel'] ?? 'none';
                             $medalColors = [
@@ -93,7 +94,34 @@
                         <span class="text-xs font-medium {{ $item['completed'] ? 'text-[#2E5C8A]' : ($item['isCurrent'] ? 'text-[#6BB6FF]' : 'text-[#1E3A5F]/40') }}">
                             {{ $item['label'] }}
                         </span>
-                    </a>
+                        </a>
+                        
+                        {{-- ツールチップ --}}
+                        @if(!empty($item['medalDescription']))
+                        <div class="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-[#2E5C8A] text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none">
+                            <div class="space-y-2">
+                                <div class="font-semibold mb-2 border-b border-white/20 pb-2">{{ $item['label'] }}</div>
+                                
+                                <div>
+                                    <div class="font-medium mb-1">メダルレベル基準:</div>
+                                    <ul class="space-y-1 ml-2">
+                                        <li>🥉 銅: {{ $item['medalDescription']['bronze'] ?? '' }}</li>
+                                        <li>🥈 銀: {{ $item['medalDescription']['silver'] ?? '' }}</li>
+                                        <li>🥇 金: {{ $item['medalDescription']['gold'] ?? '' }}</li>
+                                        <li>💎 プラチナ: {{ $item['medalDescription']['platinum'] ?? '' }}</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="pt-2 border-t border-white/20 mt-2">
+                                    <div class="text-[#E8F4FF] text-xs">{{ $item['medalDescription']['alert'] ?? '' }}</div>
+                                </div>
+                            </div>
+                            
+                            {{-- ツールチップの矢印 --}}
+                            <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#2E5C8A]"></div>
+                        </div>
+                        @endif
+                    </div>
                 @endforeach
             </div>
 
@@ -169,7 +197,7 @@
                     <span class="text-lg">🔔</span>
                     <div>
                         <p class="body-text font-semibold text-[#2E5C8A] mb-1">見直しアラート</p>
-                        <p class="body-small text-[#1E3A5F]/70">最終更新から6ヶ月以上経過している場合に表示されます。定期的に見直すことで、より良い結果が得られます。</p>
+                        <p class="body-small text-[#1E3A5F]/70">最終更新から一定期間以上経過している場合に表示されます。定期的に見直すことで、より良い結果が得られます。</p>
                     </div>
                 </div>
             </div>

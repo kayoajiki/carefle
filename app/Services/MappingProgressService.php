@@ -9,6 +9,8 @@ use App\Models\Diary;
 use App\Models\LifeEvent;
 use App\Models\WcmSheet;
 use App\Models\CareerMilestone;
+use App\Models\MilestoneActionItem;
+use App\Models\StrengthsReport;
 use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Log;
 
@@ -414,11 +416,12 @@ class MappingProgressService
                 if (!$onboardingService->checkStepCompletion($userId, 'manual_generated')) {
                     return 'none';
                 }
-                // 持ち味レポの更新回数を取得（簡易版：OnboardingProgressのmanual_generated完了日時を基準に）
-                // TODO: より正確な更新回数追跡を実装する場合は別途テーブルが必要
-                // 現時点では、生成済みで銅、更新があれば銀以上とする
-                // 更新回数の正確な追跡は後で実装
-                return 'bronze'; // 暫定
+                // 持ち味レポの更新回数を取得
+                $updateCount = $this->getStrengthsReportUpdateCount($userId);
+                if ($updateCount >= 5) return 'platinum';
+                if ($updateCount >= 3) return 'gold';
+                if ($updateCount >= 1) return 'silver';
+                return 'bronze'; // 生成完了
 
             case 'wcm_sheet':
                 $count = WcmSheet::where('user_id', $userId)
@@ -431,11 +434,12 @@ class MappingProgressService
                 return 'none';
 
             case 'milestones':
-                $count = CareerMilestone::where('user_id', $userId)->count();
-                if ($count >= 20) return 'platinum';
-                if ($count >= 10) return 'gold';
-                if ($count >= 5) return 'silver';
-                if ($count >= 3) return 'bronze';
+                // 全ての行動アイテムが完了済みのマイルストーンのみカウント
+                $count = $this->getCompletedMilestoneCount($userId);
+                if ($count >= 10) return 'platinum';
+                if ($count >= 5) return 'gold';
+                if ($count >= 3) return 'silver';
+                if ($count >= 1) return 'bronze';
                 return 'none';
 
             case 'my_goal':
@@ -443,10 +447,12 @@ class MappingProgressService
                 if (!$user || empty($user->goal_image)) {
                     return 'none';
                 }
-                // マイゴールの更新回数を追跡（goal_imageの更新日時を基準に）
-                // 簡易版：設定済みで銅、更新があれば銀以上とする
-                // より正確な追跡には別途テーブルが必要
-                return 'bronze'; // 暫定
+                // マイゴールの更新回数を取得
+                $updateCount = $this->getMyGoalUpdateCount($userId);
+                if ($updateCount >= 3) return 'platinum';
+                if ($updateCount >= 2) return 'gold';
+                if ($updateCount >= 1) return 'silver';
+                return 'bronze'; // 設定完了
 
             default:
                 return 'none';
@@ -490,30 +496,60 @@ class MappingProgressService
 
     /**
      * Check if review alert should be shown for an item.
-     * Returns true if last review was more than 6 months ago.
+     * Returns true if last review was more than the specified period ago.
      */
     public function checkReviewAlert(int $userId, string $item): bool
     {
+        // 各項目ごとのアラート期間を取得
+        $alertPeriod = $this->getAlertPeriod($item);
+        
+        // 持ち味レポの特別処理：更新可能になったらアラート表示
+        if ($item === 'strengths_report') {
+            if (StrengthsReport::canUpdate($userId)) {
+                return true;
+            }
+        }
+        
         $progress = $this->getOrCreateProgress($userId);
         $lastReviewed = $progress->last_reviewed_at ?? [];
         $itemLastReviewed = $lastReviewed[$item] ?? null;
 
         if (!$itemLastReviewed) {
-            // 初回はアラートなし（6ヶ月後にアラート）
+            // 初回はアラートなし
             // ただし、項目が完了している場合は、完了日時を基準にする
             if ($this->checkItemCompletion($userId, $item)) {
                 // 完了日時を取得（各項目の最終更新日時）
                 $completionDate = $this->getItemCompletionDate($userId, $item);
                 if ($completionDate) {
-                    $sixMonthsAgo = now()->subMonths(6);
-                    return \Carbon\Carbon::parse($completionDate)->lt($sixMonthsAgo);
+                    $thresholdDate = now()->sub($alertPeriod);
+                    return \Carbon\Carbon::parse($completionDate)->lt($thresholdDate);
                 }
             }
             return false;
         }
 
-        $sixMonthsAgo = now()->subMonths(6);
-        return \Carbon\Carbon::parse($itemLastReviewed)->lt($sixMonthsAgo);
+        $thresholdDate = now()->sub($alertPeriod);
+        return \Carbon\Carbon::parse($itemLastReviewed)->lt($thresholdDate);
+    }
+    
+    /**
+     * Get alert period for an item.
+     */
+    private function getAlertPeriod(string $item): \DateInterval
+    {
+        switch ($item) {
+            case 'life_history':
+            case 'wcm_sheet':
+            case 'my_goal':
+                return new \DateInterval('P180D'); // 6ヶ月（180日）
+            case 'current_diaries':
+                return new \DateInterval('P7D'); // 7日
+            case 'strengths_report':
+            case 'milestones':
+                return new \DateInterval('P30D'); // 1ヶ月
+            default:
+                return new \DateInterval('P180D'); // デフォルトは6ヶ月
+        }
     }
 
     /**
@@ -537,22 +573,9 @@ class MappingProgressService
                 return $latest ? $latest->updated_at->toDateTimeString() : null;
 
             case 'strengths_report':
-                // OnboardingProgressのmanual_generated完了日時を取得
-                $onboardingProgress = OnboardingProgress::where('user_id', $userId)->first();
-                if ($onboardingProgress && $onboardingProgress->isStepCompleted('manual_generated')) {
-                    // completed_stepsからmanual_generatedの完了日時を取得
-                    $completedSteps = $onboardingProgress->completed_steps ?? [];
-                    if (isset($completedSteps['manual_generated'])) {
-                        if (is_array($completedSteps['manual_generated'])) {
-                            return $completedSteps['manual_generated']['completed_at'] ?? null;
-                        }
-                        // 配列でない場合はupdated_atを使用
-                        return $onboardingProgress->updated_at->toDateTimeString();
-                    }
-                    // completed_stepsにmanual_generatedがない場合はupdated_atを使用
-                    return $onboardingProgress->updated_at->toDateTimeString();
-                }
-                return null;
+                // 最新の持ち味レポの生成日時を取得
+                $latestReport = StrengthsReport::getLatestForUser($userId);
+                return $latestReport ? $latestReport->generated_at->toDateTimeString() : null;
 
             case 'wcm_sheet':
                 $latest = WcmSheet::where('user_id', $userId)
@@ -586,6 +609,133 @@ class MappingProgressService
         $lastReviewed[$item] = now()->toDateTimeString();
         $progress->last_reviewed_at = $lastReviewed;
         $progress->save();
+    }
+    
+    /**
+     * Get medal level description for an item.
+     */
+    public function getMedalLevelDescription(string $item): array
+    {
+        $descriptions = [
+            'life_history' => [
+                'bronze' => '1件以上',
+                'silver' => '5件以上',
+                'gold' => '10件以上',
+                'platinum' => '20件以上',
+                'alert' => '最終更新から一定期間以上経過している場合にアラートを表示',
+            ],
+            'current_diaries' => [
+                'bronze' => '7日間記録完了（オンボーディング完了）',
+                'silver' => '30日間記録完了',
+                'gold' => '90日間記録完了',
+                'platinum' => '180日間記録完了',
+                'alert' => '最終更新から一定期間以上経過している場合にアラートを表示',
+            ],
+            'strengths_report' => [
+                'bronze' => '持ち味レポ生成完了',
+                'silver' => '持ち味レポ更新1回以上（更新は１ヶ月に一回）',
+                'gold' => '持ち味レポ更新3回以上',
+                'platinum' => '持ち味レポ更新5回以上',
+                'alert' => '最終更新から一定期間以上経過している場合にアラートを表示（新しく更新できるようになったらアラートが表示される）',
+            ],
+            'wcm_sheet' => [
+                'bronze' => 'WCMシート1件作成',
+                'silver' => 'WCMシート3件作成',
+                'gold' => 'WCMシート5件作成',
+                'platinum' => 'WCMシート10件作成',
+                'alert' => '最終更新から一定期間以上経過している場合にアラートを表示',
+            ],
+            'milestones' => [
+                'bronze' => '1件設定してその全ての行動を完了済み',
+                'silver' => '3件設定してその全ての行動を完了済み',
+                'gold' => '5件設定してその全ての行動を完了済み',
+                'platinum' => '10件設定してその全ての行動を完了済み',
+                'alert' => '最終更新から一定期間以上経過している場合にアラートを表示',
+            ],
+            'my_goal' => [
+                'bronze' => 'マイゴール設定完了',
+                'silver' => 'マイゴール更新1回以上',
+                'gold' => 'マイゴール更新2回以上',
+                'platinum' => 'マイゴール更新3回以上',
+                'alert' => '最終更新から一定期間以上経過している場合にアラートを表示',
+            ],
+        ];
+        
+        return $descriptions[$item] ?? [];
+    }
+    
+    /**
+     * Get strengths report update count.
+     */
+    private function getStrengthsReportUpdateCount(int $userId): int
+    {
+        return StrengthsReport::where('user_id', $userId)->count();
+    }
+    
+    /**
+     * Get completed milestone count (all action items completed).
+     */
+    private function getCompletedMilestoneCount(int $userId): int
+    {
+        $milestones = CareerMilestone::where('user_id', $userId)->get();
+        $completedCount = 0;
+        
+        foreach ($milestones as $milestone) {
+            $actionItems = MilestoneActionItem::where('career_milestone_id', $milestone->id)
+                ->where('user_id', $userId)
+                ->get();
+            
+            // アクションアイテムが存在しない場合はスキップ
+            if ($actionItems->isEmpty()) {
+                continue;
+            }
+            
+            // 全てのアクションアイテムが完了済みかチェック
+            $allCompleted = $actionItems->every(function ($item) {
+                return $item->status === 'completed';
+            });
+            
+            if ($allCompleted) {
+                $completedCount++;
+            }
+        }
+        
+        return $completedCount;
+    }
+    
+    /**
+     * Get my goal update count (simplified tracking).
+     * 
+     * Note: This is a simplified tracking method. For accurate tracking,
+     * a separate table to track goal updates would be needed.
+     */
+    private function getMyGoalUpdateCount(int $userId): int
+    {
+        $user = \App\Models\User::find($userId);
+        if (!$user || empty($user->goal_image)) {
+            return 0;
+        }
+        
+        // 簡易的な追跡：goal_imageが設定されている場合、updated_atの変更を追跡
+        // 初回設定時は1回（設定完了）、その後更新されるたびにカウント
+        
+        // goal_imageが設定されている = 最低1回（設定完了）
+        // updated_atがcreated_atより後 = 更新があった可能性
+        if ($user->updated_at && $user->created_at) {
+            $hasUpdate = $user->updated_at->gt($user->created_at->copy()->addMinutes(5)); // 5分以上の差があれば更新とみなす
+            if ($hasUpdate) {
+                // 更新があった場合、更新回数を簡易的に推定
+                // 実際の更新回数は正確には追跡できないため、updated_atの変更回数を簡易的に推定
+                // ここでは、goal_imageが設定されてから現在までの期間を基準に簡易的に推定
+                $daysSinceCreation = $user->created_at->diffInDays(now());
+                // 簡易的な推定：60日ごとに1回更新と仮定（最大3回まで）
+                // これにより、設定完了(1回)、1回更新(2回)、2回更新(3回)を推定
+                $estimatedUpdates = min(floor($daysSinceCreation / 60) + 1, 3);
+                return $estimatedUpdates;
+            }
+        }
+        
+        return 1; // 設定完了のみ
     }
 }
 
