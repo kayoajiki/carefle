@@ -38,7 +38,7 @@
                         <a 
                             href="{{ $item['route'] }}" 
                             wire:navigate
-                            class="flex flex-col items-center gap-2 p-3 rounded-lg transition-all {{ $item['completed'] ? 'bg-[#6BB6FF]/10 border-2 border-[#6BB6FF]' : ($item['isCurrent'] ? 'bg-[#E8F4FF] border-2 border-[#6BB6FF]/50' : 'bg-white/50 border border-[#6BB6FF]/20') }}"
+                            class="flex flex-col items-center justify-between gap-2 p-3 rounded-lg transition-all h-full min-h-[100px] {{ $item['completed'] ? 'bg-[#6BB6FF]/10 border-2 border-[#6BB6FF]' : ($item['isCurrent'] ? 'bg-[#E8F4FF] border-2 border-[#6BB6FF]/50' : 'bg-white/50 border border-[#6BB6FF]/20') }}"
                         >
                         @php
                             $medalLevel = $item['medalLevel'] ?? 'none';
