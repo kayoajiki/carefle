@@ -181,11 +181,12 @@ class DashboardController extends Controller
      */
     private function getDiary7DaysCalendar(int $userId): array
     {
-        $sevenDaysAgo = now()->subDays(6)->startOfDay();
-        $today = now()->endOfDay();
+        $today = now()->startOfDay();
+        $sixDaysLater = now()->addDays(6)->endOfDay();
         
+        // 今日から未来7日間の日記を取得（今日のみ存在する可能性がある）
         $diaryDates = Diary::where('user_id', $userId)
-            ->whereBetween('date', [$sevenDaysAgo, $today])
+            ->whereBetween('date', [$today, $sixDaysLater])
             ->get()
             ->pluck('date')
             ->map(fn($date) => $date->format('Y-m-d'))
@@ -193,14 +194,16 @@ class DashboardController extends Controller
             ->toArray();
 
         $calendar = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i);
+        // 今日から未来6日後まで（合計7日間）を表示
+        for ($i = 0; $i <= 6; $i++) {
+            $date = now()->addDays($i);
             $dateKey = $date->format('Y-m-d');
             $calendar[] = [
                 'date' => $dateKey,
                 'day' => $date->format('j'),
                 'dayOfWeek' => $date->format('D'),
                 'hasDiary' => in_array($dateKey, $diaryDates),
+                'isToday' => $i === 0, // 今日かどうかをマーク
             ];
         }
 

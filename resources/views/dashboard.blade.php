@@ -73,7 +73,7 @@
                                         @foreach($diary7DaysCalendar as $day)
                                             <div class="flex-1 flex flex-col items-center">
                                                 <p class="text-[10px] text-[#1E3A5F]/50 mb-1">{{ $day['dayOfWeek'] }}</p>
-                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center {{ $day['hasDiary'] ? 'bg-[#6BB6FF] text-white' : 'bg-white/60 text-[#1E3A5F]/30' }} border {{ $day['hasDiary'] ? 'border-[#6BB6FF]' : 'border-[#2E5C8A]/20' }}">
+                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center {{ ($day['isToday'] ?? false) ? 'bg-[#6BB6FF] text-white border-2 border-[#2E5C8A]' : ($day['hasDiary'] ? 'bg-[#6BB6FF] text-white' : 'bg-white/60 text-[#1E3A5F]/30') }} border {{ $day['hasDiary'] ? 'border-[#6BB6FF]' : 'border-[#2E5C8A]/20' }}">
                                                     <span class="text-xs font-semibold">{{ $day['day'] }}</span>
                                                 </div>
                                             </div>
