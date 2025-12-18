@@ -399,7 +399,7 @@
                             <p class="body-text mb-6">
                                 カウンセラーとじっくり対話して、今後の一歩を具体化しましょう。
                             </p>
-                            <a href="{{ route('consultation.request') }}" class="btn-primary w-full text-center">
+                            <a href="https://b-book.run/@careerpartner.co-14aa198d820a08a2" target="_blank" rel="noopener noreferrer" class="btn-primary w-full text-center">
                                 面談を申し込む
                             </a>
                         </div>

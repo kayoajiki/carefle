@@ -91,10 +91,10 @@ Route::middleware(['auth'])->group(function () {
         return view('wcm.sheet', ['id' => (int)$id]);
     })->name('wcm.sheet');
 
-    // 面談申し込み
-    Route::get('consultation/request', function () {
-        return view('consultation.request');
-    })->name('consultation.request');
+    // 面談申し込み（外部リンクに変更したため削除）
+    // Route::get('consultation/request', function () {
+    //     return view('consultation.request');
+    // })->name('consultation.request');
 
     // チャット相談
     Route::get('chat', function () {
