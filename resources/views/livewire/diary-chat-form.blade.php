@@ -122,11 +122,11 @@ x-init="scrollToBottom()"
                                     wire:target="saveConversationAndClose"
                                     class="px-6 py-3 rounded-xl bg-[#4CAF50] text-white body-text font-medium hover:bg-[#45A049] transition-colors flex items-center justify-center gap-2"
                                 >
-                                    <span wire:loading.remove wire:target="saveConversationAndClose">
+                                    <span wire:loading.remove wire:target="saveConversationAndClose" class="flex items-center gap-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                         </svg>
-                                        保存して閉じる
+                                        <span>保存して閉じる<span class="text-xs opacity-90">（日記に保存されます）</span></span>
                                     </span>
                                     <span wire:loading wire:target="saveConversationAndClose" class="flex items-center gap-2">
                                         <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
