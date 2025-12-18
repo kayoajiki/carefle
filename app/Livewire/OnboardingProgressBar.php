@@ -53,7 +53,7 @@ class OnboardingProgressBar extends Component
         // ステップ定義
         $steps = [
             'diagnosis' => [
-                'label' => '診断',
+                'label' => '現職満足度診断',
                 'icon' => 'chart-bar',
                 'route' => 'diagnosis.start',
             ],
@@ -68,12 +68,12 @@ class OnboardingProgressBar extends Component
                 'route' => 'assessments.index',
             ],
             'diary_3days' => [
-                'label' => '3日間記録',
+                'label' => '3日間日記',
                 'icon' => 'calendar',
                 'route' => 'diary',
             ],
             'diary_7days' => [
-                'label' => '7日間記録',
+                'label' => '7日間日記',
                 'icon' => 'calendar',
                 'route' => 'diary',
             ],
