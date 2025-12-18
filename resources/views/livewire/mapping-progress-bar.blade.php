@@ -7,7 +7,19 @@
         <div class="card-refined surface-blue p-6">
             <div class="mb-4">
                 <div class="flex items-center justify-between mb-2">
-                    <h3 class="heading-3 text-[#2E5C8A]">次のステップ</h3>
+                    <div class="flex items-center gap-2">
+                        <h3 class="heading-3 text-[#2E5C8A]">次のステップ</h3>
+                        <button
+                            type="button"
+                            onclick="document.getElementById('medal-explanation-modal').classList.remove('hidden')"
+                            class="w-6 h-6 rounded-full bg-[#6BB6FF]/20 hover:bg-[#6BB6FF]/30 flex items-center justify-center transition-colors group"
+                            title="メダルの説明"
+                        >
+                            <svg class="w-4.5 h-4.5 text-[#6BB6FF] group-hover:text-[#2E5C8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                    </div>
                     <span class="body-small text-[#1E3A5F]/60">{{ $progressPercentage }}%</span>
                 </div>
                 {{-- 進捗バー --}}
@@ -95,11 +107,73 @@
             @else
             <div class="mt-4 p-3 bg-[#6BB6FF]/10 rounded-lg border border-[#6BB6FF] text-center">
                 <p class="body-text text-[#2E5C8A] font-medium">
-                    🎉 曼荼羅マッピングが完成しました！
+                    🎉 すべてのステップが完了しました！
                 </p>
             </div>
             @endif
         </div>
     </div>
 @endif
+
+{{-- メダル説明モーダル --}}
+<div id="medal-explanation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50" onclick="event.target.id === 'medal-explanation-modal' && event.target.classList.add('hidden')">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="heading-3 text-[#2E5C8A]">メダルの説明</h3>
+            <button
+                type="button"
+                onclick="document.getElementById('medal-explanation-modal').classList.add('hidden')"
+                class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+            >
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="space-y-4">
+            <div class="flex items-start gap-3">
+                <span class="text-2xl">🥉</span>
+                <div>
+                    <p class="body-text font-semibold text-[#2E5C8A] mb-1">銅メダル</p>
+                    <p class="body-small text-[#1E3A5F]/70">各項目の最初の達成レベルです</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start gap-3">
+                <span class="text-2xl">🥈</span>
+                <div>
+                    <p class="body-text font-semibold text-[#2E5C8A] mb-1">銀メダル</p>
+                    <p class="body-small text-[#1E3A5F]/70">より多くのデータを蓄積した証です</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start gap-3">
+                <span class="text-2xl">🥇</span>
+                <div>
+                    <p class="body-text font-semibold text-[#2E5C8A] mb-1">金メダル</p>
+                    <p class="body-small text-[#1E3A5F]/70">継続的な取り組みの成果です</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start gap-3">
+                <span class="text-2xl">💎</span>
+                <div>
+                    <p class="body-text font-semibold text-[#2E5C8A] mb-1">プラチナメダル</p>
+                    <p class="body-small text-[#1E3A5F]/70">最高レベルの達成を表します</p>
+                </div>
+            </div>
+            
+            <div class="pt-4 border-t border-gray-200">
+                <div class="flex items-start gap-3">
+                    <span class="text-lg">🔔</span>
+                    <div>
+                        <p class="body-text font-semibold text-[#2E5C8A] mb-1">見直しアラート</p>
+                        <p class="body-small text-[#1E3A5F]/70">最終更新から6ヶ月以上経過している場合に表示されます。定期的に見直すことで、より良い結果が得られます。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </div>

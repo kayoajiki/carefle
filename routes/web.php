@@ -50,7 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('manual/context/{context}', [\App\Http\Controllers\ManualController::class, 'showContextualManual'])
         ->name('manual.context');
     
-    // 曼荼羅マッピング
+    // マッピング
     Route::get('mapping', [\App\Http\Controllers\MappingController::class, 'index'])
         ->name('mapping.index');
     Route::get('diagnosis/start', [DiagnosisController::class, 'start'])

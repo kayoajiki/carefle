@@ -44,7 +44,7 @@
                         <flux:navlist.item icon="user-circle" :href="route('assessments.index')" :current="request()->routeIs('assessments.*')" wire:navigate>自己診断結果</flux:navlist.item>
                     @endif
                     @if(in_array('mapping', $unlockedFeatures ?? []))
-                        <flux:navlist.item icon="map" :href="route('mapping.index')" :current="request()->routeIs('mapping.*')" wire:navigate>曼荼羅マッピング</flux:navlist.item>
+                        <flux:navlist.item icon="map" :href="route('mapping.index')" :current="request()->routeIs('mapping.*')" wire:navigate>マッピング</flux:navlist.item>
                     @endif
                 </flux:navlist.group>
 
@@ -118,6 +118,18 @@
         <!-- Mobile User Menu -->
         <flux:header class="lg:hidden">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+
+            @php
+                $topicService = app(\App\Services\TopicMessageService::class);
+                $topicMessage = $topicService->generateTopicMessage();
+            @endphp
+            @if($topicMessage)
+                <div class="flex-1 mx-3 min-w-0 overflow-hidden">
+                    <p class="text-xs sm:text-sm text-[#2E5C8A] dark:text-zinc-300 truncate font-medium">
+                        {{ $topicMessage }}
+                    </p>
+                </div>
+            @endif
 
             <flux:spacer />
 

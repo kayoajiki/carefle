@@ -3,15 +3,15 @@
     {{-- アンロックされていない場合 --}}
     <div class="card-refined surface-blue p-8 text-center">
         <p class="body-text text-[#1E3A5F]/70">
-            オンボーディングを完了すると、曼荼羅マッピングが表示されます。
+            オンボーディングを完了すると、マッピングが表示されます。
         </p>
     </div>
 @elseif($mapping)
-    {{-- 曼荼羅形式で表示 --}}
+    {{-- マッピング形式で表示 --}}
     <div class="space-y-8">
-        {{-- 曼荼羅の説明 --}}
+        {{-- マッピングの説明 --}}
         <div class="card-refined surface-blue p-6">
-            <h3 class="heading-3 text-[#2E5C8A] mb-4">曼荼羅マッピング</h3>
+            <h3 class="heading-3 text-[#2E5C8A] mb-4">マッピング</h3>
             <p class="body-text text-[#1E3A5F]/70 mb-2">
                 外側=未来、中央=現在、内側=過去の構造で、あなたの変容を可視化します。
             </p>

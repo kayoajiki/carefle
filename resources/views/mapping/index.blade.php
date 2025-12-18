@@ -1,4 +1,4 @@
-<x-layouts.app.sidebar title="曼荼羅マッピング">
+<x-layouts.app.sidebar title="マッピング">
     <flux:main>
         <style>
             @media (min-width: 768px) {
@@ -12,7 +12,7 @@
                 {{-- マッピング進捗バー --}}
                 <livewire:mapping-progress-bar />
 
-                {{-- 曼荼羅可視化 --}}
+                {{-- マッピング可視化 --}}
                 <div class="mt-8">
                     <livewire:user-mapping-visualization />
                 </div>

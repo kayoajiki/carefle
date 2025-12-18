@@ -25,7 +25,7 @@ class MappingController extends Controller
         // オンボーディング完了時のみ表示
         if (!$this->progressService->isMappingUnlocked($user->id)) {
             return redirect()->route('dashboard')
-                ->with('message', 'オンボーディングを完了すると、曼荼羅マッピングが利用できます。');
+                ->with('message', 'オンボーディングを完了すると、マッピング機能が利用できます。');
         }
 
         // 進捗を自動更新
