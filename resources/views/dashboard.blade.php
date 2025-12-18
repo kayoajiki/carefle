@@ -23,35 +23,45 @@
                 <!-- マッピング進捗バー -->
                 <livewire:mapping-progress-bar />
                 
-                <!-- 内省ストリークカード -->
-                <div class="card-refined surface-blue p-4 sm:p-6 md:p-8 soft-shadow-refined">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
-                        <div class="flex-1">
-                            <h2 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#2E5C8A] mb-3 sm:mb-2">内省の習慣化</h2>
-                            <div class="flex items-center gap-3 sm:gap-4 flex-wrap">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-2xl sm:text-3xl font-bold text-[#6BB6FF]">🔥</span>
-                                    <div>
-                                        <p class="text-xs sm:text-sm md:text-base font-semibold text-[#2E5C8A]">連続記録</p>
-                                        <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#6BB6FF]">{{ $reflectionStreak }}日</p>
-                                    </div>
-                                </div>
-                                <div class="h-10 sm:h-12 w-px bg-[#2E5C8A]/20"></div>
+                <!-- 診断促進モーダル -->
+                <livewire:diagnosis-prompt-modal />
+                
+                <!-- 日記促進モーダル -->
+                <livewire:diary-prompt-modal />
+                
+                <!-- ヘッダー & CTA（内省の習慣化、ゴールイメージ、マイルストーン進捗を含む） -->
+                <div class="card-refined surface-blue p-4 sm:p-6 md:p-10 soft-shadow-refined space-y-4 sm:space-y-6">
+                    <div>
+                        <p class="text-xs sm:text-sm text-[#5BA3D6] uppercase tracking-[0.2em]">Overview</p>
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight text-[#2E5C8A] mb-2 mt-1">ダッシュボード</h1>
+                    </div>
+
+                    {{-- 内省の習慣化 --}}
+                    <div class="bg-white rounded-2xl border-2 border-blue-200 p-4 sm:p-6 space-y-4">
+                        <h2 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#2E5C8A] mb-3">内省の習慣化</h2>
+                        <div class="flex items-center gap-3 sm:gap-4 flex-wrap">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl sm:text-3xl font-bold text-[#6BB6FF]">🔥</span>
                                 <div>
-                                    <p class="text-xs sm:text-sm text-[#1E3A5F]/60">今週の内省</p>
-                                    <p class="text-xl sm:text-2xl md:text-3xl font-semibold text-[#2E5C8A]">{{ $weeklyReflectionCount }}回</p>
+                                    <p class="text-xs sm:text-sm md:text-base font-semibold text-[#2E5C8A]">連続記録</p>
+                                    <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#6BB6FF]">{{ $reflectionStreak }}日</p>
                                 </div>
-                                <div class="h-10 sm:h-12 w-px bg-[#2E5C8A]/20"></div>
-                                <div>
-                                    <p class="text-xs sm:text-sm text-[#1E3A5F]/60">今月の内省</p>
-                                    <p class="text-xl sm:text-2xl md:text-3xl font-semibold text-[#2E5C8A]">{{ $monthlyReflectionCount }}回</p>
-                                </div>
+                            </div>
+                            <div class="h-10 sm:h-12 w-px bg-[#2E5C8A]/20"></div>
+                            <div>
+                                <p class="text-xs sm:text-sm text-[#1E3A5F]/60">今週の内省</p>
+                                <p class="text-xl sm:text-2xl md:text-3xl font-semibold text-[#2E5C8A]">{{ $weeklyReflectionCount }}回</p>
+                            </div>
+                            <div class="h-10 sm:h-12 w-px bg-[#2E5C8A]/20"></div>
+                            <div>
+                                <p class="text-xs sm:text-sm text-[#1E3A5F]/60">今月の内省</p>
+                                <p class="text-xl sm:text-2xl md:text-3xl font-semibold text-[#2E5C8A]">{{ $monthlyReflectionCount }}回</p>
                             </div>
                         </div>
 
                         {{-- 7日間記録の進捗バー（オンボーディング中のみ表示） --}}
                         @if(isset($diary7DaysProgress) && $diary7DaysProgress['show'])
-                            <div class="mt-6 p-4 bg-[#E8F4FF] rounded-xl border border-[#6BB6FF]/20">
+                            <div class="mt-4 p-4 bg-[#E8F4FF] rounded-xl border border-[#6BB6FF]/20">
                                 <div class="flex items-center justify-between mb-3">
                                     <p class="body-text font-semibold text-[#2E5C8A]">持ち味レポまで</p>
                                     <p class="body-small text-[#1E3A5F]/70">{{ $diary7DaysProgress['current'] }}/{{ $diary7DaysProgress['target'] }}日</p>
@@ -100,32 +110,8 @@
                             </a>
                         </div>
                     </div>
-                </div>
-                
-                <!-- 診断促進モーダル -->
-                <livewire:diagnosis-prompt-modal />
-                
-                <!-- 日記促進モーダル -->
-                <livewire:diary-prompt-modal />
-                
-                <!-- ヘッダー & CTA -->
-                <div class="card-refined surface-blue p-4 sm:p-6 md:p-10 soft-shadow-refined space-y-4 sm:space-y-6">
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
-                        <div>
-                            <p class="text-xs sm:text-sm text-[#5BA3D6] uppercase tracking-[0.2em]">Overview</p>
-                            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight text-[#2E5C8A] mb-2 mt-1">ダッシュボード</h1>
-                        </div>
-                        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                            <a href="{{ route('my-goal') }}" class="btn-secondary text-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
-                                マイゴール
-                            </a>
-                            <a href="{{ route('career.milestones') }}" class="btn-secondary text-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
-                                マイルストーン
-                            </a>
-                        </div>
-                    </div>
 
-                    {{-- ゴールイメージ（案1） --}}
+                    {{-- ゴールイメージ --}}
                     @if($user?->goal_image)
                         <div class="bg-white rounded-2xl border-2 border-blue-200 p-4 sm:p-6 space-y-3 sm:space-y-4">
                             <div class="flex items-start justify-between gap-3 sm:gap-4">
@@ -162,6 +148,11 @@
                             @else
                                 <p class="text-sm sm:text-base text-[#1E3A5F] leading-relaxed whitespace-pre-line">{{ $user->goal_image }}</p>
                             @endif
+                            <div class="mt-4">
+                                <a href="{{ route('my-goal') }}" class="btn-secondary w-full text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
+                                    マイゴール
+                                </a>
+                            </div>
                         </div>
                     @else
                         <div class="bg-white rounded-2xl border-2 border-dashed border-blue-200 p-4 sm:p-6 text-center">
@@ -169,45 +160,45 @@
                             <a href="{{ route('my-goal') }}" class="btn-primary text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">マイゴールを設定する</a>
                         </div>
                     @endif
-                </div>
 
-                <!-- マイルストーン進捗 -->
-                @if(!empty($milestoneProgress))
-                    <div class="card-refined surface-blue p-4 sm:p-6 md:p-8 soft-shadow-refined">
-                        <h2 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#2E5C8A] mb-4 sm:mb-6">マイルストーン進捗</h2>
-                        <div class="space-y-3 sm:space-y-4">
-                            @foreach($milestoneProgress as $progress)
-                                <div class="bg-white rounded-xl p-4 sm:p-6 border-2 border-[#6BB6FF]">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div class="flex-1 pr-2">
-                                            <h3 class="text-sm sm:text-base font-semibold text-[#2E5C8A] mb-1">{{ $progress['title'] }}</h3>
-                                            @if($progress['target_date'])
-                                                <p class="text-xs sm:text-sm text-[#1E3A5F]/60">
-                                                    目標日: {{ \Carbon\Carbon::parse($progress['target_date'])->format('Y年m月d日') }}
-                                                </p>
-                                            @endif
+                    {{-- マイルストーン進捗 --}}
+                    @if(!empty($milestoneProgress))
+                        <div class="bg-white rounded-2xl border-2 border-blue-200 p-4 sm:p-6 space-y-3 sm:space-y-4">
+                            <h2 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#2E5C8A] mb-3 sm:mb-4">マイルストーン進捗</h2>
+                            <div class="space-y-3 sm:space-y-4">
+                                @foreach($milestoneProgress as $progress)
+                                    <div class="bg-[#F6FBFF] rounded-xl p-3 sm:p-4 border border-[#6BB6FF]/30">
+                                        <div class="flex items-start justify-between mb-2">
+                                            <div class="flex-1 pr-2">
+                                                <h3 class="text-sm sm:text-base font-semibold text-[#2E5C8A] mb-1">{{ $progress['title'] }}</h3>
+                                                @if($progress['target_date'])
+                                                    <p class="text-xs sm:text-sm text-[#1E3A5F]/60">
+                                                        目標日: {{ \Carbon\Carbon::parse($progress['target_date'])->format('Y年m月d日') }}
+                                                    </p>
+                                                @endif
+                                            </div>
+                                            <span class="text-xl sm:text-2xl md:text-3xl font-semibold text-[#6BB6FF] flex-shrink-0">{{ $progress['completion_rate'] }}%</span>
                                         </div>
-                                        <span class="text-xl sm:text-2xl md:text-3xl font-semibold text-[#6BB6FF] flex-shrink-0">{{ $progress['completion_rate'] }}%</span>
+                                        <div class="w-full bg-[#E8F4FF] rounded-full h-2 sm:h-3 overflow-hidden mb-2">
+                                            <div 
+                                                class="h-2 sm:h-3 bg-[#6BB6FF] transition-all duration-500"
+                                                style="width: {{ $progress['completion_rate'] }}%"
+                                            ></div>
+                                        </div>
+                                        <p class="text-xs sm:text-sm text-[#1E3A5F]/60">
+                                            完了: {{ $progress['completed_actions'] }}/{{ $progress['total_actions'] }}アクション
+                                        </p>
                                     </div>
-                                    <div class="w-full bg-[#E8F4FF] rounded-full h-2 sm:h-3 overflow-hidden mb-2">
-                                        <div 
-                                            class="h-2 sm:h-3 bg-[#6BB6FF] transition-all duration-500"
-                                            style="width: {{ $progress['completion_rate'] }}%"
-                                        ></div>
-                                    </div>
-                                    <p class="text-xs sm:text-sm text-[#1E3A5F]/60">
-                                        完了: {{ $progress['completed_actions'] }}/{{ $progress['total_actions'] }}アクション
-                                    </p>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            </div>
+                            <div class="mt-4">
+                                <a href="{{ route('career.milestones') }}" class="btn-secondary w-full text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
+                                    マイルストーン
+                                </a>
+                            </div>
                         </div>
-                        <div class="mt-4 sm:mt-6">
-                            <a href="{{ route('career.milestones') }}" class="btn-secondary w-full text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
-                                詳細を見る
-                            </a>
-                        </div>
-                    </div>
-                @endif
+                    @endif
+                </div>
 
                 <!-- メイン機能カード -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
