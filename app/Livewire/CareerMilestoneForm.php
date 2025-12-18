@@ -20,6 +20,7 @@ class CareerMilestoneForm extends Component
     public string $mandalaCenter = '';
 
     public array $actionItems = [];
+    public bool $isGeneratingActions = false;
 
     public function mount(?int $milestoneId = null): void
     {
@@ -97,6 +98,58 @@ class CareerMilestoneForm extends Component
 
         unset($this->actionItems[$index]);
         $this->actionItems = array_values($this->actionItems);
+    }
+
+    public function generateActionItems(): void
+    {
+        // バリデーション: タイトルは必須、テーマまたは概要のいずれかが必要
+        if (empty($this->title)) {
+            session()->flash('error', 'タイトルを入力してください。');
+            return;
+        }
+
+        if (empty($this->mandalaCenter) && empty($this->summary)) {
+            session()->flash('error', 'テーマまたは概要のいずれかを入力してください。');
+            return;
+        }
+
+        $this->isGeneratingActions = true;
+
+        try {
+            $actionService = app(\App\Services\ActionItemGeneratorService::class);
+            $generatedActions = $actionService->generateActionItemsFromMilestone(
+                $this->title,
+                $this->target_date,
+                $this->mandalaCenter,
+                $this->summary
+            );
+
+            if (empty($generatedActions)) {
+                session()->flash('error', 'アクションアイテムの生成に失敗しました。もう一度お試しください。');
+                $this->isGeneratingActions = false;
+                return;
+            }
+
+            // 生成されたアクションアイテムを既存のリストに追加
+            foreach ($generatedActions as $action) {
+                $this->actionItems[] = [
+                    'id' => null,
+                    'title' => $action['title'],
+                    'due_date' => '',
+                    'notes' => $action['description'] ?? '',
+                ];
+            }
+
+            session()->flash('message', count($generatedActions) . '個の行動メモを生成しました。');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to generate action items from milestone', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            session()->flash('error', 'アクションアイテムの生成中にエラーが発生しました。');
+        } finally {
+            $this->isGeneratingActions = false;
+        }
     }
 
     public function loadMilestoneForEdit(int $milestoneId): void

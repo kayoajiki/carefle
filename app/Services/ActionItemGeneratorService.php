@@ -83,6 +83,61 @@ class ActionItemGeneratorService
     }
 
     /**
+     * マイルストーン情報からアクションアイテムを生成
+     */
+    public function generateActionItemsFromMilestone(
+        string $title,
+        ?string $targetDate = null,
+        ?string $willTheme = null,
+        ?string $description = null
+    ): array {
+        $prompt = "以下のマイルストーン情報から、具体的で実行可能なアクションアイテムを最大3個提案してください。\n\n";
+        $prompt .= "【マイルストーン情報】\n";
+        $prompt .= "タイトル: {$title}\n";
+        
+        if ($targetDate) {
+            $prompt .= "目標日: {$targetDate}\n";
+        }
+        
+        if ($willTheme) {
+            $prompt .= "テーマ: {$willTheme}\n";
+        }
+        
+        if ($description) {
+            $prompt .= "概要: {$description}\n";
+        }
+        
+        $prompt .= "\n";
+        $prompt .= "アクションアイテムは、このマイルストーンを達成するために必要な具体的なステップとして提案してください。\n";
+        $prompt .= "目標日がある場合は、それを考慮して期限も含めて提案してください。\n";
+        $prompt .= "JSON形式で返してください: {\"actions\": [{\"title\": \"アクション名\", \"description\": \"説明\"}]}";
+
+        $response = $this->bedrockService->chat($prompt, []);
+
+        if (!$response) {
+            return [];
+        }
+
+        $suggestedActions = [];
+        $json = $this->extractJsonFromResponse($response);
+        
+        if ($json && isset($json['actions'])) {
+            foreach ($json['actions'] as $action) {
+                // 最大3個まで制限
+                if (count($suggestedActions) >= 3) {
+                    break;
+                }
+                $suggestedActions[] = [
+                    'title' => $action['title'] ?? '',
+                    'description' => $action['description'] ?? '',
+                ];
+            }
+        }
+
+        return $suggestedActions;
+    }
+
+    /**
      * 提案されたアクションアイテムを保存
      */
     public function saveSuggestedActions(array $suggestedActions, int $diaryId): void
