@@ -444,24 +444,69 @@
                                 @foreach($pastRecords['past_items'] as $index => $item)
                                 <div class="w-full flex-shrink-0 min-w-0">
                                     <div class="bg-white/50 rounded-xl p-3 sm:p-4 md:p-6 border border-[#6BB6FF]/20">
+                                        {{-- 感情に訴えかけるメッセージとバッジ --}}
+                                        <div class="mb-3 sm:mb-4">
+                                            @if(isset($item['time_ago']) && !empty($item['time_ago']))
+                                            <div class="flex items-center gap-2 mb-2">
+                                                @if(isset($item['category']) && $item['category'] === 'same_date')
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm font-medium bg-[#6BB6FF]/20 text-[#2E5C8A]">
+                                                    {{ $item['time_ago'] }}の今日
+                                                </span>
+                                                @elseif(isset($item['category']) && $item['category'] === 'same_period')
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm font-medium bg-[#6BB6FF]/20 text-[#2E5C8A]">
+                                                    {{ $item['time_ago'] }}のこの時期
+                                                </span>
+                                                @else
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm font-medium bg-[#6BB6FF]/20 text-[#2E5C8A]">
+                                                    {{ $item['time_ago'] }}
+                                                </span>
+                                                @endif
+                                            </div>
+                                            @endif
+                                            @if(isset($item['message']) && !empty($item['message']))
+                                            <p class="text-sm sm:text-base font-medium text-[#2E5C8A] mb-2">
+                                                {{ $item['message'] }}
+                                            </p>
+                                            @endif
+                                        </div>
+
                                         @if($item['type'] === 'diagnosis')
                                             {{-- 診断スライド --}}
-                                            <div class="flex items-center gap-2 mb-3 sm:mb-4">
-                                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                                </svg>
-                                                <h3 class="text-base sm:text-lg md:text-xl font-semibold text-[#2E5C8A]">過去の診断</h3>
-                                            </div>
                                             <a 
                                                 href="{{ route('diagnosis.result', $item['data']['id']) }}" 
                                                 class="block p-3 sm:p-4 bg-white rounded-lg hover:bg-[#E8F4FF] transition-colors"
                                             >
-                                                <div class="flex items-center justify-between mb-2">
+                                                <div class="flex items-center justify-between mb-3">
                                                     <span class="text-xs sm:text-sm text-[#1E3A5F]/70">{{ $item['data']['date'] }}</span>
                                                 </div>
-                                                <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                                                    <span class="text-sm sm:text-base text-[#1E3A5F] font-semibold">仕事: {{ $item['data']['work_score'] }}点</span>
-                                                    <span class="text-sm sm:text-base text-[#1E3A5F] font-semibold">生活: {{ $item['data']['life_score'] }}点</span>
+                                                <div class="space-y-3">
+                                                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                                                        <div class="flex-1">
+                                                            <span class="text-xs sm:text-sm text-[#1E3A5F]/70 block mb-1">仕事</span>
+                                                            <span class="text-lg sm:text-xl font-bold text-[#2E5C8A]">{{ $item['data']['work_score'] }}点</span>
+                                                            @if(isset($item['comparison']['work_score_change']))
+                                                            <span class="text-xs sm:text-sm ml-2 {{ $item['comparison']['work_score_change'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                                                ({{ $item['comparison']['work_score_change'] >= 0 ? '+' : '' }}{{ $item['comparison']['work_score_change'] }})
+                                                            </span>
+                                                            @endif
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <span class="text-xs sm:text-sm text-[#1E3A5F]/70 block mb-1">生活</span>
+                                                            <span class="text-lg sm:text-xl font-bold text-[#2E5C8A]">{{ $item['data']['life_score'] }}点</span>
+                                                            @if(isset($item['comparison']['life_score_change']))
+                                                            <span class="text-xs sm:text-sm ml-2 {{ $item['comparison']['life_score_change'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                                                ({{ $item['comparison']['life_score_change'] >= 0 ? '+' : '' }}{{ $item['comparison']['life_score_change'] }})
+                                                            </span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    @if(isset($item['comparison']))
+                                                    <div class="pt-2 border-t border-[#6BB6FF]/20">
+                                                        <p class="text-xs sm:text-sm text-[#1E3A5F]/70">
+                                                            現在: 仕事 {{ $item['comparison']['current_work_score'] }}点 / 生活 {{ $item['comparison']['current_life_score'] }}点
+                                                        </p>
+                                                    </div>
+                                                    @endif
                                                 </div>
                                             </a>
                                             <a href="{{ route('diagnosis.start') }}" class="btn-secondary text-xs sm:text-sm w-full text-center mt-3 sm:mt-4 px-4 py-2">
@@ -469,23 +514,61 @@
                                             </a>
                                         @elseif($item['type'] === 'diary')
                                             {{-- 日記スライド --}}
-                                            <div class="flex items-center gap-2 mb-3 sm:mb-4">
-                                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#6BB6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                <h3 class="text-base sm:text-lg md:text-xl font-semibold text-[#2E5C8A]">過去の日記</h3>
-                                            </div>
                                             <a 
                                                 href="{{ route('diary') }}?date={{ $item['data']['date_key'] }}" 
-                                                class="block p-3 sm:p-4 bg-white rounded-lg hover:bg-[#E8F4FF] transition-colors"
+                                                class="block bg-white rounded-lg hover:bg-[#E8F4FF] transition-colors overflow-hidden"
                                             >
-                                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-2">
-                                                    <span class="text-xs sm:text-sm text-[#1E3A5F]/70">{{ $item['data']['date'] }}</span>
+                                                {{-- 写真がある場合は大きく表示 --}}
+                                                @if(isset($item['data']['photo']) && !empty($item['data']['photo']))
+                                                <div class="relative w-full h-48 sm:h-64 overflow-hidden">
+                                                    <img 
+                                                        src="{{ asset('storage/' . $item['data']['photo']) }}" 
+                                                        alt="過去の日記写真"
+                                                        class="w-full h-full object-cover"
+                                                    >
+                                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 sm:p-4">
+                                                        <span class="text-xs sm:text-sm text-white">{{ $item['data']['date'] }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="p-3 sm:p-4">
                                                     @if($item['data']['motivation'])
-                                                    <span class="text-xs sm:text-sm text-[#6BB6FF]">モチベーション: {{ $item['data']['motivation'] }}</span>
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="text-xs sm:text-sm text-[#6BB6FF]">モチベーション: {{ $item['data']['motivation'] }}</span>
+                                                        @if(isset($item['comparison']['motivation_change']))
+                                                        <span class="text-xs sm:text-sm {{ $item['comparison']['motivation_change'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                                            ({{ $item['comparison']['motivation_change'] >= 0 ? '+' : '' }}{{ $item['comparison']['motivation_change'] }})
+                                                        </span>
+                                                        @endif
+                                                    </div>
+                                                    @endif
+                                                    <p class="text-sm sm:text-base text-[#1E3A5F]/80">{{ $item['data']['content_preview'] }}</p>
+                                                </div>
+                                                @else
+                                                {{-- 写真がない場合 --}}
+                                                <div class="p-3 sm:p-4">
+                                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-2">
+                                                        <span class="text-xs sm:text-sm text-[#1E3A5F]/70">{{ $item['data']['date'] }}</span>
+                                                        @if($item['data']['motivation'])
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="text-xs sm:text-sm text-[#6BB6FF]">モチベーション: {{ $item['data']['motivation'] }}</span>
+                                                            @if(isset($item['comparison']['motivation_change']))
+                                                            <span class="text-xs sm:text-sm {{ $item['comparison']['motivation_change'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                                                ({{ $item['comparison']['motivation_change'] >= 0 ? '+' : '' }}{{ $item['comparison']['motivation_change'] }})
+                                                            </span>
+                                                            @endif
+                                                        </div>
+                                                        @endif
+                                                    </div>
+                                                    <p class="text-sm sm:text-base text-[#1E3A5F]/80">{{ $item['data']['content_preview'] }}</p>
+                                                    @if(isset($item['comparison']['current_motivation']))
+                                                    <div class="pt-2 mt-2 border-t border-[#6BB6FF]/20">
+                                                        <p class="text-xs sm:text-sm text-[#1E3A5F]/70">
+                                                            現在の平均モチベーション: {{ $item['comparison']['current_motivation'] }}
+                                                        </p>
+                                                    </div>
                                                     @endif
                                                 </div>
-                                                <p class="text-sm sm:text-base text-[#1E3A5F]/80">{{ $item['data']['content_preview'] }}</p>
+                                                @endif
                                             </a>
                                             <a href="{{ route('diary') }}" class="btn-secondary text-xs sm:text-sm w-full text-center mt-3 sm:mt-4 px-4 py-2">
                                                 日記カレンダーを見る
