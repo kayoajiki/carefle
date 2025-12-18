@@ -66,21 +66,21 @@ class DashboardController extends Controller
         // 過去7日間の記録状況を取得（カレンダーミニマップ用）
         $diary7DaysCalendar = $this->getDiary7DaysCalendar($user->id);
 
-        // マイルストーン進捗
+        // マイルストーン進捗（目標日が最も近く、達成率が最も低いものを1件のみ）
         $activeMilestones = CareerMilestone::where('user_id', $user->id)
             ->whereIn('status', ['planned', 'in_progress'])
             ->with(['actionItems'])
+            ->orderByRaw('CASE WHEN target_date IS NULL THEN 1 ELSE 0 END')
             ->orderBy('target_date')
-            ->limit(5)
             ->get();
 
-        $milestoneProgress = [];
+        $milestoneProgressData = [];
         foreach ($activeMilestones as $milestone) {
             $totalActions = $milestone->actionItems()->count();
             $completedActions = $milestone->actionItems()->where('status', 'completed')->count();
             $completionRate = $totalActions > 0 ? round(($completedActions / $totalActions) * 100, 1) : 0;
             
-            $milestoneProgress[] = [
+            $milestoneProgressData[] = [
                 'id' => $milestone->id,
                 'title' => $milestone->title,
                 'completion_rate' => $completionRate,
@@ -88,6 +88,61 @@ class DashboardController extends Controller
                 'completed_actions' => $completedActions,
                 'target_date' => $milestone->target_date,
             ];
+        }
+
+        // 目標日が最も近いものを確認
+        $milestoneProgress = [];
+        if (!empty($milestoneProgressData)) {
+            // 目標日が近い順にソート（nullは最後）
+            usort($milestoneProgressData, function ($a, $b) {
+                if ($a['target_date'] === null && $b['target_date'] === null) {
+                    return 0;
+                }
+                if ($a['target_date'] === null) {
+                    return 1;
+                }
+                if ($b['target_date'] === null) {
+                    return -1;
+                }
+                return strtotime($a['target_date']) <=> strtotime($b['target_date']);
+            });
+
+            $nearestMilestone = $milestoneProgressData[0];
+            
+            // 目標日が最も近いものが達成率100%の場合、達成率が低いものを優先
+            if ($nearestMilestone['completion_rate'] >= 100) {
+                // 達成率が低い順にソート（達成率100%でないものを優先）
+                usort($milestoneProgressData, function ($a, $b) {
+                    // 達成率100%でないものを優先
+                    if ($a['completion_rate'] >= 100 && $b['completion_rate'] < 100) {
+                        return 1;
+                    }
+                    if ($a['completion_rate'] < 100 && $b['completion_rate'] >= 100) {
+                        return -1;
+                    }
+                    // 両方とも100%でない、または両方とも100%の場合は達成率が低い順
+                    return $a['completion_rate'] <=> $b['completion_rate'];
+                });
+                
+                // 達成率が100%でないものを探す
+                $selectedMilestone = null;
+                foreach ($milestoneProgressData as $milestone) {
+                    if ($milestone['completion_rate'] < 100) {
+                        $selectedMilestone = $milestone;
+                        break;
+                    }
+                }
+                
+                // 達成率が100%でないものが見つからない場合は、達成率が最も低いものを選択
+                if ($selectedMilestone === null) {
+                    $selectedMilestone = $milestoneProgressData[0];
+                }
+                
+                $milestoneProgress = [$selectedMilestone];
+            } else {
+                // 目標日が最も近いものが達成率100%でない場合は、それを選択
+                $milestoneProgress = [$nearestMilestone];
+            }
         }
 
         // AI伴走の履歴（最近の会話）

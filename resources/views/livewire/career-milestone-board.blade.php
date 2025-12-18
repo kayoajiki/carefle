@@ -54,10 +54,13 @@
                         <div class="space-y-3">
                             <p class="body-small uppercase tracking-wide text-slate-500">{{ $label }}</p>
                             @forelse($items as $item)
+                                @php
+                                    $completionRate = $item->completion_rate ?? 0;
+                                @endphp
                                 <button type="button"
                                     class="w-full text-left card-refined soft-shadow-refined p-5 border {{ $selectedMilestoneId === $item->id ? 'border-[#6BB6FF]' : 'border-transparent' }}"
                                     wire:click="selectMilestone({{ $item->id }})">
-                                    <div class="flex items-center justify-between gap-3">
+                                    <div class="flex items-center justify-between gap-3 mb-2">
                                         <div>
                                             <p class="body-text font-semibold text-[#2E5C8A]">{{ $item->title }}</p>
                                             <p class="body-small text-slate-500 mt-1">
@@ -66,6 +69,21 @@
                                         </div>
                                         <span class="body-small text-slate-500">
                                             {{ $item->actionItems->where('status', 'pending')->count() }} 件の行動
+                                        </span>
+                                    </div>
+                                    {{-- 達成率バー --}}
+                                    <div class="w-full bg-[#E8F4FF] rounded-full h-2 overflow-hidden mb-2">
+                                        <div 
+                                            class="h-2 bg-[#6BB6FF] transition-all duration-500"
+                                            style="width: {{ $completionRate }}%"
+                                        ></div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="body-small text-slate-500">
+                                            達成率: {{ $completionRate }}%
+                                        </span>
+                                        <span class="body-small text-slate-500">
+                                            完了: {{ $item->completed_actions ?? 0 }}/{{ $item->total_actions ?? 0 }}アクション
                                         </span>
                                     </div>
                                     @if($item->description)

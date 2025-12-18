@@ -174,22 +174,35 @@ class CareerMilestoneBoard extends Component
         $endOfMonth = $now->copy()->endOfMonth();
         $endOfQuarter = $now->copy()->addMonths(3)->endOfDay();
 
+        // 各マイルストーンに達成率を計算して追加
+        $milestonesWithProgress = $milestones->map(function ($milestone) {
+            $totalActions = $milestone->actionItems->count();
+            $completedActions = $milestone->actionItems->where('status', 'completed')->count();
+            $completionRate = $totalActions > 0 ? round(($completedActions / $totalActions) * 100, 1) : 0;
+            
+            $milestone->completion_rate = $completionRate;
+            $milestone->total_actions = $totalActions;
+            $milestone->completed_actions = $completedActions;
+            
+            return $milestone;
+        });
+
         return [
-            '今月まで' => $milestones->filter(function ($milestone) use ($endOfMonth, $now) {
+            '今月まで' => $milestonesWithProgress->filter(function ($milestone) use ($endOfMonth, $now) {
                 if (!$milestone->target_date) {
                     return false;
                 }
                 $date = Carbon::parse($milestone->target_date);
                 return $date->between($now->copy()->startOfMonth(), $endOfMonth);
             }),
-            '今四半期' => $milestones->filter(function ($milestone) use ($endOfMonth, $endOfQuarter) {
+            '今四半期' => $milestonesWithProgress->filter(function ($milestone) use ($endOfMonth, $endOfQuarter) {
                 if (!$milestone->target_date) {
                     return false;
                 }
                 $date = Carbon::parse($milestone->target_date);
                 return $date->greaterThan($endOfMonth) && $date->lte($endOfQuarter);
             }),
-            'その先・時期未定' => $milestones->filter(function ($milestone) use ($endOfQuarter) {
+            'その先・時期未定' => $milestonesWithProgress->filter(function ($milestone) use ($endOfQuarter) {
                 if (!$milestone->target_date) {
                     return true;
                 }

@@ -162,34 +162,33 @@
                     @endif
 
                     {{-- マイルストーン進捗 --}}
-                    @if(!empty($milestoneProgress))
+                    @if(!empty($milestoneProgress) && count($milestoneProgress) > 0)
+                        @php
+                            $progress = $milestoneProgress[0];
+                        @endphp
                         <div class="bg-white rounded-2xl border-2 border-blue-200 p-4 sm:p-6 space-y-3 sm:space-y-4">
                             <h2 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#2E5C8A] mb-3 sm:mb-4">マイルストーン進捗</h2>
-                            <div class="space-y-3 sm:space-y-4">
-                                @foreach($milestoneProgress as $progress)
-                                    <div class="bg-[#F6FBFF] rounded-xl p-3 sm:p-4 border border-[#6BB6FF]/30">
-                                        <div class="flex items-start justify-between mb-2">
-                                            <div class="flex-1 pr-2">
-                                                <h3 class="text-sm sm:text-base font-semibold text-[#2E5C8A] mb-1">{{ $progress['title'] }}</h3>
-                                                @if($progress['target_date'])
-                                                    <p class="text-xs sm:text-sm text-[#1E3A5F]/60">
-                                                        目標日: {{ \Carbon\Carbon::parse($progress['target_date'])->format('Y年m月d日') }}
-                                                    </p>
-                                                @endif
-                                            </div>
-                                            <span class="text-xl sm:text-2xl md:text-3xl font-semibold text-[#6BB6FF] flex-shrink-0">{{ $progress['completion_rate'] }}%</span>
-                                        </div>
-                                        <div class="w-full bg-[#E8F4FF] rounded-full h-2 sm:h-3 overflow-hidden mb-2">
-                                            <div 
-                                                class="h-2 sm:h-3 bg-[#6BB6FF] transition-all duration-500"
-                                                style="width: {{ $progress['completion_rate'] }}%"
-                                            ></div>
-                                        </div>
-                                        <p class="text-xs sm:text-sm text-[#1E3A5F]/60">
-                                            完了: {{ $progress['completed_actions'] }}/{{ $progress['total_actions'] }}アクション
-                                        </p>
+                            <div class="bg-[#F6FBFF] rounded-xl p-3 sm:p-4 border border-[#6BB6FF]/30">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex-1 pr-2">
+                                        <h3 class="text-sm sm:text-base font-semibold text-[#2E5C8A] mb-1">{{ $progress['title'] }}</h3>
+                                        @if($progress['target_date'])
+                                            <p class="text-xs sm:text-sm text-[#1E3A5F]/60">
+                                                目標日: {{ \Carbon\Carbon::parse($progress['target_date'])->format('Y年m月d日') }}
+                                            </p>
+                                        @endif
                                     </div>
-                                @endforeach
+                                    <span class="text-xl sm:text-2xl md:text-3xl font-semibold text-[#6BB6FF] flex-shrink-0">{{ $progress['completion_rate'] }}%</span>
+                                </div>
+                                <div class="w-full bg-[#E8F4FF] rounded-full h-2 sm:h-3 overflow-hidden mb-2">
+                                    <div 
+                                        class="h-2 sm:h-3 bg-[#6BB6FF] transition-all duration-500"
+                                        style="width: {{ $progress['completion_rate'] }}%"
+                                    ></div>
+                                </div>
+                                <p class="text-xs sm:text-sm text-[#1E3A5F]/60">
+                                    完了: {{ $progress['completed_actions'] }}/{{ $progress['total_actions'] }}アクション
+                                </p>
                             </div>
                             <div class="mt-4">
                                 <a href="{{ route('career.milestones') }}" class="btn-secondary w-full text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
