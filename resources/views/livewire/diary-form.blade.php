@@ -258,7 +258,8 @@
                 保存中...
             </span>
         </button>
-        <button
+        {{-- アクション提案ボタン（一時的にコメントアウト） --}}
+        {{-- <button
             wire:click="saveWithActionSuggestion"
             class="btn-primary"
             wire:loading.attr="disabled"
@@ -272,6 +273,6 @@
                 </svg>
                 AI分析中...
             </span>
-        </button>
+        </button> --}}
     </div>
 </div>

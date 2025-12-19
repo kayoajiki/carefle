@@ -333,11 +333,15 @@ class ReflectionChatService
             $prompt .= "※上記の情報は参考程度に留め、会話の流れに自然に織り交ぜてください。\n\n";
         }
         
-        $prompt .= "ユーザーに対して、出来事、やったこと、事実について簡潔に質問してください。\n";
+        $prompt .= "ユーザーに対して、以下の形式で質問してください：\n";
+        $prompt .= "1. まず「{$categoryName}についてですね。」のように選択した分類を確認する\n";
+        $prompt .= "2. その後、出来事、やったこと、事実について簡潔に質問する\n";
         $prompt .= "- 1つの質問に絞る\n";
         $prompt .= "- 具体的で答えやすい質問\n";
         $prompt .= "- 親しみやすく、温かみのある口調\n";
-        $prompt .= "- 2-3文程度の簡潔な応答を心がける";
+        $prompt .= "- 2-3文程度の簡潔な応答を心がける\n";
+        $prompt .= "- 例：「仕事についてですね。どんな出来事でしたか？」\n";
+        $prompt .= "- 例：「家族のことですね。今日はどんなことがありましたか？」";
 
         $response = $this->bedrockService->chat($prompt, [], $this->reflectionSystemPrompt);
 

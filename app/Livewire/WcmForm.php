@@ -132,6 +132,16 @@ class WcmForm extends Component
         $this->draftSavedAt = now()->format('H:i');
     }
 
+    /**
+     * 下書き保存してダッシュボードに戻る
+     */
+    public function saveAndReturnToDashboard(): mixed
+    {
+        $this->saveDraft();
+        session()->flash('message', 'WCMシートを下書き保存しました。');
+        return redirect()->route('dashboard');
+    }
+
     public function updatedAnswers(): void
     {
         $this->saveDraft();

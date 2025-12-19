@@ -235,29 +235,30 @@ class DiaryForm extends Component
 
     /**
      * 保存 + アクション提案（AI稼働）
+     * 一時的にコメントアウト
      */
-    public function saveWithActionSuggestion()
-    {
-        $savedDiary = $this->performSave();
-        
-        // AI処理を実行（コンテンツがある場合のみ）
-        if ($savedDiary && !empty($this->content)) {
-            $this->suggestActionItems($savedDiary);
-            $this->updateMilestoneProgress($savedDiary);
-            // 接続情報の検出と読み込み（detectGoalConnections内でgoalConnectionsも更新される）
-            $this->detectGoalConnections($savedDiary);
-        } else {
-            // コンテンツがない場合は既存の接続情報を読み込む
-            if ($savedDiary) {
-                $this->loadGoalConnections($savedDiary->id);
-            } else {
-                $this->goalConnections = [];
-            }
-        }
-        
-        // 親コンポーネント（DiaryCalendar）に更新を通知
-        $this->dispatch('diary-saved');
-    }
+    // public function saveWithActionSuggestion()
+    // {
+    //     $savedDiary = $this->performSave();
+    //     
+    //     // AI処理を実行（コンテンツがある場合のみ）
+    //     if ($savedDiary && !empty($this->content)) {
+    //         $this->suggestActionItems($savedDiary);
+    //         $this->updateMilestoneProgress($savedDiary);
+    //         // 接続情報の検出と読み込み（detectGoalConnections内でgoalConnectionsも更新される）
+    //         $this->detectGoalConnections($savedDiary);
+    //     } else {
+    //         // コンテンツがない場合は既存の接続情報を読み込む
+    //         if ($savedDiary) {
+    //             $this->loadGoalConnections($savedDiary->id);
+    //         } else {
+    //             $this->goalConnections = [];
+    //         }
+    //     }
+    //     
+    //     // 親コンポーネント（DiaryCalendar）に更新を通知
+    //     $this->dispatch('diary-saved');
+    // }
 
     public function deletePhoto()
     {

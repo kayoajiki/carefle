@@ -186,17 +186,7 @@ class DiaryChatForm extends Component
         // ステップをfact_questionに進める
         $this->conversationStep = 'fact_question';
         
-        // 選択に応じたメッセージを生成（従来の方法）
-        $response = $this->chatService->generateResponseForSelection($topic, $this->reflectionType);
-        
-        // AIの応答を追加
-        $this->messages[] = [
-            'role' => 'assistant',
-            'content' => $response,
-            'timestamp' => now()->toDateTimeString(),
-        ];
-        
-        // fact_questionを生成
+        // fact_questionを生成（カテゴリ確認を含む）
         $this->isLoading = true;
         try {
             $factQuestion = $this->chatService->generateFactQuestion($topic, $this->reflectionType);

@@ -14,35 +14,23 @@
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                    @if(in_array('diary', $unlockedFeatures ?? []))
-                        <flux:navlist.item icon="document-text" :href="route('diary')" :current="request()->routeIs('diary')" wire:navigate>日記</flux:navlist.item>
-                    @endif
+                    <flux:navlist.item icon="document-text" :href="route('diary')" :current="request()->routeIs('diary')" wire:navigate>日記</flux:navlist.item>
                     <flux:navlist.item icon="star" :href="route('my-goal')" :current="request()->routeIs('my-goal')" wire:navigate>ゴール</flux:navlist.item>
-                    @if(in_array('milestones', $unlockedFeatures ?? []))
-                        <flux:navlist.item icon="flag" :href="route('career.milestones')" :current="request()->routeIs('career.milestones')" wire:navigate>マイルストーン</flux:navlist.item>
-                    @endif
+                    <flux:navlist.item icon="flag" :href="route('career.milestones')" :current="request()->routeIs('career.milestones')" wire:navigate>マイルストーン</flux:navlist.item>
                 </flux:navlist.group>
                 
                 <flux:navlist.group heading="診断・分析" class="grid">
-                    @if(in_array('diagnosis', $unlockedFeatures ?? []))
-                        @if(isset($latestDiagnosisId))
-                            <flux:navlist.item icon="chart-bar" :href="route('diagnosis.result', $latestDiagnosisId)" :current="request()->routeIs('diagnosis.*')" wire:navigate>現職満足度診断</flux:navlist.item>
-                        @else
-                            <flux:navlist.item icon="chart-bar" :href="route('diagnosis.start')" :current="request()->routeIs('diagnosis.*')" wire:navigate>現職満足度診断</flux:navlist.item>
-                        @endif
+                    @if(isset($latestDiagnosisId))
+                        <flux:navlist.item icon="chart-bar" :href="route('diagnosis.result', $latestDiagnosisId)" :current="request()->routeIs('diagnosis.*')" wire:navigate>現職満足度診断</flux:navlist.item>
+                    @else
+                        <flux:navlist.item icon="chart-bar" :href="route('diagnosis.start')" :current="request()->routeIs('diagnosis.*')" wire:navigate>現職満足度診断</flux:navlist.item>
                     @endif
-                    @if(in_array('assessment', $unlockedFeatures ?? []))
-                        <flux:navlist.item icon="user-circle" :href="route('assessments.index')" :current="request()->routeIs('assessments.*')" wire:navigate>自己診断結果</flux:navlist.item>
-                    @endif
-                    @if(in_array('life_history', $unlockedFeatures ?? []))
-                        <flux:navlist.item icon="clock" :href="route('life-history.timeline')" :current="request()->routeIs('life-history.*')" wire:navigate>人生史</flux:navlist.item>
-                    @endif
-                    @if(in_array('wcm', $unlockedFeatures ?? []))
-                        @if(isset($latestWcmSheetId))
-                            <flux:navlist.item icon="light-bulb" :href="route('wcm.sheet', $latestWcmSheetId)" :current="request()->routeIs('wcm.*')" wire:navigate>WCMシート</flux:navlist.item>
-                        @else
-                            <flux:navlist.item icon="light-bulb" :href="route('wcm.start')" :current="request()->routeIs('wcm.*')" wire:navigate>WCMシート</flux:navlist.item>
-                        @endif
+                    <flux:navlist.item icon="user-circle" :href="route('assessments.index')" :current="request()->routeIs('assessments.*')" wire:navigate>自己診断結果</flux:navlist.item>
+                    <flux:navlist.item icon="clock" :href="route('life-history.timeline')" :current="request()->routeIs('life-history.*')" wire:navigate>人生史</flux:navlist.item>
+                    @if(isset($latestWcmSheetId))
+                        <flux:navlist.item icon="light-bulb" :href="route('wcm.sheet', $latestWcmSheetId)" :current="request()->routeIs('wcm.*')" wire:navigate>WCMシート</flux:navlist.item>
+                    @else
+                        <flux:navlist.item icon="light-bulb" :href="route('wcm.start')" :current="request()->routeIs('wcm.*')" wire:navigate>WCMシート</flux:navlist.item>
                     @endif
                 </flux:navlist.group>
 
@@ -52,6 +40,7 @@
                 </flux:navlist.group>
 
                 <flux:navlist.group heading="プロフィール" class="grid">
+                    <flux:navlist.item icon="user-circle" :href="route('profile.edit')" :current="request()->routeIs('profile.edit')" wire:navigate>プロフィール</flux:navlist.item>
                     <flux:navlist.item icon="document-text" :href="route('resume.upload')" :current="request()->routeIs('resume.*')" wire:navigate>履歴書アップロード</flux:navlist.item>
                     <flux:navlist.item icon="document-duplicate" :href="route('career-history.upload')" :current="request()->routeIs('career-history.*')" wire:navigate>職務経歴書アップロード</flux:navlist.item>
                 </flux:navlist.group>

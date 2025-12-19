@@ -71,6 +71,28 @@
                     {{ $step<14 ? '次へ' : 'シートを生成' }}
                 </button>
             </div>
+            
+            <div class="pt-4 border-t border-[#2E5C8A]/10">
+                <button
+                    type="button"
+                    wire:click="saveAndReturnToDashboard"
+                    wire:loading.attr="disabled"
+                    wire:target="saveAndReturnToDashboard"
+                    class="w-full text-sm text-[#2E5C8A] hover:text-[#6BB6FF] transition-colors flex items-center gap-2 justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l7 7 7-7M19 10v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span wire:loading.remove wire:target="saveAndReturnToDashboard">保存してダッシュボードに戻る</span>
+                    <span wire:loading wire:target="saveAndReturnToDashboard" class="flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        保存中...
+                    </span>
+                </button>
+            </div>
         </div>
         @if (session('error'))
             <div class="mt-4 bg-red-50 border border-red-200 text-red-800 text-sm p-3 rounded-md">{{ session('error') }}</div>
