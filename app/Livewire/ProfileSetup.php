@@ -15,6 +15,7 @@ class ProfileSetup extends Component
     public $prefecture = '';
     public $occupation = '';
     public $industry = '';
+    public $employment_type = '';
     public $work_experience_years = '';
     public $education = '';
 
@@ -53,6 +54,14 @@ class ProfileSetup extends Component
         ];
     }
 
+    // 雇用形態リスト
+    public function getEmploymentTypesProperty()
+    {
+        return [
+            '正社員', '契約社員', '派遣社員', 'パート・アルバイト', '業務委託・フリーランス', 'その他'
+        ];
+    }
+
     // 最終学歴リスト
     public function getEducationsProperty()
     {
@@ -81,6 +90,7 @@ class ProfileSetup extends Component
         $this->prefecture = $user->prefecture ?? '';
         $this->occupation = $user->occupation ?? '';
         $this->industry = $user->industry ?? '';
+        $this->employment_type = $user->employment_type ?? '';
         $this->work_experience_years = $user->work_experience_years ?? '';
         $this->education = $user->education ?? '';
     }
@@ -94,7 +104,8 @@ class ProfileSetup extends Component
             'prefecture' => ['required', 'string'],
             'occupation' => ['nullable', 'string'],
             'industry' => ['nullable', 'string'],
-            'work_experience_years' => ['nullable', 'integer', 'min:0', 'max:50'],
+            'employment_type' => ['nullable', 'string'],
+            'work_experience_years' => ['nullable'],
             'education' => ['nullable', 'string'],
         ], [
             'name.required' => 'お名前は必須です。',
@@ -102,9 +113,6 @@ class ProfileSetup extends Component
             'birthdate.before' => '正しい生年月日を入力してください。',
             'gender.required' => '性別を選択してください。',
             'prefecture.required' => '居住地（都道府県）を選択してください。',
-            'work_experience_years.integer' => '勤続年数は数値で入力してください。',
-            'work_experience_years.min' => '勤続年数は0年以上で入力してください。',
-            'work_experience_years.max' => '勤続年数は50年以下で入力してください。',
         ]);
 
         $user = Auth::user();
@@ -115,6 +123,7 @@ class ProfileSetup extends Component
             'prefecture' => $validated['prefecture'],
             'occupation' => $validated['occupation'] ?? null,
             'industry' => $validated['industry'] ?? null,
+            'employment_type' => $validated['employment_type'] ?? null,
             'work_experience_years' => $validated['work_experience_years'] ?? null,
             'education' => $validated['education'] ?? null,
             'profile_completed' => true,

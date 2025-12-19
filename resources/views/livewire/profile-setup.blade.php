@@ -162,6 +162,23 @@
             </select>
         </div>
 
+        <!-- Employment Type (任意) -->
+        <div class="flex flex-col gap-2">
+            <label for="employment_type" class="text-sm font-medium text-[#2E5C8A]">
+                雇用形態 <span class="text-xs text-dim">（任意）</span>
+            </label>
+            <select
+                id="employment_type"
+                wire:model="employment_type"
+                class="w-full px-4 py-3 rounded-lg border border-[#2E5C8A]/20 bg-white text-[#2E5C8A] focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
+            >
+                <option value="">選択してください</option>
+                @foreach($this->employmentTypes as $type)
+                    <option value="{{ $type }}">{{ $type }}</option>
+                @endforeach
+            </select>
+        </div>
+
         <!-- Work Experience Years (任意) -->
         <div class="flex flex-col gap-2">
             <label for="work_experience_years" class="text-sm font-medium text-[#2E5C8A]">
@@ -173,6 +190,7 @@
                 class="w-full px-4 py-3 rounded-lg border border-[#2E5C8A]/20 bg-white text-[#2E5C8A] focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-transparent"
             >
                 <option value="">選択してください</option>
+                <option value="not_working">現在は働いていない</option>
                 <option value="0">0年（入社したて）</option>
                 @for($i = 1; $i <= 10; $i++)
                     <option value="{{ $i }}">{{ $i }}年</option>
@@ -207,10 +225,21 @@
             type="submit"
             wire:loading.attr="disabled"
             wire:target="save"
-            class="w-full px-6 py-3 rounded-lg font-semibold text-base accent-bg accent-text shadow-md hover:opacity-90 transition mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full px-8 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-[#6BB6FF] to-[#5AA5E6] text-white shadow-lg hover:shadow-xl hover:from-[#5AA5E6] hover:to-[#4A95D6] transform hover:scale-[1.02] transition-all duration-200 mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
-            <span wire:loading.remove wire:target="save">診断を始める</span>
-            <span wire:loading wire:target="save">保存中...</span>
+            <span wire:loading.remove wire:target="save" class="flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                診断を始める
+            </span>
+            <span wire:loading wire:target="save" class="flex items-center justify-center gap-2">
+                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                保存中...
+            </span>
         </button>
     </form>
 

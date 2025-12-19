@@ -28,6 +28,7 @@ class User extends Authenticatable
         'prefecture',
         'occupation',
         'industry',
+        'employment_type',
         'work_experience_years',
         'education',
         'profile_completed',
