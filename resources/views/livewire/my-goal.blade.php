@@ -158,7 +158,10 @@
                                 @endphp
                                 @if(!empty($example))
                                     <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                                        <p class="body-small text-blue-700 font-medium mb-1">💡 回答例</p>
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <p class="body-small text-blue-700 font-medium">💡 回答例</p>
+                                            <span class="text-xs text-blue-600/70">（あなたが記載した内容から参照して生成されています）</span>
+                                        </div>
                                         <p class="body-small text-[#1E3A5F]/80">{{ $example }}</p>
                                     </div>
                                 @endif
@@ -174,7 +177,10 @@
                             @if(!empty($suggestedExamples[$currentQuestionIndex] ?? null))
                                 <div class="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
                                     <div class="flex items-center justify-between">
-                                        <p class="body-small text-green-700 font-medium">✨ AIが生成した解答例</p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="body-small text-green-700 font-medium">✨ AIが生成した解答例</p>
+                                            <span class="text-xs text-green-600/70">（あなたが記載した内容から参照して生成されています）</span>
+                                        </div>
                                         <button
                                             wire:click="$set('suggestedExamples.{{ $currentQuestionIndex }}', null)"
                                             class="text-green-600 hover:text-green-800 body-small">
