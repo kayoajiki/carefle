@@ -29,27 +29,25 @@ class OnboardingController extends Controller
     {
         $user = Auth::user();
 
-        // 開発環境では7日間記録のチェックを緩和（実際の日記データがあればOK）
-        $isDevelopment = app()->environment('local');
-        
-        if (!$isDevelopment) {
-            // 本番環境では7日間記録が完了しているかチェック
-            if (!$this->progressService->checkStepCompletion($user->id, 'diary_7days')) {
-                return redirect()->route('dashboard')
-                    ->with('error', '持ち味レポを生成するには、7日間の日記記録が必要です。');
-            }
-        } else {
-            // 開発環境では、過去7日間に日記が1件以上あればOK
+        // 7日間記録が完了しているかチェック
+        if (!$this->progressService->checkStepCompletion($user->id, 'diary_7days')) {
+            // 7日間記録が完了していない場合、実際の日記数を確認
             $sevenDaysAgo = now()->subDays(6)->startOfDay();
             $today = now()->endOfDay();
             
-            $diaryCount = \App\Models\Diary::where('user_id', $user->id)
+            $diaryDates = \App\Models\Diary::where('user_id', $user->id)
                 ->whereBetween('date', [$sevenDaysAgo, $today])
+                ->whereNotNull('content')
+                ->where('content', '!=', '')
+                ->get()
+                ->pluck('date')
+                ->map(fn($date) => $date->format('Y-m-d'))
+                ->unique()
                 ->count();
             
-            if ($diaryCount === 0) {
+            if ($diaryDates < 7) {
                 return redirect()->route('dashboard')
-                    ->with('error', '持ち味レポを生成するには、過去7日間に日記記録が必要です。テスト用データを生成するには: php artisan test:generate-diaries ' . $user->email);
+                    ->with('error', '持ち味レポを生成するには、7日間の日記記録が必要です。（現在: ' . $diaryDates . '日）');
             }
         }
 
@@ -108,25 +106,25 @@ class OnboardingController extends Controller
     {
         $user = Auth::user();
 
-        // 開発環境では7日間記録のチェックを緩和
-        $isDevelopment = app()->environment('local');
-        
-        if (!$isDevelopment) {
-            if (!$this->progressService->checkStepCompletion($user->id, 'diary_7days')) {
-                return redirect()->route('dashboard')
-                    ->with('error', '持ち味レポを生成するには、7日間の日記記録が必要です。');
-            }
-        } else {
+        // 7日間記録が完了しているかチェック
+        if (!$this->progressService->checkStepCompletion($user->id, 'diary_7days')) {
+            // 7日間記録が完了していない場合、実際の日記数を確認
             $sevenDaysAgo = now()->subDays(6)->startOfDay();
             $today = now()->endOfDay();
             
-            $diaryCount = \App\Models\Diary::where('user_id', $user->id)
+            $diaryDates = \App\Models\Diary::where('user_id', $user->id)
                 ->whereBetween('date', [$sevenDaysAgo, $today])
+                ->whereNotNull('content')
+                ->where('content', '!=', '')
+                ->get()
+                ->pluck('date')
+                ->map(fn($date) => $date->format('Y-m-d'))
+                ->unique()
                 ->count();
             
-            if ($diaryCount === 0) {
+            if ($diaryDates < 7) {
                 return redirect()->route('dashboard')
-                    ->with('error', '持ち味レポを生成するには、過去7日間に日記記録が必要です。');
+                    ->with('error', '持ち味レポを生成するには、7日間の日記記録が必要です。（現在: ' . $diaryDates . '日）');
             }
         }
 
@@ -156,25 +154,25 @@ class OnboardingController extends Controller
                 ->with('error', '持ち味レポは1ヶ月に1回のみ更新できます。次回の更新可能日: ' . $nextUpdateDate);
         }
 
-        // 開発環境では7日間記録のチェックを緩和
-        $isDevelopment = app()->environment('local');
-        
-        if (!$isDevelopment) {
-            if (!$this->progressService->checkStepCompletion($user->id, 'diary_7days')) {
-                return redirect()->route('onboarding.mini-manual')
-                    ->with('error', '持ち味レポを更新するには、7日間の日記記録が必要です。');
-            }
-        } else {
+        // 7日間記録が完了しているかチェック
+        if (!$this->progressService->checkStepCompletion($user->id, 'diary_7days')) {
+            // 7日間記録が完了していない場合、実際の日記数を確認
             $sevenDaysAgo = now()->subDays(6)->startOfDay();
             $today = now()->endOfDay();
             
-            $diaryCount = \App\Models\Diary::where('user_id', $user->id)
+            $diaryDates = \App\Models\Diary::where('user_id', $user->id)
                 ->whereBetween('date', [$sevenDaysAgo, $today])
+                ->whereNotNull('content')
+                ->where('content', '!=', '')
+                ->get()
+                ->pluck('date')
+                ->map(fn($date) => $date->format('Y-m-d'))
+                ->unique()
                 ->count();
             
-            if ($diaryCount === 0) {
+            if ($diaryDates < 7) {
                 return redirect()->route('onboarding.mini-manual')
-                    ->with('error', '持ち味レポを更新するには、過去7日間に日記記録が必要です。');
+                    ->with('error', '持ち味レポを更新するには、7日間の日記記録が必要です。（現在: ' . $diaryDates . '日）');
             }
         }
 

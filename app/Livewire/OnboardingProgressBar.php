@@ -63,7 +63,7 @@ class OnboardingProgressBar extends Component
                 'route' => 'diary',
             ],
             'assessment' => [
-                'label' => '自己診断',
+                'label' => '自己診断結果入力',
                 'icon' => 'user-circle',
                 'route' => 'assessments.index',
             ],
@@ -78,7 +78,7 @@ class OnboardingProgressBar extends Component
                 'route' => 'diary',
             ],
             'manual_generated' => [
-                'label' => '持ち味レポ',
+                'label' => '持ち味レポ🎁',
                 'icon' => 'book-open',
                 'route' => 'onboarding.mini-manual',
             ],

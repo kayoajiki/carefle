@@ -13,7 +13,7 @@
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex flex-col">
                         <h3 class="heading-3 text-[#2E5C8A]">スタートガイド</h3>
-                        <p class="text-sm sm:text-base text-[#2E5C8A] font-medium mt-1">7日間の内省で自分の持ち味を発見しよう</p>
+                        <p class="text-sm sm:text-base text-[#2E5C8A] font-medium mt-1">診断と7日間の内省で自分の持ち味を発見しよう</p>
                     </div>
                     <span class="body-small text-[#1E3A5F]/60">{{ $progressPercentage }}%</span>
                 </div>
