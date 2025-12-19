@@ -41,6 +41,39 @@ class CareerMilestoneBoard extends Component
         $this->showForm = true;
     }
 
+    public function deleteMilestone(int $milestoneId): void
+    {
+        $milestone = CareerMilestone::where('id', $milestoneId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($milestone) {
+            $milestone->delete();
+            
+            // 削除されたマイルストーンが選択されていた場合、選択を解除
+            if ($this->selectedMilestoneId === $milestoneId) {
+                $this->selectedMilestoneId = $this->firstMilestoneId();
+            }
+        }
+    }
+
+    public function markMilestoneAsAchieved(int $milestoneId): void
+    {
+        $milestone = CareerMilestone::where('id', $milestoneId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($milestone) {
+            $milestone->status = 'achieved';
+            $milestone->save();
+            
+            // 完了したマイルストーンが選択されていた場合、選択を解除
+            if ($this->selectedMilestoneId === $milestoneId) {
+                $this->selectedMilestoneId = $this->firstMilestoneId();
+            }
+        }
+    }
+
     public function closeForm(): void
     {
         $this->showForm = false;
@@ -103,6 +136,7 @@ class CareerMilestoneBoard extends Component
     public function render()
     {
         $milestones = $this->milestones();
+        $achievedMilestones = $this->achievedMilestones();
 
         $detailMilestone = $milestones->firstWhere('id', $this->selectedMilestoneId)
             ?: $milestones->first();
@@ -112,6 +146,7 @@ class CareerMilestoneBoard extends Component
 
         return view('livewire.career-milestone-board', [
             'milestones' => $milestones,
+            'achievedMilestones' => $achievedMilestones,
             'summary' => $summary,
             'groups' => $groups,
             'detailMilestone' => $detailMilestone,
@@ -126,9 +161,23 @@ class CareerMilestoneBoard extends Component
                     ->orderBy('title');
             }])
             ->where('user_id', Auth::id())
+            ->where('status', '!=', 'achieved') // 完了したものは除外
             ->orderByRaw('CASE WHEN target_date IS NULL THEN 1 ELSE 0 END')
             ->orderBy('target_date')
             ->latest('created_at')
+            ->get();
+    }
+
+    private function achievedMilestones()
+    {
+        return CareerMilestone::with(['actionItems' => function ($query) {
+                $query->orderByRaw('CASE WHEN due_date IS NULL THEN 1 ELSE 0 END')
+                    ->orderBy('due_date')
+                    ->orderBy('title');
+            }])
+            ->where('user_id', Auth::id())
+            ->where('status', 'achieved')
+            ->orderBy('updated_at', 'desc') // 完了日時順
             ->get();
     }
 

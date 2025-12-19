@@ -57,41 +57,63 @@
                                 @php
                                     $completionRate = $item->completion_rate ?? 0;
                                 @endphp
-                                <button type="button"
-                                    class="w-full text-left card-refined soft-shadow-refined p-5 border {{ $selectedMilestoneId === $item->id ? 'border-[#6BB6FF]' : 'border-transparent' }}"
-                                    wire:click="selectMilestone({{ $item->id }})">
-                                    <div class="flex items-center justify-between gap-3 mb-2">
-                                        <div>
-                                            <p class="body-text font-semibold text-[#2E5C8A]">{{ $item->title }}</p>
-                                            <p class="body-small text-slate-500 mt-1">
-                                                {{ $item->target_date?->format('Y/m/d') ?? '日付未設定' }}
-                                            </p>
+                                <div class="w-full card-refined soft-shadow-refined p-5 border {{ $selectedMilestoneId === $item->id ? 'border-[#6BB6FF]' : 'border-transparent' }}">
+                                    <button type="button"
+                                        class="w-full text-left"
+                                        wire:click="selectMilestone({{ $item->id }})">
+                                        <div class="flex items-center justify-between gap-3 mb-2">
+                                            <div>
+                                                <p class="body-text font-semibold text-[#2E5C8A]">{{ $item->title }}</p>
+                                                <p class="body-small text-slate-500 mt-1">
+                                                    {{ $item->target_date?->format('Y/m/d') ?? '日付未設定' }}
+                                                </p>
+                                            </div>
+                                            <span class="body-small text-slate-500">
+                                                {{ $item->actionItems->where('status', 'pending')->count() }} 件の行動
+                                            </span>
                                         </div>
-                                        <span class="body-small text-slate-500">
-                                            {{ $item->actionItems->where('status', 'pending')->count() }} 件の行動
-                                        </span>
+                                        {{-- 達成率バー --}}
+                                        <div class="w-full bg-[#E8F4FF] rounded-full h-2 overflow-hidden mb-2">
+                                            <div 
+                                                class="h-2 bg-[#6BB6FF] transition-all duration-500"
+                                                style="width: {{ $completionRate }}%"
+                                            ></div>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="body-small text-slate-500">
+                                                達成率: {{ $completionRate }}%
+                                            </span>
+                                            <span class="body-small text-slate-500">
+                                                完了: {{ $item->completed_actions ?? 0 }}/{{ $item->total_actions ?? 0 }}アクション
+                                            </span>
+                                        </div>
+                                        @if($item->description)
+                                            <p class="body-small text-slate-500 mt-3">
+                                                {{ \Illuminate\Support\Str::limit($item->description, 70) }}
+                                            </p>
+                                        @endif
+                                    </button>
+                                    {{-- 編集・削除・完了ボタン --}}
+                                    <div class="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-slate-200">
+                                        <button type="button"
+                                            class="btn-secondary text-xs px-3 py-1.5"
+                                            wire:click.stop="openEditForm({{ $item->id }})">
+                                            編集
+                                        </button>
+                                        <button type="button"
+                                            class="btn-secondary text-xs px-3 py-1.5 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                            wire:click.stop="markMilestoneAsAchieved({{ $item->id }})"
+                                            wire:confirm="このマイルストーンを完了にしますか？完了したマイルストーンは完了一覧に移動します。">
+                                            完了
+                                        </button>
+                                        <button type="button"
+                                            class="btn-secondary text-xs px-3 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            wire:click.stop="deleteMilestone({{ $item->id }})"
+                                            wire:confirm="このマイルストーンを削除しますか？">
+                                            削除
+                                        </button>
                                     </div>
-                                    {{-- 達成率バー --}}
-                                    <div class="w-full bg-[#E8F4FF] rounded-full h-2 overflow-hidden mb-2">
-                                        <div 
-                                            class="h-2 bg-[#6BB6FF] transition-all duration-500"
-                                            style="width: {{ $completionRate }}%"
-                                        ></div>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <span class="body-small text-slate-500">
-                                            達成率: {{ $completionRate }}%
-                                        </span>
-                                        <span class="body-small text-slate-500">
-                                            完了: {{ $item->completed_actions ?? 0 }}/{{ $item->total_actions ?? 0 }}アクション
-                                        </span>
-                                    </div>
-                                    @if($item->description)
-                                        <p class="body-small text-slate-500 mt-3">
-                                            {{ \Illuminate\Support\Str::limit($item->description, 70) }}
-                                        </p>
-                                    @endif
-                                </button>
+                                </div>
                             @empty
                                 <p class="body-small text-slate-400">該当なし</p>
                             @endforelse
@@ -224,6 +246,56 @@
                 @endforeach
             </div>
         </section>
+
+        {{-- 完了したマイルストーン一覧 --}}
+        @if(isset($achievedMilestones) && $achievedMilestones->count() > 0)
+        <section class="card-refined soft-shadow-refined p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="heading-3 text-xl">完了したマイルストーン</h2>
+                <span class="body-small text-slate-500">{{ $achievedMilestones->count() }} 件</span>
+            </div>
+            <div class="space-y-3">
+                @foreach($achievedMilestones as $item)
+                    <div class="card-refined soft-shadow-refined p-4 border border-green-200 bg-green-50/30">
+                        <div class="flex items-center justify-between gap-3 mb-2">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <p class="body-text font-semibold text-[#2E5C8A]">{{ $item->title }}</p>
+                                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                        完了
+                                    </span>
+                                </div>
+                                <p class="body-small text-slate-500">
+                                    {{ $item->target_date?->format('Y/m/d') ?? '日付未設定' }}
+                                    @if($item->updated_at)
+                                        <span class="ml-2">完了日: {{ $item->updated_at->format('Y/m/d') }}</span>
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                        @if($item->description)
+                            <p class="body-small text-slate-600 mt-2">
+                                {{ \Illuminate\Support\Str::limit($item->description, 100) }}
+                            </p>
+                        @endif
+                        <div class="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-green-200">
+                            <button type="button"
+                                class="btn-secondary text-xs px-3 py-1.5"
+                                wire:click.stop="openEditForm({{ $item->id }})">
+                                編集
+                            </button>
+                            <button type="button"
+                                class="btn-secondary text-xs px-3 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                wire:click.stop="deleteMilestone({{ $item->id }})"
+                                wire:confirm="このマイルストーンを削除しますか？">
+                                削除
+                            </button>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </section>
+        @endif
     </div>
 
     @if($showForm)
