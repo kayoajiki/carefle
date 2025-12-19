@@ -44,6 +44,15 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $input['password'],
         ]);
 
+        // メール認証機能（一時的にコメントアウト）
+        // Send email verification notification (if mail is configured)
+        // try {
+        //     $user->sendEmailVerificationNotification();
+        // } catch (\Exception $e) {
+        //     // Log error but don't fail registration if mail is not configured
+        //     \Log::warning('Failed to send email verification: ' . $e->getMessage());
+        // }
+
         // Log user registration
         $this->activityLogService->logUserRegistration($user->id);
 

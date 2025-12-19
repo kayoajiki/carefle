@@ -65,11 +65,11 @@ class LifeHistory extends Component
             // アクティビティログに記録
             $eventCount = LifeEvent::where('user_id', Auth::id())->count();
             app(ActivityLogService::class)->logLifeEventCreated(Auth::id(), $eventCount);
-        } else {
-            // 更新時も見直し日時を更新
-            $mappingProgressService = app(\App\Services\MappingProgressService::class);
-            $mappingProgressService->markItemAsReviewed(Auth::id(), 'life_history');
         }
+
+        // 更新時も新規登録時も見直し日時を更新
+        $mappingProgressService = app(\App\Services\MappingProgressService::class);
+        $mappingProgressService->markItemAsReviewed(Auth::id(), 'life_history');
 
         $this->resetInput();
     }

@@ -69,12 +69,12 @@
                                 
                                 {{-- 7日間カレンダーミニマップ --}}
                                 @if(isset($diary7DaysCalendar))
-                                    <div class="flex items-center justify-between gap-1 mb-3">
+                                    <div class="flex items-center justify-between gap-0.5 sm:gap-1 mb-3 overflow-hidden">
                                         @foreach($diary7DaysCalendar as $day)
-                                            <div class="flex-1 flex flex-col items-center">
-                                                <p class="text-[10px] text-[#1E3A5F]/50 mb-1">{{ $day['dayOfWeek'] }}</p>
-                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center {{ ($day['isToday'] ?? false) ? 'bg-[#6BB6FF] text-white border-2 border-[#2E5C8A]' : ($day['hasDiary'] ? 'bg-[#6BB6FF] text-white' : 'bg-white/60 text-[#1E3A5F]/30') }} border {{ $day['hasDiary'] ? 'border-[#6BB6FF]' : 'border-[#2E5C8A]/20' }}">
-                                                    <span class="text-xs font-semibold">{{ $day['day'] }}</span>
+                                            <div class="flex-1 flex flex-col items-center min-w-0">
+                                                <p class="text-[8px] sm:text-[10px] text-[#1E3A5F]/50 mb-0.5 sm:mb-1 truncate w-full text-center">{{ $day['dayOfWeek'] }}</p>
+                                                <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center {{ ($day['isToday'] ?? false) ? 'bg-[#6BB6FF] text-white border-2 border-[#2E5C8A]' : ($day['hasDiary'] ? 'bg-[#6BB6FF] text-white' : 'bg-white/60 text-[#1E3A5F]/30') }} border {{ $day['hasDiary'] ? 'border-[#6BB6FF]' : 'border-[#2E5C8A]/20' }}">
+                                                    <span class="text-[10px] sm:text-xs font-semibold">{{ $day['day'] }}</span>
                                                 </div>
                                             </div>
                                         @endforeach

@@ -33,7 +33,7 @@ class FeatureDiscoveryService
         // 機能ごとのアンロック条件
         return match($feature) {
             'diagnosis' => true, // 常に利用可能
-            'diary' => $this->hasCompletedStep($userId, 'diagnosis'),
+            'diary' => true, // 常に利用可能
             'assessment' => $this->hasCompletedStep($userId, 'diary_first'),
             'wcm' => $this->hasCompletedStep($userId, 'assessment'),
             'life_history' => $this->hasCompletedStep($userId, 'assessment'),

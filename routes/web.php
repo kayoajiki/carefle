@@ -23,6 +23,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CareerHistoryController;
 use App\Http\Controllers\ResumeController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -31,8 +32,12 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth']) // メール認証機能（一時的にコメントアウト）: 'verified'を削除
     ->name('dashboard');
+
+// Google OAuth routes (一時的にコメントアウト)
+// Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google');
+// Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('profile/setup', ProfileSetup::class)

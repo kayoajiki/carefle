@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
@@ -23,6 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'google_id',
+        'avatar',
         'birthdate',
         'gender',
         'prefecture',
@@ -111,5 +113,40 @@ class User extends Authenticatable
     public function activityLogs()
     {
         return $this->hasMany(ActivityLog::class);
+    }
+
+    /**
+     * Determine if email verification is required.
+     * Currently optional, but can be made required in the future.
+     */
+    public function shouldRequireEmailVerification(): bool
+    {
+        return config('fortify.email_verification_required', false);
+    }
+
+    /**
+     * Send the email verification notification.
+     * メール認証機能（一時的にコメントアウト）
+     */
+    public function sendEmailVerificationNotification()
+    {
+        // メール認証機能は一時的に無効化
+        return;
+        
+        // Only send if mail is properly configured
+        // $mailDriver = config('mail.default');
+        // $mailHost = config('mail.mailers.smtp.host');
+        // 
+        // // Skip if using mailpit (development only) or mail is not configured
+        // if ($mailDriver === 'log' || $mailHost === 'mailpit' || empty($mailHost)) {
+        //     \Log::info('Email verification skipped: Mail not configured properly');
+        //     return;
+        // }
+        // 
+        // try {
+        //     $this->notify(new \App\Notifications\VerifyEmail);
+        // } catch (\Exception $e) {
+        //     \Log::warning('Failed to send email verification notification: ' . $e->getMessage());
+        // }
     }
 }

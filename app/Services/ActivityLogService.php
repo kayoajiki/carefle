@@ -67,6 +67,22 @@ class ActivityLogService
     }
 
     /**
+     * Log Google authentication login.
+     */
+    public function logGoogleLogin(int $userId): ActivityLog
+    {
+        return $this->logAction($userId, 'google_login', null, null, ['provider' => 'google']);
+    }
+
+    /**
+     * Log Google authentication registration.
+     */
+    public function logGoogleRegistration(int $userId): ActivityLog
+    {
+        return $this->logAction($userId, 'google_registration', null, null, ['provider' => 'google']);
+    }
+
+    /**
      * Log profile completion.
      */
     public function logProfileCompleted(int $userId): ActivityLog

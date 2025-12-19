@@ -146,12 +146,25 @@ return [
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
-        Features::emailVerification(),
+        // メール認証機能（一時的にコメントアウト）
+        // Features::emailVerification(),
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,
             // 'window' => 0,
         ]),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Email Verification Required
+    |--------------------------------------------------------------------------
+    |
+    | When set to true, users must verify their email before accessing
+    | protected routes. When false, email verification is optional.
+    |
+    */
+
+    'email_verification_required' => env('EMAIL_VERIFICATION_REQUIRED', false),
 
 ];
