@@ -175,4 +175,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
     Route::get('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
     Route::get('activity-logs/export', [\App\Http\Controllers\Admin\ActivityLogController::class, 'export'])->name('admin.activity-logs.export');
+    Route::get('profile-stats', [\App\Http\Controllers\Admin\ProfileStatsController::class, 'index'])->name('admin.profile-stats.index');
+    Route::get('profile-stats/export', [\App\Http\Controllers\Admin\ProfileStatsController::class, 'export'])->name('admin.profile-stats.export');
 });
