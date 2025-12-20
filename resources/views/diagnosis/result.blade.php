@@ -367,9 +367,11 @@
                             <span class="w-3 h-3 rounded-full bg-[#F59E0B]"></span> 重要度
                         </span>
                     </div>
+                    @if(!$hasImportance)
                     <a href="{{ route('diagnosis.importance', ['id' => $diagnosis->id]) }}" class="btn-primary text-sm px-5 py-2">
                         今度は重要度を確認する
                     </a>
+                    @endif
         </div>
     </div>
 
