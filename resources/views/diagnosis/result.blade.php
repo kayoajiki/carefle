@@ -93,6 +93,11 @@
         $strongLabel = $strongestKey !== null ? ($pillarLabels[$strongestKey] ?? '未計測') : '未計測';
         $focusLabel = $weakestKey !== null ? ($pillarLabels[$weakestKey] ?? '未計測') : '未計測';
         
+        // すべてのpillarで満足度 > 重要度の場合、01のラベルを「すべて良好」に変更
+        if ($hasValidDiff && $allPillarsPositive && $focusLabel === '未計測') {
+            $focusLabel = 'すべて良好';
+        }
+        
         // どちらも見つからない場合は従来の方法で計算（フォールバック）
         if ($strongLabel === '未計測' && $focusLabel === '未計測') {
             $workDataSet = $radarWorkData ?? [];
