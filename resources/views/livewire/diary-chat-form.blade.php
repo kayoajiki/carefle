@@ -266,7 +266,7 @@
                     placeholder="メッセージを入力..."
                     class="w-full rounded-xl border-2 border-[#2E5C8A]/20 bg-white text-[#1E3A5F] px-3 sm:px-4 py-2 sm:py-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"
                     style="font-size: 16px;"
-                    x-on:keydown.enter.prevent="!isMobileDevice && !$event.shiftKey ? $wire.sendMessage() : null"
+                    x-on:keydown.enter="if (!isMobileDevice && !$event.shiftKey) { $event.preventDefault(); $wire.sendMessage(); }"
                 ></textarea>
                 <p class="body-small text-[#1E3A5F]/60 mt-1" x-text="isMobileDevice ? '送信ボタンで送信' : 'Enterで送信、Shift+Enterで改行'"></p>
             </div>
