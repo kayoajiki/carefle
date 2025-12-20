@@ -249,7 +249,7 @@ x-init="scrollToBottom()"
     {{-- 入力エリア --}}
     <div class="border-t border-[#2E5C8A]/20 pt-4">
         <form wire:submit.prevent="sendMessage" class="flex items-end gap-3">
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
                 <textarea
                     wire:model="currentMessage"
                     rows="2"
@@ -262,7 +262,7 @@ x-init="scrollToBottom()"
             <button
                 type="submit"
                 x-bind:disabled="!$wire || $wire.isLoading || isMessageEmpty()"
-                class="p-2 rounded-lg bg-[#6BB6FF] text-white hover:bg-[#5AA5E6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                class="flex-shrink-0 p-2 rounded-lg bg-[#6BB6FF] text-white hover:bg-[#5AA5E6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
