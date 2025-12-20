@@ -1,4 +1,15 @@
 <div class="flex flex-col h-full" x-data="{ 
+    isMobileDevice: false,
+    init() {
+        // タッチデバイスまたはモバイルユーザーエージェントを検出
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isMobileUA = /iphone|ipad|ipod|android/i.test(userAgent);
+        this.isMobileDevice = isTouchDevice && (isMobileUA || window.innerWidth <= 768);
+        
+        // スクロールを最下部に
+        this.scrollToBottom();
+    },
     scrollToBottom() {
         this.$nextTick(() => {
             const container = this.$refs.messagesContainer;
@@ -20,7 +31,6 @@
         }
     }
 }" 
-x-init="scrollToBottom()"
 @scroll-to-bottom.window="scrollToBottom()">
     @if(session('message'))
         <div class="mb-4 bg-green-50 border border-green-200 text-green-800 body-small p-3 rounded-lg">
@@ -256,9 +266,9 @@ x-init="scrollToBottom()"
                     placeholder="メッセージを入力..."
                     class="w-full rounded-xl border-2 border-[#2E5C8A]/20 bg-white text-[#1E3A5F] px-3 sm:px-4 py-2 sm:py-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"
                     style="font-size: 16px;"
-                    x-on:keydown.enter.prevent="if(!$event.shiftKey) $wire.sendMessage()"
+                    x-on:keydown.enter.prevent="!isMobileDevice && !$event.shiftKey ? $wire.sendMessage() : null"
                 ></textarea>
-                <p class="body-small text-[#1E3A5F]/60 mt-1">Enterで送信、Shift+Enterで改行</p>
+                <p class="body-small text-[#1E3A5F]/60 mt-1" x-text="isMobileDevice ? '送信ボタンで送信' : 'Enterで送信、Shift+Enterで改行'"></p>
             </div>
             <button
                 type="submit"
