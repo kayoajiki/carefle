@@ -1,6 +1,7 @@
 <div class="flex flex-col h-full" x-data="{ 
     isMobileDevice: false,
     pendingTopicMessage: null,
+    pendingUserMessage: null,
     init() {
         // タッチデバイスまたはモバイルユーザーエージェントを検出
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -13,8 +14,13 @@
         
         // メッセージ配列の変更を監視して、一時メッセージをクリア
         this.$watch('$wire.messages.length', (newLength, oldLength) => {
-            if (newLength > oldLength && this.pendingTopicMessage) {
-                this.pendingTopicMessage = null;
+            if (newLength > oldLength) {
+                if (this.pendingTopicMessage) {
+                    this.pendingTopicMessage = null;
+                }
+                if (this.pendingUserMessage) {
+                    this.pendingUserMessage = null;
+                }
             }
             this.scrollToBottom();
         });
@@ -285,19 +291,36 @@
                 <span class="text-white text-xs font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
             </div>
         </div>
+
+        {{-- 一時的なユーザーメッセージ（送信直後に表示、Livewire更新まで） --}}
+        <div x-show="pendingUserMessage" 
+             x-transition
+             class="flex items-start gap-3 justify-end">
+            <div class="flex-1 flex justify-end">
+                <div class="bg-[#6BB6FF] rounded-2xl rounded-tr-sm px-4 py-3 max-w-[80%]">
+                    <p class="body-text text-white whitespace-pre-wrap" x-text="pendingUserMessage"></p>
+                </div>
+            </div>
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-[#2E5C8A] flex items-center justify-center">
+                <span class="text-white text-xs font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+            </div>
+        </div>
     </div>
 
     {{-- 入力エリア --}}
     <div class="border-t border-[#2E5C8A]/20 pt-4">
-        <form wire:submit.prevent="sendMessage" class="flex items-end gap-2 sm:gap-3">
+        <form wire:submit.prevent="sendMessage" 
+              x-on:submit="if ($wire.currentMessage && $wire.currentMessage.trim()) { pendingUserMessage = $wire.currentMessage.trim(); $refs.messageTextarea.value = ''; scrollToBottom(); }"
+              class="flex items-end gap-2 sm:gap-3">
             <div class="flex-1 min-w-0">
                 <textarea
                     wire:model="currentMessage"
+                    x-ref="messageTextarea"
                     rows="2"
                     placeholder="メッセージを入力..."
                     class="w-full rounded-xl border-2 border-[#2E5C8A]/20 bg-white text-[#1E3A5F] px-3 sm:px-4 py-2 sm:py-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"
                     style="font-size: 16px;"
-                    x-on:keydown.enter="if (!isMobileDevice && !$event.shiftKey) { $event.preventDefault(); $wire.sendMessage(); }"
+                    x-on:keydown.enter="if (!isMobileDevice && !$event.shiftKey) { $event.preventDefault(); if ($wire.currentMessage && $wire.currentMessage.trim()) { pendingUserMessage = $wire.currentMessage.trim(); $refs.messageTextarea.value = ''; scrollToBottom(); } $wire.sendMessage(); }"
                 ></textarea>
                 <p class="body-small text-[#1E3A5F]/60 mt-1" x-text="isMobileDevice ? '送信ボタンで送信' : 'Enterで送信、Shift+Enterで改行'"></p>
             </div>
