@@ -248,13 +248,14 @@ x-init="scrollToBottom()"
 
     {{-- 入力エリア --}}
     <div class="border-t border-[#2E5C8A]/20 pt-4">
-        <form wire:submit.prevent="sendMessage" class="flex items-end gap-3">
+        <form wire:submit.prevent="sendMessage" class="flex items-end gap-2 sm:gap-3">
             <div class="flex-1 min-w-0">
                 <textarea
                     wire:model="currentMessage"
                     rows="2"
                     placeholder="メッセージを入力..."
-                    class="w-full rounded-xl border-2 border-[#2E5C8A]/20 bg-white text-[#1E3A5F] px-4 py-3 body-text resize-none focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"
+                    class="w-full rounded-xl border-2 border-[#2E5C8A]/20 bg-white text-[#1E3A5F] px-3 sm:px-4 py-2 sm:py-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"
+                    style="font-size: 16px;"
                     x-on:keydown.enter.prevent="if(!$event.shiftKey) $wire.sendMessage()"
                 ></textarea>
                 <p class="body-small text-[#1E3A5F]/60 mt-1">Enterで送信、Shift+Enterで改行</p>
@@ -262,9 +263,9 @@ x-init="scrollToBottom()"
             <button
                 type="submit"
                 x-bind:disabled="!$wire || $wire.isLoading || isMessageEmpty()"
-                class="flex-shrink-0 p-2 rounded-lg bg-[#6BB6FF] text-white hover:bg-[#5AA5E6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                class="flex-shrink-0 p-2 sm:p-2.5 rounded-lg bg-[#6BB6FF] text-white hover:bg-[#5AA5E6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
             </button>
