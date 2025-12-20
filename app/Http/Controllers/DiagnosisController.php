@@ -29,9 +29,8 @@ class DiagnosisController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        if (!$diagnosis->is_completed) {
-            return redirect()->route('diagnosis.start');
-        }
+        // 診断未完了時も結果ページを表示できるようにする（リダイレクトを削除）
+        // データが不足している場合は空の配列やデフォルト値を使用
 
         // レーダーチャート用のデータを準備
         $workPillarScores = $diagnosis->work_pillar_scores ?? [];
@@ -231,6 +230,21 @@ class DiagnosisController extends Controller
 
         // 重要度入力状態を判定
         $hasImportance = $totalWeight > 0 || DiagnosisImportanceAnswer::where('diagnosis_id', $diagnosis->id)->exists();
+
+        // 診断未完了時のデフォルト値設定
+        if (!$diagnosis->is_completed) {
+            $workPillarScores = [];
+            $importanceWork = [];
+            $workScore = 0;
+            $importanceScore = 0;
+            $radarWorkData = array_fill(0, count($pillarLabels), null);
+            $lifeEdgeLeftData = array_fill(0, count($radarLabels), null);
+            $lifeEdgeRightData = array_fill(0, count($radarLabels), null);
+            $lifePointData = array_fill(0, count($radarLabels), null);
+            $lifeFillData = array_fill(0, count($radarLabels), 0);
+            $importanceDataset = array_fill(0, count($radarLabels), null);
+            $answerNotes = [];
+        }
 
         return view('diagnosis.result', [
             'diagnosis' => $diagnosis,
