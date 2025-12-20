@@ -255,7 +255,7 @@
                         </div>
                     </div>
                     <div class="flex-shrink-0 w-8 h-8 rounded-full bg-[#2E5C8A] flex items-center justify-center">
-                        <span class="text-white text-xs font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                        <span class="text-white text-xs font-semibold">{{ mb_substr(Auth::user()->name, 0, 1, 'UTF-8') }}</span>
                     </div>
                 </div>
                 @if(isset($message['timestamp']))
@@ -288,7 +288,7 @@
                 </div>
             </div>
             <div class="flex-shrink-0 w-8 h-8 rounded-full bg-[#2E5C8A] flex items-center justify-center">
-                <span class="text-white text-xs font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                <span class="text-white text-xs font-semibold">{{ mb_substr(Auth::user()->name, 0, 1, 'UTF-8') }}</span>
             </div>
         </div>
 
@@ -302,7 +302,7 @@
                 </div>
             </div>
             <div class="flex-shrink-0 w-8 h-8 rounded-full bg-[#2E5C8A] flex items-center justify-center">
-                <span class="text-white text-xs font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                <span class="text-white text-xs font-semibold">{{ mb_substr(Auth::user()->name, 0, 1, 'UTF-8') }}</span>
             </div>
         </div>
     </div>
