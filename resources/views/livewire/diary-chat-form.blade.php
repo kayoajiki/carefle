@@ -1,5 +1,6 @@
 <div class="flex flex-col h-full" x-data="{ 
     isMobileDevice: false,
+    pendingTopicMessage: null,
     init() {
         // タッチデバイスまたはモバイルユーザーエージェントを検出
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -9,6 +10,14 @@
         
         // スクロールを最下部に
         this.scrollToBottom();
+        
+        // メッセージ配列の変更を監視して、一時メッセージをクリア
+        this.$watch('$wire.messages.length', (newLength, oldLength) => {
+            if (newLength > oldLength && this.pendingTopicMessage) {
+                this.pendingTopicMessage = null;
+            }
+            this.scrollToBottom();
+        });
     },
     scrollToBottom() {
         this.$nextTick(() => {
@@ -172,48 +181,56 @@
                         @if($index === 0 && $showSelectionButtons && $message['role'] === 'assistant')
                             <div class="mt-3 grid grid-cols-2 gap-2">
                                 <button
+                                    @click="pendingTopicMessage = '仕事'; scrollToBottom();"
                                     wire:click="selectTopic('work')"
                                     class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
                                 >
                                     仕事
                                 </button>
                                 <button
+                                    @click="pendingTopicMessage = '家族'; scrollToBottom();"
                                     wire:click="selectTopic('family')"
                                     class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
                                 >
                                     家族
                                 </button>
                                 <button
+                                    @click="pendingTopicMessage = '恋愛'; scrollToBottom();"
                                     wire:click="selectTopic('love')"
                                     class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
                                 >
                                     恋愛
                                 </button>
                                 <button
+                                    @click="pendingTopicMessage = '人間関係'; scrollToBottom();"
                                     wire:click="selectTopic('relationships')"
                                     class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
                                 >
                                     人間関係
                                 </button>
                                 <button
+                                    @click="pendingTopicMessage = '健康'; scrollToBottom();"
                                     wire:click="selectTopic('health')"
                                     class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
                                 >
                                     健康
                                 </button>
                                 <button
+                                    @click="pendingTopicMessage = '目標'; scrollToBottom();"
                                     wire:click="selectTopic('goals')"
                                     class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
                                 >
                                     目標
                                 </button>
                                 <button
+                                    @click="pendingTopicMessage = '学び'; scrollToBottom();"
                                     wire:click="selectTopic('learning')"
                                     class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
                                 >
                                     学び
                                 </button>
                                 <button
+                                    @click="pendingTopicMessage = 'その他'; scrollToBottom();"
                                     wire:click="selectTopic('other')"
                                     class="px-4 py-2 rounded-lg bg-white border-2 border-[#6BB6FF] text-[#6BB6FF] body-text font-medium hover:bg-[#E8F4FF] transition-colors text-center"
                                 >
@@ -254,6 +271,20 @@
                 </button>
             </div>
         @endforelse
+
+        {{-- 一時的なトピック選択メッセージ（選択直後に表示、Livewire更新まで） --}}
+        <div x-show="pendingTopicMessage" 
+             x-transition
+             class="flex items-start gap-3 justify-end">
+            <div class="flex-1 flex justify-end">
+                <div class="bg-[#6BB6FF] rounded-2xl rounded-tr-sm px-4 py-3 max-w-[80%]">
+                    <p class="body-text text-white whitespace-pre-wrap" x-text="pendingTopicMessage"></p>
+                </div>
+            </div>
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-[#2E5C8A] flex items-center justify-center">
+                <span class="text-white text-xs font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+            </div>
+        </div>
     </div>
 
     {{-- 入力エリア --}}

@@ -183,6 +183,26 @@ class DiaryChatForm extends Component
         // 分類を保存
         $this->selectedCategory = $topic;
         
+        // トピック名のマッピング
+        $topicNames = [
+            'work' => '仕事',
+            'family' => '家族',
+            'love' => '恋愛',
+            'relationships' => '人間関係',
+            'health' => '健康',
+            'goals' => '目標',
+            'learning' => '学び',
+            'other' => 'その他',
+        ];
+        
+        // 選択されたトピックをユーザーメッセージとして追加
+        $topicName = $topicNames[$topic] ?? 'その他';
+        $this->messages[] = [
+            'role' => 'user',
+            'content' => $topicName,
+            'timestamp' => now()->toDateTimeString(),
+        ];
+        
         // ステップをfact_questionに進める
         $this->conversationStep = 'fact_question';
         
