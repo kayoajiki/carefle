@@ -41,8 +41,11 @@
 
                 <flux:navlist.group heading="プロフィール" class="grid">
                     <flux:navlist.item icon="user-circle" :href="route('profile.edit')" :current="request()->routeIs('profile.edit')" wire:navigate>プロフィール</flux:navlist.item>
-                    <flux:navlist.item icon="document-text" :href="route('resume.upload')" :current="request()->routeIs('resume.*')" wire:navigate>履歴書アップロード</flux:navlist.item>
-                    <flux:navlist.item icon="document-duplicate" :href="route('career-history.upload')" :current="request()->routeIs('career-history.*')" wire:navigate>職務経歴書アップロード</flux:navlist.item>
+                    
+                    <flux:navlist.group expandable expanded="false" heading="内省保管庫（準備中）" class="grid">
+                        <flux:navlist.item icon="document-text" :href="route('resume.upload')" :current="request()->routeIs('resume.*')" wire:navigate>履歴書アップロード</flux:navlist.item>
+                        <flux:navlist.item icon="document-duplicate" :href="route('career-history.upload')" :current="request()->routeIs('career-history.*')" wire:navigate>職務経歴書アップロード</flux:navlist.item>
+                    </flux:navlist.group>
                 </flux:navlist.group>
 
                 @if(auth()->user() && auth()->user()->isAdmin())
