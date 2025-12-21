@@ -72,7 +72,7 @@
                         <div class="strength-card {{ $cardClass }}">
                             <div class="flex items-start gap-6">
                                 <div class="strength-number {{ $numberClass }}">
-                                    {{ $index + 1 }}
+                                    <img src="{{ asset('images/carekuma/carekuma-icon.png') }}" alt="キャリくま" class="w-full h-full object-cover rounded-full">
                                 </div>
                                 <div class="flex-1">
                                     <h3 class="strength-title">
@@ -113,7 +113,7 @@
                             <div class="change-card">
                                 <div class="flex items-start gap-6">
                                     <div class="strength-number strength-number--orange">
-                                        {{ $index + 1 }}
+                                        <img src="{{ asset('images/carekuma/carekuma-icon.png') }}" alt="キャリくま" class="w-full h-full object-cover rounded-full">
                                     </div>
                                     <div class="flex-1">
                                         <h3 class="strength-title">
