@@ -243,9 +243,33 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // Chart.jsの読み込み完了を待つ
+        function waitForChartJS(callback) {
+            if (typeof Chart !== 'undefined') {
+                callback();
+            } else {
+                // Chart.jsのスクリプトタグのonloadイベントを待つ
+                const script = document.querySelector('script[src*="chart.js"]');
+                if (script) {
+                    script.addEventListener('load', callback);
+                } else {
+                    // フォールバック: 定期的にチェック
+                    setTimeout(() => waitForChartJS(callback), 50);
+                }
+            }
+        }
+
+        // グラフを初期化する関数
+        function initCharts() {
+            // Chart.jsが読み込まれているか確認
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js is not loaded yet, retrying...');
+                setTimeout(initCharts, 100);
+                return;
+            }
+
             const colors = {
                 primary: '#6BB6FF',
                 secondary: '#2E5C8A',
@@ -260,7 +284,8 @@
             @if($genderStats->isNotEmpty())
             const genderCtx = document.getElementById('genderChart');
             if (genderCtx) {
-                new Chart(genderCtx, {
+                try {
+                    new Chart(genderCtx, {
                     type: 'pie',
                     data: {
                         labels: @json($genderStats->keys()),
@@ -283,7 +308,10 @@
                             }
                         }
                     }
-                });
+                    });
+                } catch (error) {
+                    console.error('Error creating gender chart:', error);
+                }
             }
             @endif
 
@@ -291,7 +319,8 @@
             @if($prefectureStats->isNotEmpty())
             const prefectureCtx = document.getElementById('prefectureChart');
             if (prefectureCtx) {
-                new Chart(prefectureCtx, {
+                try {
+                    new Chart(prefectureCtx, {
                     type: 'bar',
                     data: {
                         labels: @json($prefectureStats->keys()),
@@ -315,7 +344,10 @@
                             }
                         }
                     }
-                });
+                    });
+                } catch (error) {
+                    console.error('Error creating prefecture chart:', error);
+                }
             }
             @endif
 
@@ -323,7 +355,8 @@
             @if($occupationStats->isNotEmpty())
             const occupationCtx = document.getElementById('occupationChart');
             if (occupationCtx) {
-                new Chart(occupationCtx, {
+                try {
+                    new Chart(occupationCtx, {
                     type: 'bar',
                     data: {
                         labels: @json($occupationStats->keys()->take(10)),
@@ -347,7 +380,10 @@
                             }
                         }
                     }
-                });
+                    });
+                } catch (error) {
+                    console.error('Error creating occupation chart:', error);
+                }
             }
             @endif
 
@@ -355,7 +391,8 @@
             @if($industryStats->isNotEmpty())
             const industryCtx = document.getElementById('industryChart');
             if (industryCtx) {
-                new Chart(industryCtx, {
+                try {
+                    new Chart(industryCtx, {
                     type: 'bar',
                     data: {
                         labels: @json($industryStats->keys()->take(10)),
@@ -379,7 +416,10 @@
                             }
                         }
                     }
-                });
+                    });
+                } catch (error) {
+                    console.error('Error creating industry chart:', error);
+                }
             }
             @endif
 
@@ -387,7 +427,8 @@
             @if($employmentTypeStats->isNotEmpty())
             const employmentTypeCtx = document.getElementById('employmentTypeChart');
             if (employmentTypeCtx) {
-                new Chart(employmentTypeCtx, {
+                try {
+                    new Chart(employmentTypeCtx, {
                     type: 'pie',
                     data: {
                         labels: @json($employmentTypeStats->keys()),
@@ -412,7 +453,10 @@
                             }
                         }
                     }
-                });
+                    });
+                } catch (error) {
+                    console.error('Error creating employment type chart:', error);
+                }
             }
             @endif
 
@@ -420,7 +464,8 @@
             @if($workExperienceStats->isNotEmpty())
             const workExperienceCtx = document.getElementById('workExperienceChart');
             if (workExperienceCtx) {
-                new Chart(workExperienceCtx, {
+                try {
+                    new Chart(workExperienceCtx, {
                     type: 'bar',
                     data: {
                         labels: @json(collect($workExperienceStats)->pluck('label')),
@@ -444,7 +489,10 @@
                             }
                         }
                     }
-                });
+                    });
+                } catch (error) {
+                    console.error('Error creating work experience chart:', error);
+                }
             }
             @endif
 
@@ -452,7 +500,8 @@
             @if($educationStats->isNotEmpty())
             const educationCtx = document.getElementById('educationChart');
             if (educationCtx) {
-                new Chart(educationCtx, {
+                try {
+                    new Chart(educationCtx, {
                     type: 'pie',
                     data: {
                         labels: @json($educationStats->keys()),
@@ -476,10 +525,28 @@
                             }
                         }
                     }
-                });
+                    });
+                } catch (error) {
+                    console.error('Error creating education chart:', error);
+                }
             }
             @endif
-        });
+        }
+
+        // DOMContentLoadedとChart.jsの読み込み完了を待つ
+        function initChartsWhenReady() {
+            waitForChartJS(() => {
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initCharts);
+                } else {
+                    // DOMが既に読み込まれている場合は少し遅延させてから実行
+                    setTimeout(initCharts, 50);
+                }
+            });
+        }
+
+        // 初期化を開始
+        initChartsWhenReady();
     </script>
 </x-admin.layouts.app>
 
