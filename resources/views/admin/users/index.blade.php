@@ -59,7 +59,7 @@
                                         @endif
                                     </td>
                                     <td class="py-3 px-4">
-                                        <a href="{{ route('admin.users.show', $user) }}" class="btn-secondary text-xs px-2 py-0.5">詳細</a>
+                                        <a href="{{ route('admin.users.show', $user) }}" class="inline-block text-xs px-2 py-1 rounded-lg border border-[#2E5C8A] text-[#2E5C8A] hover:bg-[#2E5C8A]/5 hover:border-[#4A90E2] hover:text-[#4A90E2] transition-all whitespace-nowrap">詳細</a>
                                     </td>
                                 </tr>
                             @empty
