@@ -41,6 +41,10 @@ class BedrockService
                     'key' => $accessKeyId,
                     'secret' => $secretAccessKey,
                 ],
+                'http' => [
+                    'timeout' => 120, // 120秒のタイムアウト
+                    'connect_timeout' => 10, // 接続タイムアウト10秒
+                ],
             ]);
         } catch (\Exception $e) {
             Log::warning('Failed to initialize Bedrock client', [

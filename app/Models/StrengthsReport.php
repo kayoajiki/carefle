@@ -48,6 +48,7 @@ class StrengthsReport extends Model
 
     /**
      * Check if user can update the report (1 month restriction).
+     * 開発環境（local）では制限を緩和（1日経過で更新可能）
      */
     public static function canUpdate(int $userId): bool
     {
@@ -57,8 +58,10 @@ class StrengthsReport extends Model
             return true; // 初回生成は可能
         }
         
-        // 最後の更新から1ヶ月経過しているかチェック
-        $oneMonthAgo = now()->subMonth();
-        return $latest->generated_at->isBefore($oneMonthAgo);
+        // 開発環境（local）では1日経過で更新可能、本番環境では1ヶ月
+        $isLocal = app()->environment('local');
+        $requiredInterval = $isLocal ? now()->subDay() : now()->subMonth();
+        
+        return $latest->generated_at->isBefore($requiredInterval);
     }
 }

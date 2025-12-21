@@ -124,6 +124,12 @@ select:focus[data-flux-control] {
         letter-spacing: -0.02em;
     }
 
+    /* レポートヘッダーの見出し（1行表示用） */
+    .report-header .heading-1 {
+        @apply text-3xl md:text-4xl;
+        letter-spacing: -0.01em;
+    }
+
     .heading-2 {
         @apply text-3xl md:text-4xl font-bold leading-tight;
         color: #2E5C8A;
@@ -242,5 +248,187 @@ select:focus[data-flux-control] {
     .dotted-accent {
         background-image: radial-gradient(rgba(46, 92, 138, 0.2) 1px, transparent 1px);
         background-size: 12px 12px;
+    }
+
+    /* 持ち味レポ専用スタイル */
+    /* レポートヘッダー */
+    .report-header {
+        @apply relative overflow-hidden rounded-2xl p-8 md:p-12 mb-8;
+        background: linear-gradient(135deg, rgba(107, 182, 255, 0.15) 0%, rgba(74, 144, 226, 0.1) 50%, rgba(107, 182, 255, 0.15) 100%);
+        border: 1px solid rgba(107, 182, 255, 0.2);
+    }
+
+    .report-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #6BB6FF, #4A90E2, #6BB6FF);
+    }
+
+    .report-date-badge {
+        @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium;
+        background: rgba(255, 255, 255, 0.9);
+        color: #2E5C8A;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(107, 182, 255, 0.2);
+    }
+
+    /* 持ち味カード */
+    .strength-card {
+        @apply bg-white rounded-2xl p-6 md:p-8 mb-6;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .strength-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    /* グラデーション番号アイコン */
+    .strength-number {
+        @apply flex-shrink-0 flex items-center justify-center font-bold text-white;
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .strength-number--blue {
+        background: linear-gradient(135deg, #6BB6FF 0%, #4A90E2 100%);
+        box-shadow: 0 4px 15px rgba(107, 182, 255, 0.4);
+    }
+
+    .strength-number--purple {
+        background: linear-gradient(135deg, #9B7EDE 0%, #7B5FC7 100%);
+        box-shadow: 0 4px 15px rgba(155, 126, 222, 0.4);
+    }
+
+    .strength-number--green {
+        background: linear-gradient(135deg, #6BCF7F 0%, #4ABF5E 100%);
+        box-shadow: 0 4px 15px rgba(107, 207, 127, 0.4);
+    }
+
+    .strength-number--orange {
+        background: linear-gradient(135deg, #FFB366 0%, #FF8C42 100%);
+        box-shadow: 0 4px 15px rgba(255, 179, 102, 0.4);
+    }
+
+    /* カードの左側ボーダー（グラデーション） */
+    .strength-card--blue {
+        border-left-color: #6BB6FF;
+    }
+
+    .strength-card--purple {
+        border-left-color: #9B7EDE;
+    }
+
+    .strength-card--green {
+        border-left-color: #6BCF7F;
+    }
+
+    .strength-card--orange {
+        border-left-color: #FFB366;
+    }
+
+    /* 変化要素カード */
+    .change-card {
+        @apply bg-white rounded-2xl p-6 md:p-8 mb-6;
+        box-shadow: 0 4px 20px rgba(255, 179, 102, 0.15);
+        border-left: 4px solid #FFB366;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: linear-gradient(to right, rgba(255, 179, 102, 0.05) 0%, white 10%);
+    }
+
+    .change-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(255, 179, 102, 0.25);
+    }
+
+    /* セクション区切り */
+    .section-divider {
+        @apply my-12 md:my-16 relative;
+        height: 1px;
+    }
+
+    .section-divider::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(46, 92, 138, 0.2), transparent);
+    }
+
+    .section-divider::after {
+        content: '✨';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 0 1.5rem;
+        font-size: 1.5rem;
+    }
+
+    /* タイポグラフィ改善 */
+    .strength-title {
+        @apply text-2xl md:text-3xl font-bold mb-5;
+        color: #2E5C8A;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+    }
+
+    .strength-description {
+        @apply text-base md:text-lg;
+        color: #1E3A5F;
+        line-height: 1.9;
+        letter-spacing: 0.01em;
+    }
+
+    /* クレジット表示 */
+    .report-credit {
+        @apply text-center pt-8 mt-12 border-t border-[#2E5C8A]/10;
+    }
+
+    .report-credit-text {
+        @apply text-xs text-[#1E3A5F]/40;
+        font-style: italic;
+    }
+
+    /* SNSシェア最適化 */
+    @media (max-width: 768px) {
+        .strength-card,
+        .change-card {
+            @apply p-5;
+        }
+
+        .strength-number {
+            width: 3rem;
+            height: 3rem;
+            font-size: 1.25rem;
+        }
+
+        .strength-title {
+            @apply text-xl mb-4;
+        }
+
+        .strength-description {
+            @apply text-sm;
+        }
+    }
+
+    /* スクリーンショット用の最適化 */
+    @media print, (prefers-color-scheme: no-preference) {
+        .strength-card,
+        .change-card {
+            break-inside: avoid;
+        }
     }
 }

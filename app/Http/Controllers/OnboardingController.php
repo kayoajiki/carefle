@@ -65,7 +65,15 @@ class OnboardingController extends Controller
             ];
         } else {
             // 新規生成または更新可能な場合
-            $manual = $this->manualGenerator->generateMiniManual($user->id);
+            // 過去のレポを取得（更新前のレポ）
+            $previousReport = $existingReport ? [
+                'content' => $existingReport->content,
+                'diagnosis_report' => $existingReport->diagnosis_report,
+                'diary_report' => $existingReport->diary_report,
+                'generated_at' => $existingReport->generated_at->toDateTimeString(),
+            ] : null;
+            
+            $manual = $this->manualGenerator->generateMiniManual($user->id, $previousReport);
             
             // データベースに保存
             StrengthsReport::create([
@@ -176,8 +184,17 @@ class OnboardingController extends Controller
             }
         }
 
+        // 過去のレポを取得（更新前のレポ）
+        $previousReport = StrengthsReport::getLatestForUser($user->id);
+        $previousData = $previousReport ? [
+            'content' => $previousReport->content,
+            'diagnosis_report' => $previousReport->diagnosis_report,
+            'diary_report' => $previousReport->diary_report,
+            'generated_at' => $previousReport->generated_at->toDateTimeString(),
+        ] : null;
+        
         // 新しいレポを生成
-        $manual = $this->manualGenerator->generateMiniManual($user->id);
+        $manual = $this->manualGenerator->generateMiniManual($user->id, $previousData);
         
         // データベースに保存
         StrengthsReport::create([
