@@ -177,33 +177,46 @@ class DashboardController extends Controller
     }
 
     /**
-     * 過去7日間の記録状況を取得（カレンダーミニマップ用）
+     * 7日間の記録状況を取得（カレンダーミニマップ用）
+     * 累積方式：記録した日を時系列で取得し、最大7日分を左から順に表示
      */
     private function getDiary7DaysCalendar(int $userId): array
     {
-        $today = now()->startOfDay();
-        $sixDaysLater = now()->addDays(6)->endOfDay();
-        
-        // 今日から未来7日間の日記を取得（今日のみ存在する可能性がある）
+        // ユーザーの全日記記録を日付順で取得（内容があるもののみ、重複除去）
         $diaryDates = Diary::where('user_id', $userId)
-            ->whereBetween('date', [$today, $sixDaysLater])
+            ->whereNotNull('content')
+            ->where('content', '!=', '')
+            ->orderBy('date', 'asc')
             ->get()
             ->pluck('date')
             ->map(fn($date) => $date->format('Y-m-d'))
             ->unique()
+            ->values()
+            ->take(7) // 最大7日分
             ->toArray();
 
         $calendar = [];
-        // 今日から未来6日後まで（合計7日間）を表示
-        for ($i = 0; $i <= 6; $i++) {
-            $date = now()->addDays($i);
-            $dateKey = $date->format('Y-m-d');
+        
+        // 記録した日を左から順に配置
+        foreach ($diaryDates as $dateKey) {
+            $date = Carbon::parse($dateKey);
             $calendar[] = [
                 'date' => $dateKey,
                 'day' => $date->format('j'),
                 'dayOfWeek' => $date->format('D'),
-                'hasDiary' => in_array($dateKey, $diaryDates),
-                'isToday' => $i === 0, // 今日かどうかをマーク
+                'hasDiary' => true,
+                'isEmpty' => false,
+            ];
+        }
+
+        // 7日未満の場合は空白スロットで埋める
+        while (count($calendar) < 7) {
+            $calendar[] = [
+                'date' => null,
+                'day' => null,
+                'dayOfWeek' => null,
+                'hasDiary' => false,
+                'isEmpty' => true,
             ];
         }
 
@@ -248,24 +261,24 @@ class DashboardController extends Controller
             ];
         }
 
-        // 過去7日間の記録日数を計算
-        $sevenDaysAgo = now()->subDays(6)->startOfDay();
-        $today = now()->endOfDay();
-        
+        // 累積で7日分の記録日数を計算（時間制約なし）
         $diaryDates = Diary::where('user_id', $userId)
-            ->whereBetween('date', [$sevenDaysAgo, $today])
+            ->whereNotNull('content')
+            ->where('content', '!=', '')
             ->get()
             ->pluck('date')
             ->map(fn($date) => $date->format('Y-m-d'))
             ->unique()
             ->count();
 
-        $remaining = max(0, 7 - $diaryDates);
-        $percentage = round(($diaryDates / 7) * 100);
+        // 最大7日分までカウント
+        $diaryCount = min($diaryDates, 7);
+        $remaining = max(0, 7 - $diaryCount);
+        $percentage = round(($diaryCount / 7) * 100);
 
         return [
             'show' => true,
-            'current' => $diaryDates,
+            'current' => $diaryCount,
             'target' => 7,
             'remaining' => $remaining,
             'percentage' => $percentage,

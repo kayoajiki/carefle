@@ -72,10 +72,19 @@
                                     <div class="flex items-center justify-between gap-0.5 sm:gap-1 mb-3 overflow-hidden">
                                         @foreach($diary7DaysCalendar as $day)
                                             <div class="flex-1 flex flex-col items-center min-w-0">
-                                                <p class="text-[8px] sm:text-[10px] text-[#1E3A5F]/50 mb-0.5 sm:mb-1 truncate w-full text-center">{{ $day['dayOfWeek'] }}</p>
-                                                <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center {{ ($day['isToday'] ?? false) ? 'bg-[#6BB6FF] text-white border-2 border-[#2E5C8A]' : ($day['hasDiary'] ? 'bg-[#6BB6FF] text-white' : 'bg-white/60 text-[#1E3A5F]/30') }} border {{ $day['hasDiary'] ? 'border-[#6BB6FF]' : 'border-[#2E5C8A]/20' }}">
-                                                    <span class="text-[10px] sm:text-xs font-semibold">{{ $day['day'] }}</span>
-                                                </div>
+                                                @if(!($day['isEmpty'] ?? false))
+                                                    {{-- 記録した日: 曜日と日付を表示 --}}
+                                                    <p class="text-[8px] sm:text-[10px] text-[#1E3A5F]/50 mb-0.5 sm:mb-1 truncate w-full text-center">{{ $day['dayOfWeek'] }}</p>
+                                                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-[#6BB6FF] text-white border border-[#6BB6FF]">
+                                                        <span class="text-[10px] sm:text-xs font-semibold">{{ $day['day'] }}</span>
+                                                    </div>
+                                                @else
+                                                    {{-- 空白日: 何も表示しない（薄いグレー背景のみ） --}}
+                                                    <p class="text-[8px] sm:text-[10px] text-transparent mb-0.5 sm:mb-1 truncate w-full text-center">-</p>
+                                                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-white/60 text-transparent border border-[#2E5C8A]/20">
+                                                        <span class="text-[10px] sm:text-xs font-semibold"></span>
+                                                    </div>
+                                                @endif
                                             </div>
                                         @endforeach
                                     </div>
