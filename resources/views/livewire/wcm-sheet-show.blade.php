@@ -21,27 +21,25 @@
         @endif
 
         {{-- 上部：固定ベン図（1920x1080 PNG を想定／レスポンシブ最適化） --}}
-        <div class="card-refined p-8 mb-12">
-            <div class="w-full rounded-xl overflow-hidden">
-                @php($venn = public_path('images/wcm-venn.png'))
-                @if(file_exists($venn))
-                    <img
-                        src="{{ asset('images/wcm-venn.png') }}"
-                        alt="WCM ベン図"
-                        width="1920"
-                        height="1080"
-                        loading="lazy"
-                        decoding="async"
-                        class="w-full h-auto object-cover select-none block border-0 outline-none rounded-xl"
-                        style="border: none; outline: none; box-shadow: none; display: block;"
-                        sizes="(min-width: 1280px) 1120px, 100vw"
-                    />
-                @else
-                    <div class="w-full aspect-[16/9] flex items-center justify-center body-text bg-[#F0F7FF] rounded-xl">
-                        画像（images/wcm-venn.png）を配置するとここに表示されます（推奨: 1920×1080 / PNG）
-                    </div>
-                @endif
-            </div>
+        <div class="card-refined mb-12 overflow-hidden pt-4 pb-0 px-0">
+            @php($venn = public_path('images/wcm-venn.png'))
+            @if(file_exists($venn))
+                <img
+                    src="{{ asset('images/wcm-venn.png') }}"
+                    alt="WCM ベン図"
+                    width="1920"
+                    height="1080"
+                    loading="lazy"
+                    decoding="async"
+                    class="w-full h-auto object-cover select-none block border-0 outline-none"
+                    style="border: none; outline: none; box-shadow: none; display: block;"
+                    sizes="(min-width: 1280px) 1120px, 100vw"
+                />
+            @else
+                <div class="w-full aspect-[16/9] flex items-center justify-center body-text bg-[#F0F7FF] p-8">
+                    画像（images/wcm-venn.png）を配置するとここに表示されます（推奨: 1920×1080 / PNG）
+                </div>
+            @endif
         </div>
 
         {{-- 下部：Will / Can / Must --}}
