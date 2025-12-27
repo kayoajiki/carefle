@@ -94,7 +94,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <p class="body-text text-[#2E5C8A] mb-1">写真をアップロード</p>
-                    <p class="body-small text-[#1E3A5F]">クリックまたはドラッグ&ドロップ</p>
+                    <p class="body-small text-[#1E3A5F] mb-2">クリックまたはドラッグ&ドロップ</p>
+                    <p class="body-small text-[#FF6B35] mt-2">※HEIC形式は対応していません。JPEGまたはPNG形式をご利用ください。</p>
                 </label>
             </div>
         @else
@@ -106,9 +107,10 @@
                     class="hidden"
                     id="photo-replace"
                 />
-                <label for="photo-replace" class="cursor-pointer body-small text-[#2E5C8A] hover:text-[#6BB6FF] transition-colors">
+                <label for="photo-replace" class="cursor-pointer body-small text-[#2E5C8A] hover:text-[#6BB6FF] transition-colors block">
                     写真を差し替える
                 </label>
+                <p class="body-small text-[#FF6B35] mt-2 text-xs">※HEIC形式は対応していません。JPEGまたはPNG形式をご利用ください。</p>
             </div>
         @endif
 
