@@ -32,7 +32,7 @@ class DiaryForm extends Component
         'date' => 'required|date',
         'motivation' => 'required|integer|min:0|max:100',
         'content' => 'nullable|string|max:2000',
-        'photo' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp,bmp,svg|max:5120', // 5MBまで、複数の画像形式に対応
+        'photo' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp,bmp,svg,heic,heif|max:5120', // 5MBまで、複数の画像形式に対応（iPhoneのHEIC形式も対応）
     ];
 
     public function mount($date = null, $diaryId = null)

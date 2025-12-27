@@ -79,9 +79,10 @@
                 <input
                     type="file"
                     wire:model="photo"
-                    accept="image/*"
+                    accept="image/*,image/heic,image/heif"
                     class="hidden"
                     id="photo-upload"
+                    capture="environment"
                 />
                 <label for="photo-upload" class="cursor-pointer">
                     <svg class="w-12 h-12 text-[#6BB6FF] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,9 +97,10 @@
                 <input
                     type="file"
                     wire:model="photo"
-                    accept="image/*"
+                    accept="image/*,image/heic,image/heif"
                     class="hidden"
                     id="photo-replace"
+                    capture="environment"
                 />
                 <label for="photo-replace" class="cursor-pointer body-small text-[#2E5C8A] hover:text-[#6BB6FF] transition-colors">
                     写真を差し替える
