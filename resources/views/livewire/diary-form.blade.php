@@ -5,6 +5,12 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="mb-6 bg-red-50 border border-red-200 text-red-800 body-small p-4 rounded-xl">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="mb-6">
         <label class="body-small font-medium text-[#2E5C8A] mb-2 block">日付 <span class="text-red-500">*</span></label>
         <input

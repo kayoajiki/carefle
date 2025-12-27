@@ -145,3 +145,6 @@ class DiaryAnalysisService
 
 
 
+
+
+

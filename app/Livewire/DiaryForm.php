@@ -89,14 +89,51 @@ class DiaryForm extends Component
 
         // 写真のアップロード処理
         if ($this->photo) {
-            // 既存の写真を削除
-            if ($this->existingPhoto && Storage::disk('public')->exists($this->existingPhoto)) {
-                Storage::disk('public')->delete($this->existingPhoto);
-            }
+            try {
+                // 既存の写真を削除
+                if ($this->existingPhoto && Storage::disk('public')->exists($this->existingPhoto)) {
+                    Storage::disk('public')->delete($this->existingPhoto);
+                }
 
-            // 新しい写真を保存
-            $path = $this->photo->store('diaries/' . Auth::id(), 'public');
-            $data['photo'] = $path;
+                // ファイル拡張子を確認
+                $extension = strtolower($this->photo->getClientOriginalExtension());
+                $mimeType = $this->photo->getMimeType();
+                
+                // HEIC形式の場合は警告をログに記録（そのまま保存を試みる）
+                if (in_array($extension, ['heic', 'heif']) || strpos($mimeType, 'heic') !== false || strpos($mimeType, 'heif') !== false) {
+                    Log::info('HEIC形式のファイルをアップロードしようとしています', [
+                        'user_id' => Auth::id(),
+                        'file' => $this->photo->getClientOriginalName(),
+                        'extension' => $extension,
+                        'mime_type' => $mimeType
+                    ]);
+                }
+
+                // 新しい写真を保存
+                $path = $this->photo->store('diaries/' . Auth::id(), 'public');
+                $data['photo'] = $path;
+            } catch (\Exception $e) {
+                Log::error('写真のアップロードに失敗しました', [
+                    'user_id' => Auth::id(),
+                    'error' => $e->getMessage(),
+                    'file' => $this->photo ? $this->photo->getClientOriginalName() : null,
+                    'extension' => $this->photo ? strtolower($this->photo->getClientOriginalExtension()) : null,
+                    'mime_type' => $this->photo ? $this->photo->getMimeType() : null,
+                    'size' => $this->photo ? $this->photo->getSize() : null
+                ]);
+                
+                // エラーメッセージをユーザーフレンドリーに
+                $errorMessage = '写真のアップロードに失敗しました。';
+                if (in_array(strtolower($this->photo->getClientOriginalExtension()), ['heic', 'heif'])) {
+                    $errorMessage .= ' HEIC形式のファイルは対応していない可能性があります。JPEGまたはPNG形式に変換してお試しください。';
+                } elseif ($this->photo->getSize() > 5120 * 1024) {
+                    $errorMessage .= ' ファイルサイズが大きすぎます（最大5MB）。';
+                } else {
+                    $errorMessage .= ' エラー: ' . $e->getMessage();
+                }
+                
+                throw new \Exception($errorMessage);
+            }
         } elseif ($this->existingPhoto) {
             // 既存の写真を保持
             $data['photo'] = $this->existingPhoto;
@@ -231,6 +268,36 @@ class DiaryForm extends Component
         
         // 親コンポーネント（DiaryCalendar）に更新を通知
         $this->dispatch('diary-saved');
+    }
+
+    public function save()
+    {
+        try {
+            $savedDiary = $this->performSave();
+            
+            // 既存の接続情報を読み込む（AI処理は実行しない）
+            if ($savedDiary) {
+                $this->loadGoalConnections($savedDiary->id);
+            } else {
+                $this->goalConnections = [];
+            }
+            
+            // 親コンポーネント（DiaryCalendar）に更新を通知
+            $this->dispatch('diary-saved');
+        } catch (\Exception $e) {
+            Log::error('日記の保存に失敗しました', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            session()->flash('error', '日記の保存に失敗しました: ' . $e->getMessage());
+            
+            // 写真のアップロードエラーの場合
+            if ($this->photo && strpos($e->getMessage(), 'photo') !== false) {
+                $this->addError('photo', '写真のアップロードに失敗しました。HEIC形式の場合は、JPEGまたはPNG形式に変換してお試しください。');
+            }
+        }
     }
 
     /**
