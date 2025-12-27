@@ -35,6 +35,15 @@ class DiaryForm extends Component
         'photo' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp,bmp,svg|max:5120', // 5MBまで、複数の画像形式に対応（HEIC形式は非対応）
     ];
 
+    protected function messages(): array
+    {
+        return [
+            'photo.image' => '写真は画像ファイルである必要があります。',
+            'photo.mimes' => 'HEIC形式のファイルは対応していません。JPEGまたはPNG形式に変換してお試しください。',
+            'photo.max' => 'ファイルサイズが大きすぎます（最大5MB）。',
+        ];
+    }
+
     public function mount($date = null, $diaryId = null)
     {
         $this->date = $date ?? date('Y-m-d');
@@ -55,6 +64,18 @@ class DiaryForm extends Component
                 $this->motivation = 50;
                 $this->content = null;
                 $this->existingPhoto = null;
+            }
+        }
+    }
+
+    public function updatedPhoto()
+    {
+        // ファイルが選択された時点でHEIC形式かどうかをチェック
+        if ($this->photo) {
+            $extension = strtolower($this->photo->getClientOriginalExtension());
+            if (in_array($extension, ['heic', 'heif'])) {
+                $this->reset('photo');
+                $this->addError('photo', 'HEIC形式のファイルは対応していません。JPEGまたはPNG形式に変換してお試しください。');
             }
         }
     }
