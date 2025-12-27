@@ -85,7 +85,7 @@
                 <input
                     type="file"
                     wire:model="photo"
-                    accept="image/*,image/heic,image/heif"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/bmp,image/svg+xml"
                     class="hidden"
                     id="photo-upload"
                 />
@@ -102,7 +102,7 @@
                 <input
                     type="file"
                     wire:model="photo"
-                    accept="image/*,image/heic,image/heif"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/bmp,image/svg+xml"
                     class="hidden"
                     id="photo-replace"
                 />

@@ -32,7 +32,7 @@ class DiaryForm extends Component
         'date' => 'required|date',
         'motivation' => 'required|integer|min:0|max:100',
         'content' => 'nullable|string|max:2000',
-        'photo' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp,bmp,svg,heic,heif|max:5120', // 5MBまで、複数の画像形式に対応（iPhoneのHEIC形式も対応）
+        'photo' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp,bmp,svg|max:5120', // 5MBまで、複数の画像形式に対応（HEIC形式は非対応）
     ];
 
     public function mount($date = null, $diaryId = null)
@@ -95,38 +95,29 @@ class DiaryForm extends Component
                     Storage::disk('public')->delete($this->existingPhoto);
                 }
 
-                // ファイル拡張子を確認
-                $extension = strtolower($this->photo->getClientOriginalExtension());
-                $mimeType = $this->photo->getMimeType();
-                
-                // HEIC形式の場合は警告をログに記録（そのまま保存を試みる）
-                if (in_array($extension, ['heic', 'heif']) || strpos($mimeType, 'heic') !== false || strpos($mimeType, 'heif') !== false) {
-                    Log::info('HEIC形式のファイルをアップロードしようとしています', [
-                        'user_id' => Auth::id(),
-                        'file' => $this->photo->getClientOriginalName(),
-                        'extension' => $extension,
-                        'mime_type' => $mimeType
-                    ]);
-                }
-
                 // 新しい写真を保存
                 $path = $this->photo->store('diaries/' . Auth::id(), 'public');
                 $data['photo'] = $path;
             } catch (\Exception $e) {
+                $photoExtension = $this->photo ? strtolower($this->photo->getClientOriginalExtension()) : '';
+                $isHeicError = in_array($photoExtension, ['heic', 'heif']);
+                
                 Log::error('写真のアップロードに失敗しました', [
                     'user_id' => Auth::id(),
                     'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                     'file' => $this->photo ? $this->photo->getClientOriginalName() : null,
-                    'extension' => $this->photo ? strtolower($this->photo->getClientOriginalExtension()) : null,
+                    'extension' => $photoExtension,
                     'mime_type' => $this->photo ? $this->photo->getMimeType() : null,
-                    'size' => $this->photo ? $this->photo->getSize() : null
+                    'size' => $this->photo ? $this->photo->getSize() : null,
+                    'is_heic' => $isHeicError
                 ]);
                 
                 // エラーメッセージをユーザーフレンドリーに
                 $errorMessage = '写真のアップロードに失敗しました。';
-                if (in_array(strtolower($this->photo->getClientOriginalExtension()), ['heic', 'heif'])) {
-                    $errorMessage .= ' HEIC形式のファイルは対応していない可能性があります。JPEGまたはPNG形式に変換してお試しください。';
-                } elseif ($this->photo->getSize() > 5120 * 1024) {
+                if ($isHeicError) {
+                    $errorMessage = 'HEIC形式のファイルは対応していません。JPEGまたはPNG形式に変換してお試しください。';
+                } elseif ($this->photo && $this->photo->getSize() > 5120 * 1024) {
                     $errorMessage .= ' ファイルサイズが大きすぎます（最大5MB）。';
                 } else {
                     $errorMessage .= ' エラー: ' . $e->getMessage();
@@ -257,21 +248,6 @@ class DiaryForm extends Component
      */
     public function save()
     {
-        $savedDiary = $this->performSave();
-        
-        // 既存の接続情報を読み込む（AI処理は実行しない）
-        if ($savedDiary) {
-            $this->loadGoalConnections($savedDiary->id);
-        } else {
-            $this->goalConnections = [];
-        }
-        
-        // 親コンポーネント（DiaryCalendar）に更新を通知
-        $this->dispatch('diary-saved');
-    }
-
-    public function save()
-    {
         try {
             $savedDiary = $this->performSave();
             
@@ -291,11 +267,25 @@ class DiaryForm extends Component
                 'trace' => $e->getTraceAsString()
             ]);
             
-            session()->flash('error', '日記の保存に失敗しました: ' . $e->getMessage());
+            $errorMessage = $e->getMessage();
+            session()->flash('error', '日記の保存に失敗しました: ' . $errorMessage);
             
             // 写真のアップロードエラーの場合
-            if ($this->photo && strpos($e->getMessage(), 'photo') !== false) {
-                $this->addError('photo', '写真のアップロードに失敗しました。HEIC形式の場合は、JPEGまたはPNG形式に変換してお試しください。');
+            $isPhotoError = $this->photo && (
+                strpos($errorMessage, 'photo') !== false || 
+                strpos($errorMessage, '写真') !== false ||
+                strpos($errorMessage, 'HEIC') !== false ||
+                strpos($errorMessage, 'heic') !== false ||
+                strpos($errorMessage, 'アップロード') !== false
+            );
+            
+            if ($isPhotoError) {
+                // エラーメッセージから写真関連の部分を抽出
+                if (strpos($errorMessage, 'HEIC') !== false || strpos($errorMessage, 'heic') !== false) {
+                    $this->addError('photo', '写真のアップロードに失敗しました。HEIC形式の場合は、JPEGまたはPNG形式に変換してお試しください。');
+                } else {
+                    $this->addError('photo', $errorMessage);
+                }
             }
         }
     }
