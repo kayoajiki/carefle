@@ -164,4 +164,174 @@
         </div>
         @endif
     </div>
+
+    {{-- AI生成提案モーダル --}}
+    @if($showProposalModal)
+    <div 
+        x-data
+        x-cloak
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        @click.self="$wire.closeProposalModal()"
+    >
+        <div 
+            class="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            wire:click.stop
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+        >
+            <div class="p-6 md:p-8">
+                {{-- ヘッダー --}}
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="heading-2">
+                        @if($proposalType === 'will')
+                            WillのAI生成提案
+                        @elseif($proposalType === 'can')
+                            CanのAI生成提案
+                        @elseif($proposalType === 'must')
+                            MustのAI生成提案
+                        @endif
+                    </h2>
+                    <button 
+                        wire:click="closeProposalModal"
+                        class="text-[#1E3A5F]/50 hover:text-[#1E3A5F] transition-colors"
+                    >
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                @if(empty($editingProposal))
+                    {{-- 提案表示モード --}}
+                    <div class="space-y-6">
+                        {{-- 既存の内容 --}}
+                        <div>
+                            <h3 class="heading-3 text-lg mb-3 text-[#2E5C8A]">既存の内容</h3>
+                            <div class="bg-[#F0F7FF] rounded-xl p-4 border border-[#2E5C8A]/20">
+                                <p class="body-text text-[#1E3A5F] whitespace-pre-wrap min-h-[100px]">
+                                    @if($proposalType === 'will')
+                                        {{ $will_text ?: '（未入力）' }}
+                                    @elseif($proposalType === 'can')
+                                        {{ $can_text ?: '（未入力）' }}
+                                    @elseif($proposalType === 'must')
+                                        {{ $must_text ?: '（未入力）' }}
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- AI生成された提案 --}}
+                        <div>
+                            <h3 class="heading-3 text-lg mb-3 text-[#2E5C8A]">AI生成された提案</h3>
+                            <div class="bg-blue-50 rounded-xl p-4 border-2 border-blue-200">
+                                <p class="body-text text-[#1E3A5F] whitespace-pre-wrap min-h-[100px]">
+                                    @if($proposalType === 'will')
+                                        {{ $proposedWill }}
+                                    @elseif($proposalType === 'can')
+                                        {{ $proposedCan }}
+                                    @elseif($proposalType === 'must')
+                                        {{ $proposedMust }}
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- アクションボタン --}}
+                        <div class="border-t border-[#2E5C8A]/20 pt-6">
+                            <div class="flex flex-col gap-3">
+                                <p class="body-small text-[#1E3A5F]/70 mb-2">提案の適用方法を選択してください：</p>
+                                <div class="flex flex-wrap gap-3">
+                                    <button
+                                        wire:click="acceptProposal('replace')"
+                                        class="btn-primary flex-1 min-w-[120px]"
+                                    >
+                                        置き換える
+                                    </button>
+                                    <button
+                                        wire:click="acceptProposal('append')"
+                                        class="btn-secondary flex-1 min-w-[120px]"
+                                    >
+                                        追加する
+                                    </button>
+                                    <button
+                                        wire:click="acceptProposal('merge')"
+                                        class="btn-secondary flex-1 min-w-[120px]"
+                                    >
+                                        マージする
+                                    </button>
+                                </div>
+                                <div class="flex flex-wrap gap-3 mt-2">
+                                    <button
+                                        wire:click="editProposal"
+                                        class="btn-secondary flex-1 min-w-[120px]"
+                                    >
+                                        編集する
+                                    </button>
+                                    <button
+                                        wire:click="rejectProposal"
+                                        class="btn-secondary flex-1 min-w-[120px] border-red-300 text-red-600 hover:bg-red-50"
+                                    >
+                                        破棄する
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    {{-- 編集モード --}}
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="heading-3 text-lg mb-3 text-[#2E5C8A]">提案を編集</h3>
+                            <textarea
+                                wire:model="editingProposal"
+                                rows="12"
+                                class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-white text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"
+                                placeholder="提案を編集してください"
+                            ></textarea>
+                        </div>
+
+                        <div class="border-t border-[#2E5C8A]/20 pt-6">
+                            <div class="flex flex-col gap-3">
+                                <p class="body-small text-[#1E3A5F]/70 mb-2">編集した提案の適用方法を選択してください：</p>
+                                <div class="flex flex-wrap gap-3">
+                                    <button
+                                        wire:click="applyEditedProposal('replace')"
+                                        class="btn-primary flex-1 min-w-[120px]"
+                                    >
+                                        置き換える
+                                    </button>
+                                    <button
+                                        wire:click="applyEditedProposal('append')"
+                                        class="btn-secondary flex-1 min-w-[120px]"
+                                    >
+                                        追加する
+                                    </button>
+                                    <button
+                                        wire:click="applyEditedProposal('merge')"
+                                        class="btn-secondary flex-1 min-w-[120px]"
+                                    >
+                                        マージする
+                                    </button>
+                                </div>
+                                <button
+                                    wire:click="closeProposalModal"
+                                    class="btn-secondary mt-2"
+                                >
+                                    キャンセル
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endif
 </div>

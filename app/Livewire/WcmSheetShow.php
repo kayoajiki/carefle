@@ -16,6 +16,14 @@ class WcmSheetShow extends Component
     public string $can_text = '';
     public string $must_text = '';
     public bool $isAdminView = false;
+    
+    // 提案用プロパティ
+    public ?string $proposedWill = null;
+    public ?string $proposedCan = null;
+    public ?string $proposedMust = null;
+    public bool $showProposalModal = false;
+    public string $proposalType = ''; // 'will', 'can', 'must'
+    public string $editingProposal = ''; // 編集モード用
 
     public function mount(int $id): void
     {
@@ -164,9 +172,10 @@ class WcmSheetShow extends Component
             $generated = $service->generateWill(Auth::id(), $this->will_text);
             
             if ($generated !== null) {
-                $this->will_text = $generated;
-                $this->autosave();
-                session()->flash('saved', 'WillをAI生成しました');
+                // 既存テキストは保持し、提案をプロパティに保存
+                $this->proposedWill = $generated;
+                $this->proposalType = 'will';
+                $this->showProposalModal = true;
             } else {
                 session()->flash('error', 'Willの生成に失敗しました。しばらく時間をおいて再度お試しください。');
             }
@@ -193,9 +202,10 @@ class WcmSheetShow extends Component
             $generated = $service->generateCan(Auth::id(), $this->can_text);
             
             if ($generated !== null) {
-                $this->can_text = $generated;
-                $this->autosave();
-                session()->flash('saved', 'CanをAI生成しました');
+                // 既存テキストは保持し、提案をプロパティに保存
+                $this->proposedCan = $generated;
+                $this->proposalType = 'can';
+                $this->showProposalModal = true;
             } else {
                 session()->flash('error', 'Canの生成に失敗しました。しばらく時間をおいて再度お試しください。');
             }
@@ -222,9 +232,10 @@ class WcmSheetShow extends Component
             $generated = $service->generateMust(Auth::id(), $this->must_text);
             
             if ($generated !== null) {
-                $this->must_text = $generated;
-                $this->autosave();
-                session()->flash('saved', 'MustをAI生成しました');
+                // 既存テキストは保持し、提案をプロパティに保存
+                $this->proposedMust = $generated;
+                $this->proposalType = 'must';
+                $this->showProposalModal = true;
             } else {
                 session()->flash('error', 'Mustの生成に失敗しました。しばらく時間をおいて再度お試しください。');
             }
@@ -234,5 +245,159 @@ class WcmSheetShow extends Component
             ]);
             session()->flash('error', 'Mustの生成中にエラーが発生しました。');
         }
+    }
+
+    /**
+     * 提案を採用（置き換え/追加/マージ）
+     */
+    public function acceptProposal(string $method = 'replace'): void
+    {
+        if ($this->isAdminView) {
+            session()->flash('error', '管理者は他のユーザーのコンテンツを編集できません。');
+            return;
+        }
+
+        $proposal = $this->getCurrentProposal();
+        if ($proposal === null) {
+            return;
+        }
+
+        $currentText = $this->getCurrentText();
+        
+        switch ($method) {
+            case 'replace':
+                $newText = $proposal;
+                break;
+            case 'append':
+                $newText = trim($currentText) . "\n\n" . trim($proposal);
+                break;
+            case 'merge':
+                // 既存テキストと提案をマージ（重複を避けながら）
+                $existingLines = array_filter(array_map('trim', explode("\n", $currentText)));
+                $proposalLines = array_filter(array_map('trim', explode("\n", $proposal)));
+                $mergedLines = array_unique(array_merge($existingLines, $proposalLines));
+                $newText = implode("\n", $mergedLines);
+                break;
+            default:
+                $newText = $proposal;
+        }
+
+        $this->setCurrentText($newText);
+        $this->autosave();
+        $this->closeProposalModal();
+        session()->flash('saved', '提案を採用しました');
+    }
+
+    /**
+     * 提案を破棄
+     */
+    public function rejectProposal(): void
+    {
+        $this->closeProposalModal();
+        session()->flash('saved', '提案を破棄しました');
+    }
+
+    /**
+     * 提案を編集モードに切り替え
+     */
+    public function editProposal(): void
+    {
+        $proposal = $this->getCurrentProposal();
+        if ($proposal !== null) {
+            $this->editingProposal = $proposal;
+        }
+    }
+
+    /**
+     * 編集した提案を適用
+     */
+    public function applyEditedProposal(string $method = 'replace'): void
+    {
+        if ($this->isAdminView) {
+            session()->flash('error', '管理者は他のユーザーのコンテンツを編集できません。');
+            return;
+        }
+
+        if (trim($this->editingProposal) === '') {
+            session()->flash('error', '提案が空です。');
+            return;
+        }
+
+        $currentText = $this->getCurrentText();
+        
+        switch ($method) {
+            case 'replace':
+                $newText = $this->editingProposal;
+                break;
+            case 'append':
+                $newText = trim($currentText) . "\n\n" . trim($this->editingProposal);
+                break;
+            case 'merge':
+                $existingLines = array_filter(array_map('trim', explode("\n", $currentText)));
+                $proposalLines = array_filter(array_map('trim', explode("\n", $this->editingProposal)));
+                $mergedLines = array_unique(array_merge($existingLines, $proposalLines));
+                $newText = implode("\n", $mergedLines);
+                break;
+            default:
+                $newText = $this->editingProposal;
+        }
+
+        $this->setCurrentText($newText);
+        $this->autosave();
+        $this->closeProposalModal();
+        $this->editingProposal = '';
+        session()->flash('saved', '編集した提案を適用しました');
+    }
+
+    /**
+     * 提案モーダルを閉じる
+     */
+    public function closeProposalModal(): void
+    {
+        $this->showProposalModal = false;
+        $this->proposedWill = null;
+        $this->proposedCan = null;
+        $this->proposedMust = null;
+        $this->proposalType = '';
+        $this->editingProposal = '';
+    }
+
+    /**
+     * 現在の提案を取得
+     */
+    private function getCurrentProposal(): ?string
+    {
+        return match($this->proposalType) {
+            'will' => $this->proposedWill,
+            'can' => $this->proposedCan,
+            'must' => $this->proposedMust,
+            default => null,
+        };
+    }
+
+    /**
+     * 現在のテキストを取得
+     */
+    private function getCurrentText(): string
+    {
+        return match($this->proposalType) {
+            'will' => $this->will_text,
+            'can' => $this->can_text,
+            'must' => $this->must_text,
+            default => '',
+        };
+    }
+
+    /**
+     * 現在のテキストを設定
+     */
+    private function setCurrentText(string $text): void
+    {
+        match($this->proposalType) {
+            'will' => $this->will_text = $text,
+            'can' => $this->can_text = $text,
+            'must' => $this->must_text = $text,
+            default => null,
+        };
     }
 }
