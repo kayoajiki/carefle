@@ -16,6 +16,7 @@ class StrengthsReport extends Model
         'diagnosis_report',
         'diary_report',
         'generated_at',
+        'is_admin_visible',
     ];
 
     protected function casts(): array
@@ -25,6 +26,7 @@ class StrengthsReport extends Model
             'diagnosis_report' => 'array',
             'diary_report' => 'array',
             'generated_at' => 'datetime',
+            'is_admin_visible' => 'boolean',
         ];
     }
 

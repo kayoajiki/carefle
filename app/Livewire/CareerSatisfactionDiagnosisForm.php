@@ -1,0 +1,291 @@
+<?php
+
+namespace App\Livewire;
+
+use Livewire\Component;
+use App\Models\Question;
+use App\Models\CareerSatisfactionDiagnosis;
+use App\Models\CareerSatisfactionDiagnosisAnswer;
+use App\Services\ActivityLogService;
+use Illuminate\Support\Facades\Auth;
+
+class CareerSatisfactionDiagnosisForm extends Component
+{
+    public $questions = [];
+    public $currentIndex = 0;
+    public $answers = [];
+    public $diagnosisId = null;
+
+    public function mount()
+    {
+        // Workタイプの質問のみを取得
+        $this->questions = Question::where('type', 'work')
+            ->orderBy('order')
+            ->get()
+            ->toArray();
+        
+        // 既存の下書き診断があるか確認
+        $diagnosis = CareerSatisfactionDiagnosis::where('user_id', Auth::id())
+            ->where('is_draft', true)
+            ->latest()
+            ->first();
+        
+        if ($diagnosis) {
+            $this->diagnosisId = $diagnosis->id;
+            // 既存の回答を読み込む
+            $existingAnswers = CareerSatisfactionDiagnosisAnswer::where('career_satisfaction_diagnosis_id', $diagnosis->id)
+                ->get()
+                ->keyBy('question_id')
+                ->toArray();
+            
+            foreach ($this->questions as $q) {
+                $key = $q['id'];
+                if (isset($existingAnswers[$key])) {
+                    $this->answers[$key] = [
+                        'answer_value' => $existingAnswers[$key]['answer_value'],
+                        'comment' => $existingAnswers[$key]['comment'] ?? '',
+                    ];
+                } else {
+                    $this->answers[$key] = [
+                        'answer_value' => null,
+                        'comment' => '',
+                    ];
+                }
+            }
+        } else {
+            // 新しい診断を作成
+            $diagnosis = CareerSatisfactionDiagnosis::create([
+                'user_id' => Auth::id(),
+                'is_draft' => true,
+                'is_completed' => false,
+            ]);
+            $this->diagnosisId = $diagnosis->id;
+            
+            // 空の回答を初期化
+            foreach ($this->questions as $q) {
+                $this->answers[$q['id']] = [
+                    'answer_value' => null,
+                    'comment' => '',
+                ];
+            }
+        }
+    }
+
+    public function selectOption($questionId, $value)
+    {
+        $this->answers[$questionId]['answer_value'] = $value;
+        $this->saveAnswer($questionId);
+    }
+
+    public function updateComment($questionId, $comment)
+    {
+        $this->answers[$questionId]['comment'] = $comment;
+        $this->saveAnswer($questionId);
+    }
+
+    public function saveAnswer($questionId)
+    {
+        if (!$this->diagnosisId) {
+            return;
+        }
+
+        $answer = $this->answers[$questionId];
+        
+        if ($answer['answer_value'] === null) {
+            return;
+        }
+
+        CareerSatisfactionDiagnosisAnswer::updateOrCreate(
+            [
+                'career_satisfaction_diagnosis_id' => $this->diagnosisId,
+                'question_id' => $questionId,
+            ],
+            [
+                'answer_value' => $answer['answer_value'],
+                'comment' => $answer['comment'] ?? '',
+            ]
+        );
+    }
+
+    public function nextQuestion()
+    {
+        if ($this->currentIndex < count($this->questions) - 1) {
+            $this->currentIndex++;
+        }
+    }
+
+    public function prevQuestion()
+    {
+        if ($this->currentIndex > 0) {
+            $this->currentIndex--;
+        }
+    }
+
+    public function saveDraft()
+    {
+        // すべての回答を保存
+        foreach ($this->answers as $questionId => $answer) {
+            if ($answer['answer_value'] !== null) {
+                $this->saveAnswer($questionId);
+            }
+        }
+
+        session()->flash('message', '回答を一時保存しました。あとで続きから再開できます。');
+        
+        return redirect()->route('dashboard');
+    }
+
+    public function finish()
+    {
+        // すべての質問に回答があるか確認
+        $allAnswered = true;
+        foreach ($this->answers as $answer) {
+            if ($answer['answer_value'] === null) {
+                $allAnswered = false;
+                break;
+            }
+        }
+
+        if (!$allAnswered) {
+            session()->flash('error', 'すべての質問に回答してください。');
+            return;
+        }
+
+        // すべての回答を保存
+        foreach ($this->answers as $questionId => $answer) {
+            $this->saveAnswer($questionId);
+        }
+
+        // スコアを計算
+        $this->calculateScores();
+
+        // 診断を完了にする
+        $diagnosis = CareerSatisfactionDiagnosis::find($this->diagnosisId);
+        $diagnosis->update([
+            'is_completed' => true,
+            'is_draft' => false,
+        ]);
+
+        // Update user's last_activity_at
+        $user = Auth::user();
+        if ($user) {
+            $user->last_activity_at = now();
+            $user->save();
+        }
+
+        // アクティビティログに記録
+        $activityLogService = app(ActivityLogService::class);
+        $activityLogService->logDiagnosisCompleted(Auth::id(), $this->diagnosisId);
+
+        // 重要度入力ページにリダイレクト（必須）
+        return redirect()->route('career-satisfaction-diagnosis.importance', $this->diagnosisId);
+    }
+
+    protected function calculateScores()
+    {
+        $diagnosis = CareerSatisfactionDiagnosis::find($this->diagnosisId);
+        $answers = CareerSatisfactionDiagnosisAnswer::where('career_satisfaction_diagnosis_id', $this->diagnosisId)
+            ->with('question')
+            ->get();
+
+        $workScores = [];
+        $workPillarScores = [];
+
+        foreach ($answers as $answer) {
+            $question = $answer->question;
+            // 1-5を0-100に変換
+            $scaledScore = (($answer->answer_value - 1) / 4) * 100;
+
+            if ($question->type === 'work') {
+                $workScores[] = $scaledScore;
+                
+                // pillar別に集計
+                if (!isset($workPillarScores[$question->pillar])) {
+                    $workPillarScores[$question->pillar] = [];
+                }
+                $workPillarScores[$question->pillar][] = $scaledScore;
+            }
+        }
+
+        // pillar別スコアを計算（各pillar内でweightで加重平均）
+        $workPillarFinal = [];
+        foreach ($workPillarScores as $pillar => $scores) {
+            // このpillarの質問を取得
+            $pillarQuestions = Question::where('type', 'work')
+                ->where('pillar', $pillar)
+                ->get();
+            
+            // 各質問のスコアとweightで加重平均を計算
+            $pillarScore = 0;
+            $pillarWeight = 0;
+            foreach ($pillarQuestions as $q) {
+                $answer = $answers->firstWhere('question_id', $q->id);
+                if ($answer && $q->weight) {
+                    $scaledScore = (($answer->answer_value - 1) / 4) * 100;
+                    $pillarScore += $scaledScore * $q->weight;
+                    $pillarWeight += $q->weight;
+                }
+            }
+            
+            if ($pillarWeight > 0) {
+                $workPillarFinal[$pillar] = round($pillarScore / $pillarWeight);
+            } else {
+                $workPillarFinal[$pillar] = round(array_sum($scores) / count($scores));
+            }
+        }
+
+        // Workスコア：各pillarの平均をweightで加重平均
+        $workScore = 0;
+        $totalWeight = 0;
+        foreach ($workPillarFinal as $pillar => $pillarAvg) {
+            // このpillar内の全質問のweightの合計を取得
+            $pillarWeight = Question::where('type', 'work')
+                ->where('pillar', $pillar)
+                ->sum('weight');
+            
+            if ($pillarWeight > 0) {
+                $workScore += $pillarAvg * $pillarWeight;
+                $totalWeight += $pillarWeight;
+            }
+        }
+        
+        if ($totalWeight > 0) {
+            $workScore = round($workScore / $totalWeight);
+        } else {
+            $workScore = 0;
+        }
+        
+        // 一つでもpillarのスコアが100点未満の場合、全体スコアが100点にならないようにする
+        $minPillarScore = !empty($workPillarFinal) ? min($workPillarFinal) : 100;
+        if ($minPillarScore < 100) {
+            $workScore = round(($workScore + $minPillarScore) / 2);
+        }
+
+        $diagnosis->update([
+            'work_score' => $workScore,
+            'work_pillar_scores' => $workPillarFinal,
+        ]);
+    }
+
+    public function getCurrentQuestionProperty()
+    {
+        return $this->questions[$this->currentIndex] ?? null;
+    }
+
+    public function getProgressPercentProperty()
+    {
+        $answeredCount = count(array_filter($this->answers, fn($a) => $a['answer_value'] !== null));
+        return round(($answeredCount / count($this->questions)) * 100);
+    }
+
+    public function getIsLastQuestionProperty()
+    {
+        return $this->currentIndex === count($this->questions) - 1;
+    }
+
+    public function render()
+    {
+        return view('livewire.career-satisfaction-diagnosis-form');
+    }
+}
+

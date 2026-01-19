@@ -66,6 +66,14 @@ Route::middleware(['auth'])->group(function () {
         ->name('diagnosis.result');
     Route::get('diagnosis/importance/{id}', DiagnosisImportanceForm::class)
         ->name('diagnosis.importance');
+    
+    // 職業満足度診断（プロトタイプ）
+    Route::get('career-satisfaction-diagnosis/start', [\App\Http\Controllers\CareerSatisfactionDiagnosisController::class, 'start'])
+        ->name('career-satisfaction-diagnosis.start');
+    Route::get('career-satisfaction-diagnosis/result/{id}', [\App\Http\Controllers\CareerSatisfactionDiagnosisController::class, 'result'])
+        ->name('career-satisfaction-diagnosis.result');
+    Route::get('career-satisfaction-diagnosis/importance/{id}', \App\Livewire\CareerSatisfactionDiagnosisImportanceForm::class)
+        ->name('career-satisfaction-diagnosis.importance');
     Route::get('life-history', function () {
         return view('life-history');
     })->name('life-history');
@@ -110,6 +118,17 @@ Route::middleware(['auth'])->group(function () {
 
     // マイゴール
     Route::get('my-goal', \App\Livewire\MyGoal::class)->name('my-goal');
+
+    // 共有確認画面
+    Route::get('share-preview/wcm/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewWcm'])->name('share-preview.wcm');
+    Route::get('share-preview/life-history/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewLifeHistory'])->name('share-preview.life-history');
+    Route::get('share-preview/diagnosis/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewDiagnosis'])->name('share-preview.diagnosis');
+    Route::get('share-preview/career-satisfaction/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewCareerSatisfaction'])->name('share-preview.career-satisfaction');
+    Route::get('share-preview/strengths-report/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewStrengthsReport'])->name('share-preview.strengths-report');
+    Route::get('share-preview/my-goal', [\App\Http\Controllers\SharePreviewController::class, 'previewMyGoal'])->name('share-preview.my-goal');
+    Route::get('share-preview/milestone/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewMilestone'])->name('share-preview.milestone');
+    Route::get('share-preview/personality-assessment/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewPersonalityAssessment'])->name('share-preview.personality-assessment');
+    Route::post('share-preview/confirm', [\App\Http\Controllers\SharePreviewController::class, 'confirmShare'])->name('share-preview.confirm');
     Route::post('my-goal/display-mode', function (Request $request) {
         $mode = $request->string('mode')->toString();
         if (!in_array($mode, ['text', 'image'], true)) {
@@ -178,6 +197,13 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('admin.users.edit');
     Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('admin.users.update');
     Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
+    
+    // 管理者が共有されたコンテンツを閲覧
+    Route::get('users/{user}/wcm/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewWcm'])->name('admin.users.view-wcm');
+    Route::get('users/{user}/diagnosis/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewDiagnosis'])->name('admin.users.view-diagnosis');
+    Route::get('users/{user}/career-satisfaction/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewCareerSatisfaction'])->name('admin.users.view-career-satisfaction');
+    Route::get('users/{user}/strengths-report/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewStrengthsReport'])->name('admin.users.view-strengths-report');
+    
     Route::get('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
     Route::get('activity-logs/export', [\App\Http\Controllers\Admin\ActivityLogController::class, 'export'])->name('admin.activity-logs.export');
     Route::get('profile-stats', [\App\Http\Controllers\Admin\ProfileStatsController::class, 'index'])->name('admin.profile-stats.index');

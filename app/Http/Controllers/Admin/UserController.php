@@ -9,6 +9,10 @@ use App\Models\Diagnosis;
 use App\Models\Diary;
 use App\Models\PersonalityAssessment;
 use App\Models\WcmSheet;
+use App\Models\LifeEvent;
+use App\Models\CareerSatisfactionDiagnosis;
+use App\Models\StrengthsReport;
+use App\Models\CareerMilestone;
 use App\Services\OnboardingProgressService;
 use Illuminate\Http\Request;
 
@@ -70,8 +74,9 @@ class UserController extends Controller
             ->limit(100)
             ->get();
 
-        // Created data
+        // Created data (共有されたコンテンツのみ)
         $diagnoses = Diagnosis::where('user_id', $user->id)
+            ->where('is_admin_visible', true)
             ->orderBy('created_at', 'desc')
             ->get();
         
@@ -79,13 +84,40 @@ class UserController extends Controller
             ->orderBy('date', 'desc')
             ->get();
         
+        // 共有されたコンテンツのみ取得
         $assessments = PersonalityAssessment::where('user_id', $user->id)
+            ->where('is_admin_visible', true)
             ->orderBy('created_at', 'desc')
             ->get();
         
         $wcmSheets = WcmSheet::where('user_id', $user->id)
+            ->where('is_admin_visible', true)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        $lifeEvents = LifeEvent::where('user_id', $user->id)
+            ->where('is_admin_visible', true)
+            ->orderBy('year', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $careerSatisfactionDiagnoses = CareerSatisfactionDiagnosis::where('user_id', $user->id)
+            ->where('is_admin_visible', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $strengthsReports = StrengthsReport::where('user_id', $user->id)
+            ->where('is_admin_visible', true)
+            ->orderBy('generated_at', 'desc')
+            ->get();
+
+        $milestones = CareerMilestone::where('user_id', $user->id)
+            ->where('is_admin_visible', true)
+            ->orderBy('target_year', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $myGoalShared = $user->goal_is_admin_visible && $user->goal_image;
 
         // Onboarding progress
         $onboardingProgress = $this->onboardingProgressService->getOrCreateProgress($user->id);
@@ -98,6 +130,11 @@ class UserController extends Controller
             'diaries' => $diaries,
             'assessments' => $assessments,
             'wcmSheets' => $wcmSheets,
+            'lifeEvents' => $lifeEvents,
+            'careerSatisfactionDiagnoses' => $careerSatisfactionDiagnoses,
+            'strengthsReports' => $strengthsReports,
+            'milestones' => $milestones,
+            'myGoalShared' => $myGoalShared,
             'onboardingProgress' => $onboardingProgress,
         ]);
     }
@@ -140,5 +177,410 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')
             ->with('success', 'ユーザーを削除しました。');
+    }
+
+    /**
+     * 管理者が共有されたコンテンツを閲覧
+     */
+    public function viewWcm(User $user, $id)
+    {
+        $sheet = WcmSheet::where('id', $id)
+            ->where('user_id', $user->id)
+            ->where('is_admin_visible', true)
+            ->firstOrFail();
+
+        return view('wcm.sheet', ['id' => (int)$id]);
+    }
+
+    public function viewDiagnosis(User $user, $id)
+    {
+        $diagnosis = Diagnosis::with(['answers.question'])
+            ->where('id', $id)
+            ->where('user_id', $user->id)
+            ->where('is_admin_visible', true)
+            ->firstOrFail();
+
+        // DiagnosisControllerのresultメソッドと同じロジックを使用
+        // ただし、user_idチェックをバイパスするため、直接ロジックを実装
+        return $this->renderDiagnosisResult($diagnosis);
+    }
+
+    public function viewCareerSatisfaction(User $user, $id)
+    {
+        $diagnosis = CareerSatisfactionDiagnosis::with(['answers.question'])
+            ->where('id', $id)
+            ->where('user_id', $user->id)
+            ->where('is_admin_visible', true)
+            ->firstOrFail();
+
+        // CareerSatisfactionDiagnosisControllerのresultメソッドと同じロジックを使用
+        return $this->renderCareerSatisfactionResult($diagnosis);
+    }
+
+    public function viewStrengthsReport(User $user, $id)
+    {
+        $report = StrengthsReport::where('id', $id)
+            ->where('user_id', $user->id)
+            ->where('is_admin_visible', true)
+            ->firstOrFail();
+
+        $manual = [
+            'user_id' => $user->id,
+            'generated_at' => $report->generated_at,
+            'content' => $report->content,
+            'diagnosis_report' => $report->diagnosis_report,
+            'diary_report' => $report->diary_report,
+        ];
+
+        return view('onboarding.mini-manual', [
+            'manual' => $manual,
+            'user' => $user,
+            'canUpdate' => false,
+            'latestReport' => $report,
+            'isAdminVisible' => true,
+        ]);
+    }
+
+    /**
+     * 診断結果を表示（管理者用）
+     */
+    protected function renderDiagnosisResult(Diagnosis $diagnosis)
+    {
+        // DiagnosisControllerのresultメソッドと同じロジック
+        $workPillarScores = $diagnosis->work_pillar_scores ?? [];
+        $lifePillarScores = $diagnosis->life_pillar_scores ?? [];
+
+        $pillarLabels = [
+            'purpose' => 'Purpose（目的）',
+            'profession' => 'Profession（職業）',
+            'people' => 'People（人間関係）',
+            'privilege' => 'Privilege（待遇）',
+            'progress' => 'Progress（成長）',
+        ];
+
+        $lifePillarLabels = [
+            'family' => 'Family（家族）',
+            'friends' => 'Friends（友人）',
+            'leisure' => 'Leisure（余暇）',
+            'sidejob' => 'Sidejob（副業）',
+            'health' => 'Health（健康）',
+            'finance' => 'Finance（財務）',
+        ];
+
+        $radarLabels = [];
+        $radarWorkData = [];
+        foreach ($pillarLabels as $key => $label) {
+            if (isset($workPillarScores[$key])) {
+                $radarLabels[] = $label;
+                $radarWorkData[] = $workPillarScores[$key];
+            } else {
+                $radarLabels[] = $label;
+                $radarWorkData[] = null;
+            }
+        }
+
+        $lifeAvg = !empty($lifePillarScores)
+            ? round(array_sum($lifePillarScores) / count($lifePillarScores))
+            : $diagnosis->life_score ?? 0;
+
+        $radarLabels[] = 'Life（ライフ）';
+        $radarWorkData[] = null;
+
+        $countAfterAdd = count($radarLabels);
+        $lastWorkIndex = $countAfterAdd - 2;
+        $lifeIndex = $countAfterAdd - 1;
+
+        $lifeEdgeLeftData = array_fill(0, $countAfterAdd, null);
+        $lifeEdgeLeftData[0] = $radarWorkData[0] ?? null;
+        $lifeEdgeLeftData[$lifeIndex] = $lifeAvg;
+
+        $lifeEdgeRightData = array_fill(0, $countAfterAdd, null);
+        $lifeEdgeRightData[$lastWorkIndex] = $radarWorkData[$lastWorkIndex] ?? null;
+        $lifeEdgeRightData[$lifeIndex] = $lifeAvg;
+
+        $lifePointData = array_fill(0, $countAfterAdd, null);
+        $lifePointData[$lifeIndex] = $lifeAvg;
+
+        $lifeFillData = array_fill(0, $countAfterAdd, 0);
+        $lifeFillData[0] = $radarWorkData[0] ?? 0;
+        $lifeFillData[$lastWorkIndex] = $radarWorkData[$lastWorkIndex] ?? 0;
+        $lifeFillData[$lifeIndex] = $lifeAvg;
+
+        $answerNotes = [];
+        foreach ($diagnosis->answers as $answer) {
+            if ($answer->comment) {
+                $answerNotes[] = [
+                    'label' => $answer->question->text,
+                    'comment' => $answer->comment,
+                ];
+            }
+        }
+
+        $importanceWork = [];
+        $workQuestions = \App\Models\Question::where('type','work')->get();
+        
+        foreach ($workQuestions->groupBy('pillar') as $pillar => $qs) {
+            $pillarScore = 0;
+            $pillarWeight = 0;
+            
+            foreach ($qs as $q) {
+                $ans = \App\Models\DiagnosisImportanceAnswer::where('diagnosis_id', $diagnosis->id)
+                    ->where('question_id', $q->id)
+                    ->first();
+                
+                if ($ans && $q->weight) {
+                    $importanceValue = (($ans->importance_value - 1) / 4) * 100;
+                    $pillarScore += $importanceValue * $q->weight;
+                    $pillarWeight += $q->weight;
+                }
+            }
+            
+            if ($pillarWeight > 0) {
+                $importanceWork[$pillar] = round($pillarScore / $pillarWeight);
+            } else {
+                $importanceWork[$pillar] = null;
+            }
+        }
+
+        $lifeQuestions = \App\Models\Question::where('type','life')->get();
+        $totalLifeImportanceScore = 0;
+        $totalLifeImportanceCount = 0;
+        
+        foreach ($lifeQuestions->groupBy('pillar') as $pillar => $qs) {
+            $pillarScore = 0;
+            $pillarCount = 0;
+            
+            foreach ($qs as $q) {
+                $ans = \App\Models\DiagnosisImportanceAnswer::where('diagnosis_id', $diagnosis->id)
+                    ->where('question_id', $q->id)
+                    ->first();
+                
+                if ($ans) {
+                    $importanceValue = (($ans->importance_value - 1) / 4) * 100;
+                    $pillarScore += $importanceValue;
+                    $pillarCount++;
+                }
+            }
+            
+            if ($pillarCount > 0) {
+                $pillarAvg = $pillarScore / $pillarCount;
+                $totalLifeImportanceScore += $pillarAvg;
+                $totalLifeImportanceCount++;
+            }
+        }
+        
+        $importanceLifeAvg = null;
+        if ($totalLifeImportanceCount > 0) {
+            $importanceLifeAvg = round($totalLifeImportanceScore / $totalLifeImportanceCount);
+        }
+        
+        $importanceDataset = [];
+        foreach (array_keys($pillarLabels) as $key) {
+            $importanceDataset[] = $importanceWork[$key] ?? null;
+        }
+        $importanceDataset[] = $importanceLifeAvg;
+
+        $importanceScore = 0;
+        $totalWeight = 0;
+        
+        foreach ($importanceWork as $pillar => $pillarAvg) {
+            if ($pillarAvg !== null) {
+                $pillarWeight = \App\Models\Question::where('type', 'work')
+                    ->where('pillar', $pillar)
+                    ->sum('weight');
+                
+                if ($pillarWeight > 0) {
+                    $importanceScore += $pillarAvg * $pillarWeight;
+                    $totalWeight += $pillarWeight;
+                }
+            }
+        }
+        
+        if ($totalWeight > 0) {
+            $importanceScore = round($importanceScore / $totalWeight);
+        } else {
+            $importanceScore = 0;
+        }
+        
+        $validImportanceWork = array_filter($importanceWork, fn($v) => $v !== null);
+        $minPillarScore = !empty($validImportanceWork) ? min($validImportanceWork) : 100;
+        if ($minPillarScore < 100) {
+            $importanceScore = round(($importanceScore + $minPillarScore) / 2);
+        }
+
+        $hasImportance = $totalWeight > 0 || \App\Models\DiagnosisImportanceAnswer::where('diagnosis_id', $diagnosis->id)->exists();
+
+        if (!$diagnosis->is_completed) {
+            $workPillarScores = [];
+            $importanceWork = [];
+            $workScore = 0;
+            $importanceScore = 0;
+            $radarWorkData = array_fill(0, count($pillarLabels), null);
+            $lifeEdgeLeftData = array_fill(0, count($radarLabels), null);
+            $lifeEdgeRightData = array_fill(0, count($radarLabels), null);
+            $lifePointData = array_fill(0, count($radarLabels), null);
+            $lifeFillData = array_fill(0, count($radarLabels), 0);
+            $importanceDataset = array_fill(0, count($radarLabels), null);
+            $answerNotes = [];
+        }
+
+        return view('diagnosis.result', [
+            'diagnosis' => $diagnosis,
+            'workScore' => $diagnosis->work_score ?? 0,
+            'lifeScore' => $importanceScore,
+            'radarLabels' => $radarLabels,
+            'radarWorkData' => $radarWorkData,
+            'lifeEdgeLeftData' => $lifeEdgeLeftData,
+            'lifeEdgeRightData' => $lifeEdgeRightData,
+            'lifePointData' => $lifePointData,
+            'lifeFillData' => $lifeFillData,
+            'importanceDataset' => $importanceDataset,
+            'importanceLifeAvg' => $importanceLifeAvg,
+            'answerNotes' => $answerNotes,
+            'workPillarScores' => $workPillarScores,
+            'importanceWork' => $importanceWork,
+            'pillarLabels' => $pillarLabels,
+            'hasImportance' => $hasImportance,
+        ]);
+    }
+
+    /**
+     * 現職満足度診断結果を表示（管理者用）
+     */
+    protected function renderCareerSatisfactionResult(CareerSatisfactionDiagnosis $diagnosis)
+    {
+        // CareerSatisfactionDiagnosisControllerのresultメソッドと同じロジック
+        $workPillarScores = $diagnosis->work_pillar_scores ?? [];
+
+        $pillarLabels = [
+            'purpose' => 'Purpose（目的）',
+            'profession' => 'Profession（職業）',
+            'people' => 'People（人間関係）',
+            'privilege' => 'Privilege（待遇）',
+            'progress' => 'Progress（成長）',
+        ];
+
+        $radarLabels = [];
+        $radarWorkData = [];
+        foreach ($pillarLabels as $key => $label) {
+            if (isset($workPillarScores[$key])) {
+                $radarLabels[] = $label;
+                $radarWorkData[] = $workPillarScores[$key];
+            } else {
+                $radarLabels[] = $label;
+                $radarWorkData[] = null;
+            }
+        }
+
+        $importanceWork = [];
+        $workQuestions = \App\Models\Question::where('type','work')->get();
+        
+        foreach ($workQuestions->groupBy('pillar') as $pillar => $qs) {
+            $pillarScore = 0;
+            $pillarWeight = 0;
+            
+            foreach ($qs as $q) {
+                $ans = \App\Models\CareerSatisfactionDiagnosisImportanceAnswer::where('career_satisfaction_diagnosis_id', $diagnosis->id)
+                    ->where('question_id', $q->id)
+                    ->first();
+                
+                if ($ans && $q->weight) {
+                    $importanceValue = (($ans->importance_value - 1) / 4) * 100;
+                    $pillarScore += $importanceValue * $q->weight;
+                    $pillarWeight += $q->weight;
+                }
+            }
+            
+            if ($pillarWeight > 0) {
+                $importanceWork[$pillar] = round($pillarScore / $pillarWeight);
+            } else {
+                $importanceWork[$pillar] = null;
+            }
+        }
+        
+        $importanceDataset = [];
+        foreach (array_keys($pillarLabels) as $key) {
+            $importanceDataset[] = $importanceWork[$key] ?? null;
+        }
+
+        $stuckPoints = [];
+        $maxDiff = null;
+        $stuckPointDetails = [];
+        
+        foreach ($workPillarScores as $pillar => $satisfactionScore) {
+            $importanceScore = $importanceWork[$pillar] ?? null;
+            if ($importanceScore !== null && $satisfactionScore !== null) {
+                $diff = $satisfactionScore - $importanceScore;
+                if ($diff < 0) {
+                    $stuckPoints[] = $pillar;
+                    $stuckPointDetails[$pillar] = [
+                        'label' => $pillarLabels[$pillar],
+                        'satisfaction' => $satisfactionScore,
+                        'importance' => $importanceScore,
+                        'diff' => $diff,
+                    ];
+                    if ($maxDiff === null || $diff < $maxDiff) {
+                        $maxDiff = $diff;
+                    }
+                }
+            }
+        }
+        
+        $stuckPointCount = count($stuckPoints);
+        
+        $gapSummary = [
+            'mild' => [],
+            'moderate' => [],
+            'severe' => [],
+        ];
+        
+        foreach ($stuckPointDetails as $pillar => $detail) {
+            if ($detail['diff'] >= -10) {
+                $gapSummary['mild'][] = $detail['label'];
+            } elseif ($detail['diff'] >= -20) {
+                $gapSummary['moderate'][] = $detail['label'];
+            } else {
+                $gapSummary['severe'][] = $detail['label'];
+            }
+        }
+        
+        $stateType = CareerSatisfactionDiagnosis::determineStateType(
+            $workPillarScores,
+            $importanceWork,
+            $diagnosis->work_score ?? 0
+        );
+        
+        if ($diagnosis->state_type !== $stateType) {
+            $diagnosis->update(['state_type' => $stateType]);
+        }
+
+        if (!$diagnosis->is_completed) {
+            $workPillarScores = [];
+            $importanceWork = [];
+            $workScore = 0;
+            $radarWorkData = array_fill(0, count($pillarLabels), null);
+            $importanceDataset = array_fill(0, count($pillarLabels), null);
+            $stuckPoints = [];
+            $stuckPointDetails = [];
+            $gapSummary = ['mild' => [], 'moderate' => [], 'severe' => []];
+            $stateType = null;
+        }
+
+        return view('career-satisfaction-diagnosis.result', [
+            'diagnosis' => $diagnosis,
+            'workScore' => $diagnosis->work_score ?? 0,
+            'radarLabels' => $radarLabels,
+            'radarWorkData' => $radarWorkData,
+            'importanceDataset' => $importanceDataset,
+            'workPillarScores' => $workPillarScores,
+            'importanceWork' => $importanceWork,
+            'pillarLabels' => $pillarLabels,
+            'stuckPoints' => $stuckPoints,
+            'stuckPointCount' => $stuckPointCount,
+            'stuckPointDetails' => $stuckPointDetails,
+            'maxDiff' => $maxDiff,
+            'gapSummary' => $gapSummary,
+            'stateType' => $stateType,
+        ]);
     }
 }

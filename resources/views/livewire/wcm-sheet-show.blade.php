@@ -3,13 +3,31 @@
         <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-12 gap-4">
             <h1 class="heading-2">WCMシート（Step 2/2）</h1>
             <div class="flex items-center gap-3 flex-wrap">
-                <button wire:click="save" class="btn-primary text-sm">上書き保存</button>
-                <button wire:click="saveAsNew" class="btn-secondary text-sm">新規保存</button>
-                <button
-                    onclick="if(!confirm('このシートを削除します。よろしいですか？')) return false;"
-                    wire:click="delete({{ $sheet->id }})"
-                    class="text-sm px-4 py-2 rounded-xl border-2 border-red-400 text-red-600 bg-white font-medium hover:bg-red-50 transition-colors"
-                >削除</button>
+                @if(!$isAdminView)
+                    <button wire:click="save" class="btn-primary text-sm">上書き保存</button>
+                    <button wire:click="saveAsNew" class="btn-secondary text-sm">新規保存</button>
+                    @if($sheet->is_admin_visible)
+                        <span class="text-sm px-3 py-2 rounded-xl bg-green-50 border border-green-300 text-green-700 font-medium">
+                            管理者に共有中
+                        </span>
+                    @else
+                        <a href="{{ route('share-preview.wcm', ['id' => $sheet->id]) }}" class="btn-secondary text-sm">
+                            管理者に共有する
+                        </a>
+                    @endif
+                    <button
+                        onclick="if(!confirm('このシートを削除します。よろしいですか？')) return false;"
+                        wire:click="delete({{ $sheet->id }})"
+                        class="text-sm px-4 py-2 rounded-xl border-2 border-red-400 text-red-600 bg-white font-medium hover:bg-red-50 transition-colors"
+                    >削除</button>
+                @else
+                    <span class="text-sm px-3 py-2 rounded-xl bg-blue-50 border border-blue-300 text-blue-700 font-medium">
+                        管理者閲覧モード（閲覧のみ）
+                    </span>
+                    <a href="{{ route('admin.users.show', ['user' => $sheet->user_id]) }}" class="btn-secondary text-sm">
+                        ユーザー詳細に戻る
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -51,7 +69,8 @@
                         wire:click="generateWill"
                         wire:loading.attr="disabled"
                         wire:target="generateWill"
-                        class="btn-secondary text-sm"
+                        @if($isAdminView) disabled @endif
+                        class="btn-secondary text-sm @if($isAdminView) opacity-50 cursor-not-allowed @endif"
                     >
                         <span wire:loading.remove wire:target="generateWill">AI自動生成入力</span>
                         <span wire:loading wire:target="generateWill" class="flex items-center gap-2">
@@ -63,7 +82,7 @@
                         </span>
                     </button>
                 </div>
-                <textarea wire:model.debounce.800ms="will_text" rows="10" class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"></textarea>
+                <textarea wire:model.debounce.800ms="will_text" rows="10" @if($isAdminView) readonly @endif class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all @if($isAdminView) opacity-75 @endif"></textarea>
             </div>
             <div class="card-refined p-8 border-2 border-amber-200">
                 <div class="flex items-center justify-between mb-4">
@@ -72,7 +91,8 @@
                         wire:click="generateCan"
                         wire:loading.attr="disabled"
                         wire:target="generateCan"
-                        class="btn-secondary text-sm"
+                        @if($isAdminView) disabled @endif
+                        class="btn-secondary text-sm @if($isAdminView) opacity-50 cursor-not-allowed @endif"
                     >
                         <span wire:loading.remove wire:target="generateCan">AI自動生成入力</span>
                         <span wire:loading wire:target="generateCan" class="flex items-center gap-2">
@@ -84,7 +104,7 @@
                         </span>
                     </button>
                 </div>
-                <textarea wire:model.debounce.800ms="can_text" rows="10" class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"></textarea>
+                <textarea wire:model.debounce.800ms="can_text" rows="10" @if($isAdminView) readonly @endif class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all @if($isAdminView) opacity-75 @endif"></textarea>
             </div>
             <div class="card-refined p-8 border-2 border-green-200">
                 <div class="flex items-center justify-between mb-4">
@@ -93,7 +113,8 @@
                         wire:click="generateMust"
                         wire:loading.attr="disabled"
                         wire:target="generateMust"
-                        class="btn-secondary text-sm"
+                        @if($isAdminView) disabled @endif
+                        class="btn-secondary text-sm @if($isAdminView) opacity-50 cursor-not-allowed @endif"
                     >
                         <span wire:loading.remove wire:target="generateMust">AI自動生成入力</span>
                         <span wire:loading wire:target="generateMust" class="flex items-center gap-2">
@@ -105,7 +126,7 @@
                         </span>
                     </button>
                 </div>
-                <textarea wire:model.debounce.800ms="must_text" rows="10" class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all"></textarea>
+                <textarea wire:model.debounce.800ms="must_text" rows="10" @if($isAdminView) readonly @endif class="w-full body-text rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] p-4 focus:outline-none focus:ring-2 focus:ring-[#6BB6FF] focus:border-[#6BB6FF] transition-all @if($isAdminView) opacity-75 @endif"></textarea>
             </div>
         </div>
 

@@ -15,10 +15,32 @@ class WcmSheetShow extends Component
     public string $will_text = '';
     public string $can_text = '';
     public string $must_text = '';
+    public bool $isAdminView = false;
 
     public function mount(int $id): void
     {
-        $this->sheet = WcmSheet::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $user = Auth::user();
+        
+        // 管理者の場合は、is_admin_visible = true のコンテンツも閲覧可能
+        if ($user && $user->isAdmin()) {
+            $this->sheet = WcmSheet::where('id', $id)
+                ->where(function($query) use ($user) {
+                    $query->where('user_id', $user->id)
+                          ->orWhere(function($q) {
+                              $q->where('is_admin_visible', true);
+                          });
+                })
+                ->firstOrFail();
+            
+            // 他のユーザーのコンテンツを閲覧している場合は編集不可
+            $this->isAdminView = $this->sheet->user_id !== $user->id;
+        } else {
+            $this->sheet = WcmSheet::where('id', $id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+            $this->isAdminView = false;
+        }
+        
         $this->will_text = (string)$this->sheet->will_text;
         $this->can_text  = (string)$this->sheet->can_text;
         $this->must_text = (string)$this->sheet->must_text;
@@ -26,6 +48,11 @@ class WcmSheetShow extends Component
 
     public function save(): void
     {
+        if ($this->isAdminView) {
+            session()->flash('error', '管理者は他のユーザーのコンテンツを編集できません。');
+            return;
+        }
+        
         $this->sheet->update([
             'will_text' => $this->will_text,
             'can_text'  => $this->can_text,
@@ -41,6 +68,10 @@ class WcmSheetShow extends Component
 
     private function autosave(): void
     {
+        if ($this->isAdminView) {
+            return; // 管理者は他のユーザーのコンテンツを編集できない
+        }
+        
         // 下書き的に常時保存（バージョンは上げない）
         $this->sheet->update([
             'will_text' => $this->will_text,
@@ -51,6 +82,11 @@ class WcmSheetShow extends Component
 
     public function saveAsNew(): mixed
     {
+        if ($this->isAdminView) {
+            session()->flash('error', '管理者は他のユーザーのコンテンツを編集できません。');
+            return null;
+        }
+        
         $userId = Auth::id();
         $count = WcmSheet::where('user_id', $userId)->count();
         if ($count >= 10) {
@@ -86,6 +122,11 @@ class WcmSheetShow extends Component
 
     public function delete(int $id)
     {
+        if ($this->isAdminView) {
+            session()->flash('error', '管理者は他のユーザーのコンテンツを削除できません。');
+            return;
+        }
+        
         $sheet = WcmSheet::where('user_id', Auth::id())
             ->where('id', $id)
             ->firstOrFail();
@@ -113,6 +154,11 @@ class WcmSheetShow extends Component
      */
     public function generateWill(): void
     {
+        if ($this->isAdminView) {
+            session()->flash('error', '管理者は他のユーザーのコンテンツを編集できません。');
+            return;
+        }
+        
         try {
             $service = app(WcmAutoGenerationService::class);
             $generated = $service->generateWill(Auth::id(), $this->will_text);
@@ -137,6 +183,11 @@ class WcmSheetShow extends Component
      */
     public function generateCan(): void
     {
+        if ($this->isAdminView) {
+            session()->flash('error', '管理者は他のユーザーのコンテンツを編集できません。');
+            return;
+        }
+        
         try {
             $service = app(WcmAutoGenerationService::class);
             $generated = $service->generateCan(Auth::id(), $this->can_text);
@@ -161,6 +212,11 @@ class WcmSheetShow extends Component
      */
     public function generateMust(): void
     {
+        if ($this->isAdminView) {
+            session()->flash('error', '管理者は他のユーザーのコンテンツを編集できません。');
+            return;
+        }
+        
         try {
             $service = app(WcmAutoGenerationService::class);
             $generated = $service->generateMust(Auth::id(), $this->must_text);

@@ -11,7 +11,7 @@ class WcmSheet extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'title', 'will_text', 'can_text', 'must_text', 'version', 'is_draft',
+        'user_id', 'title', 'will_text', 'can_text', 'must_text', 'version', 'is_draft', 'is_admin_visible',
     ];
 
     public function user(): BelongsTo

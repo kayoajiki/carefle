@@ -16,6 +16,7 @@ class Diagnosis extends Model
         'life_pillar_scores',
         'is_completed',
         'is_draft',
+        'is_admin_visible',
     ];
 
     protected $casts = [
@@ -23,6 +24,7 @@ class Diagnosis extends Model
         'life_pillar_scores' => 'array',
         'is_completed' => 'boolean',
         'is_draft' => 'boolean',
+        'is_admin_visible' => 'boolean',
         'work_score' => 'integer',
         'life_score' => 'integer',
     ];

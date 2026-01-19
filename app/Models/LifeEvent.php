@@ -18,6 +18,7 @@ class LifeEvent extends Model
         'motivation',
         'timeline_color',
         'timeline_label',
+        'is_admin_visible',
     ];
 
     /**

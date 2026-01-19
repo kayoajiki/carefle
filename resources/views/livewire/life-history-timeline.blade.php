@@ -115,6 +115,17 @@
                                                 {{ $event->year }}年
                                             </span>
                                         </div>
+                                        <div class="flex items-center gap-2">
+                                            @if($event->is_admin_visible)
+                                                <span class="text-xs px-2 py-1 rounded bg-green-50 border border-green-300 text-green-700 font-medium">
+                                                    共有中
+                                                </span>
+                                            @else
+                                                <a href="{{ route('share-preview.life-history', ['id' => $event->id]) }}" class="text-xs px-2 py-1 rounded border border-[#2E5C8A] text-[#2E5C8A] hover:bg-[#2E5C8A]/5 transition">
+                                                    管理者に共有
+                                                </a>
+                                            @endif
+                                        </div>
                                     </div>
 
                                     {{-- タイトル --}}

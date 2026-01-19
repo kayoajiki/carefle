@@ -99,11 +99,15 @@ class OnboardingController extends Controller
         $mappingProgressService->markItemAsReviewed($user->id, 'strengths_report');
 
         $canUpdate = StrengthsReport::canUpdate($user->id);
+        $latestReport = StrengthsReport::getLatestForUser($user->id);
+        $isAdminVisible = $latestReport ? $latestReport->is_admin_visible : false;
 
         return view('onboarding.mini-manual', [
             'manual' => $manual,
             'user' => $user,
             'canUpdate' => $canUpdate,
+            'latestReport' => $latestReport,
+            'isAdminVisible' => $isAdminVisible,
         ]);
     }
 

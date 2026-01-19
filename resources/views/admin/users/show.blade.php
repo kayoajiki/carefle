@@ -84,25 +84,192 @@
                 <!-- Created Data Tab -->
                 <div id="tab-data" class="tab-content hidden">
                     <div class="space-y-6">
+                        <!-- WCMシート -->
                         <div>
-                            <h3 class="heading-3 text-lg mb-3">診断 ({{ $diagnoses->count() }})</h3>
-                            <div class="space-y-2">
-                                @forelse($diagnoses as $diagnosis)
-                                    <p class="body-text">{{ $diagnosis->created_at->format('Y-m-d') }}</p>
+                            <h3 class="heading-3 text-lg mb-3">WCMシート (共有中: {{ $wcmSheets->count() }}件)</h3>
+                            <div class="space-y-3">
+                                @forelse($wcmSheets as $sheet)
+                                    <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-[#2E5C8A] mb-1">{{ $sheet->title }}</p>
+                                                <p class="body-small text-[#1E3A5F]/70">作成日: {{ $sheet->created_at->format('Y年n月j日') }}</p>
+                                                @if($sheet->will_text)
+                                                <p class="body-small text-[#1E3A5F] mt-2">Will: {{ mb_substr($sheet->will_text, 0, 50) }}...</p>
+                                                @endif
+                                            </div>
+                                            <a href="{{ route('admin.users.view-wcm', ['user' => $user->id, 'id' => $sheet->id]) }}" class="btn-secondary text-xs ml-4">
+                                                詳細を見る
+                                            </a>
+                                        </div>
+                                    </div>
                                 @empty
-                                    <p class="body-text text-[#1E3A5F]/70">診断がありません</p>
+                                    <p class="body-text text-[#1E3A5F]/70">共有されたWCMシートがありません</p>
                                 @endforelse
                             </div>
                         </div>
+
+                        <!-- 人生史 -->
                         <div>
-                            <h3 class="heading-3 text-lg mb-3">日記 ({{ $diaries->count() }})</h3>
-                            <div class="space-y-2">
-                                @forelse($diaries->take(10) as $diary)
-                                    <p class="body-text">{{ $diary->date->format('Y-m-d') }}</p>
+                            <h3 class="heading-3 text-lg mb-3">人生史 (共有中: {{ $lifeEvents->count() }}件)</h3>
+                            <div class="space-y-3">
+                                @forelse($lifeEvents as $event)
+                                    <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-[#2E5C8A] mb-1">{{ $event->year }}年: {{ $event->title }}</p>
+                                                @if($event->description)
+                                                <p class="body-small text-[#1E3A5F] mt-2">{{ mb_substr($event->description, 0, 100) }}...</p>
+                                                @endif
+                                            </div>
+                                            <a href="{{ route('life-history.timeline') }}" class="btn-secondary text-xs ml-4">
+                                                詳細を見る
+                                            </a>
+                                        </div>
+                                    </div>
                                 @empty
-                                    <p class="body-text text-[#1E3A5F]/70">日記がありません</p>
+                                    <p class="body-text text-[#1E3A5F]/70">共有された人生史がありません</p>
                                 @endforelse
                             </div>
+                        </div>
+
+                        <!-- 診断結果 -->
+                        <div>
+                            <h3 class="heading-3 text-lg mb-3">診断結果 (共有中: {{ $diagnoses->count() }}件)</h3>
+                            <div class="space-y-3">
+                                @forelse($diagnoses as $diagnosis)
+                                    <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-[#2E5C8A] mb-1">満足度: {{ $diagnosis->work_score ?? 0 }}点 / 重要度: {{ $diagnosis->life_score ?? 0 }}点</p>
+                                                <p class="body-small text-[#1E3A5F]/70">診断ID: #{{ str_pad($diagnosis->id, 4, '0', STR_PAD_LEFT) }} | 診断日: {{ $diagnosis->created_at->format('Y年n月j日') }}</p>
+                                            </div>
+                                            <a href="{{ route('admin.users.view-diagnosis', ['user' => $user->id, 'id' => $diagnosis->id]) }}" class="btn-secondary text-xs ml-4">
+                                                詳細を見る
+                                            </a>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p class="body-text text-[#1E3A5F]/70">共有された診断結果がありません</p>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <!-- 現職満足度診断結果 -->
+                        <div>
+                            <h3 class="heading-3 text-lg mb-3">現職満足度診断結果 (共有中: {{ $careerSatisfactionDiagnoses->count() }}件)</h3>
+                            <div class="space-y-3">
+                                @forelse($careerSatisfactionDiagnoses as $diagnosis)
+                                    <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-[#2E5C8A] mb-1">満足度: {{ $diagnosis->work_score ?? 0 }}点</p>
+                                                <p class="body-small text-[#1E3A5F]/70">診断日: {{ $diagnosis->created_at->format('Y年n月j日') }}</p>
+                                            </div>
+                                            <a href="{{ route('admin.users.view-career-satisfaction', ['user' => $user->id, 'id' => $diagnosis->id]) }}" class="btn-secondary text-xs ml-4">
+                                                詳細を見る
+                                            </a>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p class="body-text text-[#1E3A5F]/70">共有された現職満足度診断結果がありません</p>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <!-- 持ち味診断 -->
+                        <div>
+                            <h3 class="heading-3 text-lg mb-3">持ち味診断 (共有中: {{ $strengthsReports->count() }}件)</h3>
+                            <div class="space-y-3">
+                                @forelse($strengthsReports as $report)
+                                    <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-[#2E5C8A] mb-1">{{ $report->content['title'] ?? '私の持ち味レポ' }}</p>
+                                                <p class="body-small text-[#1E3A5F]/70">生成日: {{ $report->generated_at->format('Y年n月j日') }}</p>
+                                            </div>
+                                            <a href="{{ route('admin.users.view-strengths-report', ['user' => $user->id, 'id' => $report->id]) }}" class="btn-secondary text-xs ml-4">
+                                                詳細を見る
+                                            </a>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p class="body-text text-[#1E3A5F]/70">共有された持ち味診断がありません</p>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <!-- マイゴール -->
+                        <div>
+                            <h3 class="heading-3 text-lg mb-3">マイゴール</h3>
+                            @if($myGoalShared)
+                                <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-semibold text-[#2E5C8A] mb-2">マイゴール</p>
+                                            <p class="body-text text-[#1E3A5F]">{{ mb_substr($user->goal_image, 0, 100) }}...</p>
+                                        </div>
+                                        <a href="{{ route('my-goal') }}" class="btn-secondary text-xs ml-4">
+                                            詳細を見る
+                                        </a>
+                                    </div>
+                                </div>
+                            @else
+                                <p class="body-text text-[#1E3A5F]/70">共有されたマイゴールがありません</p>
+                            @endif
+                        </div>
+
+                        <!-- マイルストーン -->
+                        <div>
+                            <h3 class="heading-3 text-lg mb-3">マイルストーン (共有中: {{ $milestones->count() }}件)</h3>
+                            <div class="space-y-3">
+                                @forelse($milestones as $milestone)
+                                    <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-[#2E5C8A] mb-1">{{ $milestone->title }}</p>
+                                                <p class="body-small text-[#1E3A5F]/70">目標年: {{ $milestone->target_year }}年</p>
+                                                @if($milestone->description)
+                                                <p class="body-small text-[#1E3A5F] mt-2">{{ mb_substr($milestone->description, 0, 100) }}...</p>
+                                                @endif
+                                            </div>
+                                            <a href="{{ route('career.milestones') }}" class="btn-secondary text-xs ml-4">
+                                                詳細を見る
+                                            </a>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p class="body-text text-[#1E3A5F]/70">共有されたマイルストーンがありません</p>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <!-- 自己診断結果 -->
+                        <div>
+                            <h3 class="heading-3 text-lg mb-3">自己診断結果 (共有中: {{ $assessments->count() }}件)</h3>
+                            <div class="space-y-3">
+                                @forelse($assessments as $assessment)
+                                    <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-[#2E5C8A] mb-1">{{ $assessment->assessment_name ?? strtoupper($assessment->assessment_type) }}</p>
+                                                <p class="body-small text-[#1E3A5F]/70">記録日: {{ $assessment->completed_at ? $assessment->completed_at->format('Y年n月j日') : $assessment->created_at->format('Y年n月j日') }}</p>
+                                            </div>
+                                            <a href="{{ route('assessments.visualization') }}" class="btn-secondary text-xs ml-4">
+                                                詳細を見る
+                                            </a>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p class="body-text text-[#1E3A5F]/70">共有された自己診断結果がありません</p>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <!-- 日記（共有機能なし） -->
+                        <div>
+                            <h3 class="heading-3 text-lg mb-3">日記 ({{ $diaries->count() }})</h3>
+                            <p class="body-text text-[#1E3A5F]/70">日記は共有機能の対象外です</p>
                         </div>
                     </div>
                 </div>
@@ -136,6 +303,8 @@
         }
     </script>
 </x-admin.layouts.app>
+
+
 
 
 

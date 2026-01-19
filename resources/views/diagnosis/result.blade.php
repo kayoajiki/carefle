@@ -272,13 +272,22 @@
                         「いまの仕事」と「いまの暮らし」の凸凹を俯瞰して、次の一歩に使えるヒントをまとめました。
         </p>
     </div>
-                <div class="flex flex-wrap gap-3">
+                <div class="flex flex-wrap gap-3 items-center">
                     <span class="px-4 py-2 rounded-full bg-white text-[#2E5C8A] body-small font-semibold soft-shadow-refined">
                         {{ now()->format('Y.m.d') }} 更新
                     </span>
                     <span class="px-4 py-2 rounded-full bg-[#2E5C8A] text-white body-small font-semibold soft-shadow-refined">
                         診断ID：#{{ str_pad($diagnosis->id, 4, '0', STR_PAD_LEFT) }}
                     </span>
+                    @if($diagnosis->is_admin_visible)
+                        <span class="text-sm px-3 py-2 rounded-xl bg-green-50 border border-green-300 text-green-700 font-medium">
+                            管理者に共有中
+                        </span>
+                    @else
+                        <a href="{{ route('share-preview.diagnosis', ['id' => $diagnosis->id]) }}" class="btn-secondary text-sm">
+                            管理者に共有する
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

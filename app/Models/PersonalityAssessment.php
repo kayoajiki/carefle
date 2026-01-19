@@ -17,6 +17,7 @@ class PersonalityAssessment extends Model
         'result_data',
         'completed_at',
         'notes',
+        'is_admin_visible',
     ];
 
     protected function casts(): array
@@ -24,6 +25,7 @@ class PersonalityAssessment extends Model
         return [
             'result_data' => 'array',
             'completed_at' => 'date',
+            'is_admin_visible' => 'boolean',
         ];
     }
 

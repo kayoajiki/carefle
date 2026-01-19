@@ -37,7 +37,16 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="flex-1 flex justify-end">
+                        <div class="flex-1 flex justify-end items-start gap-3">
+                            @if($isAdminVisible ?? false)
+                                <span class="text-sm px-3 py-2 rounded-xl bg-green-50 border border-green-300 text-green-700 font-medium">
+                                    管理者に共有中
+                                </span>
+                            @elseif(isset($latestReport))
+                                <a href="{{ route('share-preview.strengths-report', ['id' => $latestReport->id]) }}" class="btn-secondary text-sm">
+                                    管理者に共有する
+                                </a>
+                            @endif
                             @if($canUpdate ?? false)
                                 <form action="{{ route('onboarding.mini-manual.update') }}" method="POST" class="inline">
                                     @csrf

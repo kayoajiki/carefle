@@ -1,3 +1,4 @@
+<div>
 @if($isComplete && ($showCompletionMessage ?? false))
     {{-- オンボーディング完了時は達成バッジのみ表示（1週間経過後は非表示） --}}
     <div class="mb-6">
@@ -68,3 +69,4 @@
         </div>
     </div>
 @endif
+</div>

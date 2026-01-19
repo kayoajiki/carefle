@@ -29,6 +29,7 @@ class CareerMilestone extends Model
         'achievement_rate',
         'progress_points',
         'linked_life_event_id',
+        'is_admin_visible',
     ];
 
     protected function casts(): array
@@ -36,6 +37,7 @@ class CareerMilestone extends Model
         return [
             'target_date' => 'date',
             'mandala_data' => 'array',
+            'is_admin_visible' => 'boolean',
         ];
     }
 
