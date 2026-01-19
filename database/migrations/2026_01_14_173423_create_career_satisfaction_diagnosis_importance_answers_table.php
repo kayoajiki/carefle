@@ -15,7 +15,7 @@ return new class extends Migration
             Schema::create('career_satisfaction_diagnosis_importance_answers', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('career_satisfaction_diagnosis_id');
-                $table->foreignId('question_id')->constrained('questions')->onDelete('cascade');
+                $table->unsignedBigInteger('question_id');
                 $table->unsignedTinyInteger('importance_value'); // 1-5
                 $table->timestamps();
                 
@@ -24,10 +24,16 @@ return new class extends Migration
                     ->on('career_satisfaction_diagnoses')
                     ->onDelete('cascade');
                 
+                $table->foreign('question_id', 'cs_diag_imp_ans_q_id_foreign')
+                    ->references('id')
+                    ->on('questions')
+                    ->onDelete('cascade');
+                
                 $table->unique(['career_satisfaction_diagnosis_id', 'question_id']);
             });
         } else {
             // テーブルが既に存在する場合、外部キー制約が正しく設定されているか確認
+            // career_satisfaction_diagnosis_id の外部キー制約を確認
             if (!$this->hasForeignKey('career_satisfaction_diagnosis_importance_answers', 'cs_diag_imp_ans_diag_id_foreign')) {
                 // 既存の外部キー制約を削除（存在する場合）
                 $existingForeignKey = $this->getExistingForeignKey('career_satisfaction_diagnosis_importance_answers', 'career_satisfaction_diagnosis_id');
@@ -42,6 +48,25 @@ return new class extends Migration
                     $table->foreign('career_satisfaction_diagnosis_id', 'cs_diag_imp_ans_diag_id_foreign')
                         ->references('id')
                         ->on('career_satisfaction_diagnoses')
+                        ->onDelete('cascade');
+                });
+            }
+            
+            // question_id の外部キー制約を確認
+            if (!$this->hasForeignKey('career_satisfaction_diagnosis_importance_answers', 'cs_diag_imp_ans_q_id_foreign')) {
+                // 既存の外部キー制約を削除（存在する場合）
+                $existingForeignKey = $this->getExistingForeignKey('career_satisfaction_diagnosis_importance_answers', 'question_id');
+                if ($existingForeignKey) {
+                    Schema::table('career_satisfaction_diagnosis_importance_answers', function (Blueprint $table) use ($existingForeignKey) {
+                        $table->dropForeign($existingForeignKey);
+                    });
+                }
+                
+                Schema::table('career_satisfaction_diagnosis_importance_answers', function (Blueprint $table) {
+                    // 短い名前で外部キー制約を追加
+                    $table->foreign('question_id', 'cs_diag_imp_ans_q_id_foreign')
+                        ->references('id')
+                        ->on('questions')
                         ->onDelete('cascade');
                 });
             }
