@@ -10,6 +10,14 @@
                         <span class="text-sm px-3 py-2 rounded-xl bg-green-50 border border-green-300 text-green-700 font-medium">
                             管理者に共有中
                         </span>
+                        <form action="{{ route('share-preview.unshare') }}" method="POST" class="inline">
+                            @csrf
+                            <input type="hidden" name="type" value="wcm">
+                            <input type="hidden" name="id" value="{{ $sheet->id }}">
+                            <button type="submit" onclick="return confirm('共有を解除しますか？')" class="btn-secondary text-sm">
+                                共有を解除
+                            </button>
+                        </form>
                     @else
                         <a href="{{ route('share-preview.wcm', ['id' => $sheet->id]) }}" class="btn-secondary text-sm">
                             管理者に共有する
@@ -136,9 +144,14 @@
             <div class="space-y-3">
                 @foreach($versions as $v)
                     <div class="flex items-center gap-3">
-                        <a href="{{ route('wcm.sheet', ['id' => $v->id]) }}" class="px-4 py-2 rounded-xl border-2 border-[#2E5C8A]/20 bg-[#F0F7FF] text-[#2E5C8A] body-text hover:bg-[#E8F4FF] transition-colors">
+                        <a href="{{ route('wcm.sheet', ['id' => $v->id]) }}" class="px-4 py-2 rounded-xl border-2 {{ $v->id === $sheet->id ? 'border-[#6BB6FF] bg-[#E8F4FF]' : 'border-[#2E5C8A]/20 bg-[#F0F7FF]' }} text-[#2E5C8A] body-text hover:bg-[#E8F4FF] transition-colors">
                             v{{ $v->version }} （{{ $v->created_at->format('Y/m/d') }}）
                         </a>
+                        @if($v->is_admin_visible)
+                            <span class="text-xs px-2 py-1 rounded bg-green-50 border border-green-300 text-green-700 font-medium">
+                                共有中
+                            </span>
+                        @endif
                         <button
                             onclick="if(!confirm('v{{ $v->version }} を削除します。よろしいですか？')) return false;"
                             wire:click="delete({{ $v->id }})"

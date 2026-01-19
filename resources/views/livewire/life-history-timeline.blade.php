@@ -1,3 +1,6 @@
+@if($events->count() > 0)
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endif
 <div class="min-h-screen w-full bg-[#F0F7FF] text-[#1E3A5F] content-padding section-spacing-sm">
     {{-- ヘッダー --}}
     <div class="max-w-6xl mx-auto mb-12">
@@ -10,20 +13,50 @@
                     これまでの人生の出来事を時系列で振り返ります。
                 </p>
             </div>
-            <a
-                href="{{ route('life-history') }}"
-                class="btn-secondary text-sm">
-                編集に戻る
-            </a>
+            <div class="flex items-center gap-3">
+                @if(auth()->user()->life_history_is_admin_visible)
+                    <span class="text-sm px-3 py-2 rounded-xl bg-green-50 border border-green-300 text-green-700 font-medium">
+                        全体を管理者に共有中
+                    </span>
+                    <form action="{{ route('share-preview.unshare') }}" method="POST" class="inline">
+                        @csrf
+                        <input type="hidden" name="type" value="life_history_all">
+                        <button type="submit" onclick="return confirm('全体共有を解除しますか？')" class="btn-secondary text-sm">
+                            全体共有を解除
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('share-preview.life-history-all') }}" class="btn-secondary text-sm">
+                        全体を管理者に共有する
+                    </a>
+                @endif
+                <a
+                    href="{{ route('life-history') }}"
+                    class="btn-secondary text-sm">
+                    編集に戻る
+                </a>
+            </div>
         </div>
     </div>
 
     @if($events->count() > 0)
-        <div class="max-w-6xl mx-auto">
-            <div class="flex gap-8">
+        <div class="max-w-6xl mx-auto space-y-8">
+            {{-- モチベーショングラフ --}}
+            <div class="bg-white rounded-2xl shadow-md border border-[#2E5C8A]/10 p-4 md:p-6">
+                <h3 class="text-base md:text-lg font-semibold text-[#2E5C8A] mb-4">モチベーショングラフ</h3>
+                
+                <div class="relative w-full overflow-x-auto">
+                    <div style="height: 250px; min-height: 250px; min-width: 300px;">
+                        <canvas id="motivationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            {{-- タイムラインと出来事一覧 --}}
+            <div class="flex flex-col md:flex-row gap-4 md:gap-12">
                 {{-- 左側：タイムライン --}}
                 <div class="hidden md:block w-16 flex-shrink-0">
-                    <div class="relative">
+                    <div class="relative pl-8">
                         {{-- タイムライン --}}
                         <div class="relative">
                             
@@ -100,31 +133,20 @@
 
                 {{-- 右側：出来事一覧 --}}
                 <div class="flex-1 min-w-0">
-                    <div class="space-y-4">
+                    <div class="space-y-4 md:space-y-4">
                         @foreach($years as $year)
                             @php
                                 $yearEvents = $eventsByYear[$year];
                             @endphp
                             
                             @foreach($yearEvents as $event)
-                                <div id="event-{{ $year }}-{{ $event->id }}" class="card-refined p-6 md:p-8">
+                                <div id="event-{{ $year }}-{{ $event->id }}" class="card-refined p-4 md:p-6 lg:p-8">
                                     {{-- ヘッダー --}}
                                     <div class="flex items-start justify-between mb-3">
                                         <div class="flex items-center gap-2">
                                             <span class="text-xs font-semibold text-[#2E5C8A] bg-[#F0F7FF] px-2 py-1 rounded">
                                                 {{ $event->year }}年
                                             </span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            @if($event->is_admin_visible)
-                                                <span class="text-xs px-2 py-1 rounded bg-green-50 border border-green-300 text-green-700 font-medium">
-                                                    共有中
-                                                </span>
-                                            @else
-                                                <a href="{{ route('share-preview.life-history', ['id' => $event->id]) }}" class="text-xs px-2 py-1 rounded border border-[#2E5C8A] text-[#2E5C8A] hover:bg-[#2E5C8A]/5 transition">
-                                                    管理者に共有
-                                                </a>
-                                            @endif
                                         </div>
                                     </div>
 
@@ -260,4 +282,137 @@ setTimeout(function() {
         });
     }
 }, 500);
+
+// モチベーショングラフの初期化
+@if($events->count() > 0)
+// Chart.jsの読み込みを待つ関数
+function waitForChartJS(callback) {
+    if (typeof Chart !== 'undefined') {
+        callback();
+    } else {
+        const script = document.querySelector('script[src*="chart.js"]');
+        if (script) {
+            script.addEventListener('load', callback);
+        } else {
+            setTimeout(() => waitForChartJS(callback), 50);
+        }
+    }
+}
+
+function initMotivationChart() {
+    const events = @json($events);
+    
+    if (events.length === 0) return;
+    
+    // データを準備
+    const labels = events.map(e => e.year);
+    const motivations = events.map(e => e.motivation);
+    const titles = events.map(e => e.title);
+    
+    // グラフの設定
+    const ctx = document.getElementById('motivationChart');
+    if (!ctx) return;
+    
+    // 既存のグラフインスタンスを破棄
+    if (window.motivationChartInstance) {
+        window.motivationChartInstance.destroy();
+    }
+    
+    window.motivationChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'モチベーション',
+                data: motivations,
+                borderColor: '#6BB6FF',
+                backgroundColor: 'rgba(107, 182, 255, 0.1)',
+                borderWidth: 2,
+                pointRadius: 6,
+                pointBackgroundColor: '#6BB6FF',
+                pointBorderColor: '#2E5C8A',
+                pointBorderWidth: 2,
+                pointHoverRadius: 8,
+                tension: 0.3,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            const index = context[0].dataIndex;
+                            return titles[index] || labels[index];
+                        },
+                        label: function(context) {
+                            return 'モチベーション: ' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        stepSize: 20,
+                        font: {
+                            size: window.innerWidth < 768 ? 10 : 12
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'モチベーション',
+                        font: {
+                            size: window.innerWidth < 768 ? 12 : 14
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            size: window.innerWidth < 768 ? 10 : 12
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: '年',
+                        font: {
+                            size: window.innerWidth < 768 ? 12 : 14
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// DOMContentLoadedとLivewireナビゲーションの両方に対応
+function initChartWhenReady() {
+    waitForChartJS(() => {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initMotivationChart);
+        } else {
+            setTimeout(initMotivationChart, 50);
+        }
+    });
+}
+
+// Livewireのナビゲーション後にも実行
+document.addEventListener('livewire:navigated', () => {
+    waitForChartJS(() => {
+        setTimeout(initMotivationChart, 100);
+    });
+});
+
+// 初回読み込み時にも実行
+initChartWhenReady();
+@endif
 </script>

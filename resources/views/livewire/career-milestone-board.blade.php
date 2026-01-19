@@ -95,11 +95,19 @@
                                     </button>
                                     {{-- 編集・削除・完了ボタン --}}
                                     <div class="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-slate-200">
-                                        <div>
+                                        <div class="flex items-center gap-2">
                                             @if($item->is_admin_visible)
                                                 <span class="text-xs px-2 py-1 rounded bg-green-50 border border-green-300 text-green-700 font-medium">
                                                     管理者に共有中
                                                 </span>
+                                                <form action="{{ route('share-preview.unshare') }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <input type="hidden" name="type" value="milestone">
+                                                    <input type="hidden" name="id" value="{{ $item->id }}">
+                                                    <button type="submit" onclick="return confirm('共有を解除しますか？')" class="text-xs px-2 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50 transition">
+                                                        解除
+                                                    </button>
+                                                </form>
                                             @else
                                                 <a href="{{ route('share-preview.milestone', ['id' => $item->id]) }}" class="text-xs px-2 py-1 rounded border border-[#2E5C8A] text-[#2E5C8A] hover:bg-[#2E5C8A]/5 transition">
                                                     管理者に共有

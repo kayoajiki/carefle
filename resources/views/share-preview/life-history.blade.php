@@ -7,8 +7,13 @@
                     
                     <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <p class="body-text text-[#1E3A5F]">
-                            以下の内容を管理者が閲覧できるようにしますか？<br>
-                            共有を許可すると、管理者はこの内容を確認できるようになります。
+                            @if(auth()->user()->life_history_is_admin_visible && !$event->is_admin_visible)
+                                この内容を管理者の閲覧に「含める」ようにしますか？<br>
+                                全体共有が有効なため、この項目を共有に含めることで管理者が閲覧できるようになります。
+                            @else
+                                以下の内容を管理者が閲覧できるようにしますか？<br>
+                                共有を許可すると、管理者はこの内容を確認できるようになります。
+                            @endif
                         </p>
                     </div>
 

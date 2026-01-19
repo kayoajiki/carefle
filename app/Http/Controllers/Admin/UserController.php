@@ -95,11 +95,15 @@ class UserController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $lifeEvents = LifeEvent::where('user_id', $user->id)
-            ->where('is_admin_visible', true)
-            ->orderBy('year', 'asc')
-            ->orderBy('id', 'asc')
-            ->get();
+        // 人生史: 全体共有が有効な場合、全イベントを取得（個別のis_admin_visibleは無視）
+        if ($user->life_history_is_admin_visible) {
+            $lifeEvents = LifeEvent::where('user_id', $user->id)
+                ->orderBy('year', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+        } else {
+            $lifeEvents = collect([]);
+        }
 
         $careerSatisfactionDiagnoses = CareerSatisfactionDiagnosis::where('user_id', $user->id)
             ->where('is_admin_visible', true)
@@ -238,6 +242,33 @@ class UserController extends Controller
             'canUpdate' => false,
             'latestReport' => $report,
             'isAdminVisible' => true,
+        ]);
+    }
+
+    /**
+     * 管理者が対象ユーザーの人生史を閲覧
+     */
+    public function viewLifeHistory(User $user)
+    {
+        // 全体共有が有効でない場合は表示しない
+        if (!$user->life_history_is_admin_visible) {
+            abort(403, 'このユーザーの人生史は共有されていません。');
+        }
+
+        $events = LifeEvent::where('user_id', $user->id)
+            ->orderBy('year', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        // 年ごとにグループ化
+        $years = $events->pluck('year')->unique()->sort()->values();
+        $eventsByYear = $events->groupBy('year');
+
+        return view('admin.users.life-history', [
+            'user' => $user,
+            'events' => $events,
+            'years' => $years,
+            'eventsByYear' => $eventsByYear,
         ]);
     }
 

@@ -64,11 +64,19 @@
                             職業満足度診断結果
                         </h1>
                     </div>
-                    <div class="ml-4">
+                    <div class="ml-4 flex items-center gap-3">
                         @if($diagnosis->is_admin_visible)
                             <span class="text-sm px-3 py-2 rounded-xl bg-green-50 border border-green-300 text-green-700 font-medium">
                                 管理者に共有中
                             </span>
+                            <form action="{{ route('share-preview.unshare') }}" method="POST" class="inline">
+                                @csrf
+                                <input type="hidden" name="type" value="career_satisfaction">
+                                <input type="hidden" name="id" value="{{ $diagnosis->id }}">
+                                <button type="submit" onclick="return confirm('共有を解除しますか？')" class="btn-secondary text-sm">
+                                    共有を解除
+                                </button>
+                            </form>
                         @else
                             <a href="{{ route('share-preview.career-satisfaction', ['id' => $diagnosis->id]) }}" class="btn-secondary text-sm">
                                 管理者に共有する

@@ -42,6 +42,16 @@
                                 <span class="text-sm px-3 py-2 rounded-xl bg-green-50 border border-green-300 text-green-700 font-medium">
                                     管理者に共有中
                                 </span>
+                                @if(isset($latestReport))
+                                <form action="{{ route('share-preview.unshare') }}" method="POST" class="inline">
+                                    @csrf
+                                    <input type="hidden" name="type" value="strengths_report">
+                                    <input type="hidden" name="id" value="{{ $latestReport->id }}">
+                                    <button type="submit" onclick="return confirm('共有を解除しますか？')" class="btn-secondary text-sm">
+                                        共有を解除
+                                    </button>
+                                </form>
+                                @endif
                             @elseif(isset($latestReport))
                                 <a href="{{ route('share-preview.strengths-report', ['id' => $latestReport->id]) }}" class="btn-secondary text-sm">
                                     管理者に共有する

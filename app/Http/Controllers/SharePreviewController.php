@@ -48,6 +48,29 @@ class SharePreviewController extends Controller
     }
 
     /**
+     * 人生史全体の共有確認画面
+     */
+    public function previewLifeHistoryAll()
+    {
+        $user = Auth::user();
+        $events = LifeEvent::where('user_id', $user->id)
+            ->orderBy('year', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        if ($events->isEmpty()) {
+            return redirect()->route('life-history.timeline')
+                ->with('error', '人生史が登録されていません。');
+        }
+
+        return view('share-preview.life-history-all', [
+            'user' => $user,
+            'events' => $events,
+            'type' => 'life_history_all',
+        ]);
+    }
+
+    /**
      * 診断結果の共有確認画面
      */
     public function previewDiagnosis($id)
@@ -151,7 +174,7 @@ class SharePreviewController extends Controller
     public function confirmShare(Request $request)
     {
         $request->validate([
-            'type' => 'required|string|in:wcm,life_history,career_satisfaction,diagnosis,strengths_report,my_goal,milestone,personality_assessment',
+            'type' => 'required|string|in:wcm,life_history,life_history_all,career_satisfaction,diagnosis,strengths_report,my_goal,milestone,personality_assessment',
             'id' => 'nullable|integer',
         ]);
 
@@ -173,6 +196,13 @@ class SharePreviewController extends Controller
                     ->where('user_id', $userId)
                     ->firstOrFail();
                 $item->update(['is_admin_visible' => true]);
+                $redirectRoute = route('life-history.timeline');
+                break;
+
+            case 'life_history_all':
+                $user = User::findOrFail($userId);
+                $user->update(['life_history_is_admin_visible' => true]);
+                // 全体共有を有効化した際、既存の全イベントのis_admin_visibleは更新しない（全体共有のみで管理）
                 $redirectRoute = route('life-history.timeline');
                 break;
 
@@ -229,5 +259,97 @@ class SharePreviewController extends Controller
 
         return redirect($redirectRoute)
             ->with('success', '管理者への共有を許可しました。');
+    }
+
+    /**
+     * 共有解除の処理
+     */
+    public function unshare(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|string|in:wcm,life_history,life_history_all,career_satisfaction,diagnosis,strengths_report,my_goal,milestone,personality_assessment',
+            'id' => 'nullable|integer',
+        ]);
+
+        $type = $request->type;
+        $id = $request->id;
+        $userId = Auth::id();
+
+        switch ($type) {
+            case 'wcm':
+                $item = WcmSheet::where('id', $id)
+                    ->where('user_id', $userId)
+                    ->firstOrFail();
+                $item->update(['is_admin_visible' => false]);
+                $redirectRoute = route('wcm.sheet', ['id' => $id]);
+                break;
+
+            case 'life_history':
+                $item = LifeEvent::where('id', $id)
+                    ->where('user_id', $userId)
+                    ->firstOrFail();
+                $item->update(['is_admin_visible' => false]);
+                $redirectRoute = route('life-history.timeline');
+                break;
+
+            case 'life_history_all':
+                $user = User::findOrFail($userId);
+                $user->update(['life_history_is_admin_visible' => false]);
+                $redirectRoute = route('life-history.timeline');
+                break;
+
+            case 'career_satisfaction':
+                $item = CareerSatisfactionDiagnosis::where('id', $id)
+                    ->where('user_id', $userId)
+                    ->firstOrFail();
+                $item->update(['is_admin_visible' => false]);
+                $redirectRoute = route('career-satisfaction-diagnosis.result', ['id' => $id]);
+                break;
+
+            case 'diagnosis':
+                $item = Diagnosis::where('id', $id)
+                    ->where('user_id', $userId)
+                    ->firstOrFail();
+                $item->update(['is_admin_visible' => false]);
+                $redirectRoute = route('diagnosis.result', ['id' => $id]);
+                break;
+
+            case 'strengths_report':
+                $item = StrengthsReport::where('id', $id)
+                    ->where('user_id', $userId)
+                    ->firstOrFail();
+                $item->update(['is_admin_visible' => false]);
+                $redirectRoute = route('onboarding.mini-manual');
+                break;
+
+            case 'my_goal':
+                $user = User::findOrFail($userId);
+                $user->update(['goal_is_admin_visible' => false]);
+                $redirectRoute = route('my-goal');
+                break;
+
+            case 'milestone':
+                $item = CareerMilestone::where('id', $id)
+                    ->where('user_id', $userId)
+                    ->firstOrFail();
+                $item->update(['is_admin_visible' => false]);
+                $redirectRoute = route('career.milestones');
+                break;
+
+            case 'personality_assessment':
+                $item = PersonalityAssessment::where('id', $id)
+                    ->where('user_id', $userId)
+                    ->firstOrFail();
+                $item->update(['is_admin_visible' => false]);
+                $redirectRoute = route('assessments.index');
+                break;
+
+            default:
+                return redirect()->back()
+                    ->with('error', '無効なタイプです。');
+        }
+
+        return redirect($redirectRoute)
+            ->with('success', '管理者への共有を解除しました。');
     }
 }

@@ -122,6 +122,7 @@ Route::middleware(['auth'])->group(function () {
     // 共有確認画面
     Route::get('share-preview/wcm/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewWcm'])->name('share-preview.wcm');
     Route::get('share-preview/life-history/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewLifeHistory'])->name('share-preview.life-history');
+    Route::get('share-preview/life-history-all', [\App\Http\Controllers\SharePreviewController::class, 'previewLifeHistoryAll'])->name('share-preview.life-history-all');
     Route::get('share-preview/diagnosis/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewDiagnosis'])->name('share-preview.diagnosis');
     Route::get('share-preview/career-satisfaction/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewCareerSatisfaction'])->name('share-preview.career-satisfaction');
     Route::get('share-preview/strengths-report/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewStrengthsReport'])->name('share-preview.strengths-report');
@@ -129,6 +130,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('share-preview/milestone/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewMilestone'])->name('share-preview.milestone');
     Route::get('share-preview/personality-assessment/{id}', [\App\Http\Controllers\SharePreviewController::class, 'previewPersonalityAssessment'])->name('share-preview.personality-assessment');
     Route::post('share-preview/confirm', [\App\Http\Controllers\SharePreviewController::class, 'confirmShare'])->name('share-preview.confirm');
+    Route::post('share-preview/unshare', [\App\Http\Controllers\SharePreviewController::class, 'unshare'])->name('share-preview.unshare');
     Route::post('my-goal/display-mode', function (Request $request) {
         $mode = $request->string('mode')->toString();
         if (!in_array($mode, ['text', 'image'], true)) {
@@ -203,6 +205,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('users/{user}/diagnosis/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewDiagnosis'])->name('admin.users.view-diagnosis');
     Route::get('users/{user}/career-satisfaction/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewCareerSatisfaction'])->name('admin.users.view-career-satisfaction');
     Route::get('users/{user}/strengths-report/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewStrengthsReport'])->name('admin.users.view-strengths-report');
+    Route::get('users/{user}/life-history', [\App\Http\Controllers\Admin\UserController::class, 'viewLifeHistory'])->name('admin.users.view-life-history');
     
     Route::get('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
     Route::get('activity-logs/export', [\App\Http\Controllers\Admin\ActivityLogController::class, 'export'])->name('admin.activity-logs.export');

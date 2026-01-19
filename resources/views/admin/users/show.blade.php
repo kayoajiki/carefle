@@ -111,26 +111,22 @@
 
                         <!-- 人生史 -->
                         <div>
-                            <h3 class="heading-3 text-lg mb-3">人生史 (共有中: {{ $lifeEvents->count() }}件)</h3>
-                            <div class="space-y-3">
-                                @forelse($lifeEvents as $event)
-                                    <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
-                                        <div class="flex items-start justify-between">
-                                            <div class="flex-1">
-                                                <p class="font-semibold text-[#2E5C8A] mb-1">{{ $event->year }}年: {{ $event->title }}</p>
-                                                @if($event->description)
-                                                <p class="body-small text-[#1E3A5F] mt-2">{{ mb_substr($event->description, 0, 100) }}...</p>
-                                                @endif
-                                            </div>
-                                            <a href="{{ route('life-history.timeline') }}" class="btn-secondary text-xs ml-4">
-                                                詳細を見る
-                                            </a>
+                            <h3 class="heading-3 text-lg mb-3">人生史</h3>
+                            @if($user->life_history_is_admin_visible)
+                                <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-semibold text-[#2E5C8A] mb-1">人生史一覧 ({{ $lifeEvents->count() }}件)</p>
+                                            <p class="body-small text-[#1E3A5F]/70">全体共有が有効です</p>
                                         </div>
+                                        <a href="{{ route('admin.users.view-life-history', ['user' => $user->id]) }}" class="btn-secondary text-xs ml-4">
+                                            詳細を見る
+                                        </a>
                                     </div>
-                                @empty
-                                    <p class="body-text text-[#1E3A5F]/70">共有された人生史がありません</p>
-                                @endforelse
-                            </div>
+                                </div>
+                            @else
+                                <p class="body-text text-[#1E3A5F]/70">共有された人生史がありません</p>
+                            @endif
                         </div>
 
                         <!-- 診断結果 -->

@@ -113,7 +113,7 @@ class WcmSheetShow extends Component
             ->where('is_draft', false)
             ->orderByDesc('version')
             ->limit(10)
-            ->get(['id','version','created_at']);
+            ->get(['id','version','created_at','is_admin_visible']);
 
         return view('livewire.wcm-sheet-show', [
             'versions' => $versions,

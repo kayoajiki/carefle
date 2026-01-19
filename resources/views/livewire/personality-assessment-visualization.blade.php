@@ -262,15 +262,25 @@
                                         {{ \Illuminate\Support\Str::limit($assessment->notes, 40) }}
                                     </td>
                                     <td class="py-3">
-                                        @if($assessment->is_admin_visible)
-                                            <span class="text-xs px-2 py-1 rounded bg-green-50 border border-green-300 text-green-700 font-medium">
-                                                共有中
-                                            </span>
-                                        @else
-                                            <a href="{{ route('share-preview.personality-assessment', ['id' => $assessment->id]) }}" class="text-xs px-2 py-1 rounded border border-[#2E5C8A] text-[#2E5C8A] hover:bg-[#2E5C8A]/5 transition">
-                                                管理者に共有
-                                            </a>
-                                        @endif
+                                        <div class="flex items-center gap-2">
+                                            @if($assessment->is_admin_visible)
+                                                <span class="text-xs px-2 py-1 rounded bg-green-50 border border-green-300 text-green-700 font-medium">
+                                                    共有中
+                                                </span>
+                                                <form action="{{ route('share-preview.unshare') }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <input type="hidden" name="type" value="personality_assessment">
+                                                    <input type="hidden" name="id" value="{{ $assessment->id }}">
+                                                    <button type="submit" onclick="return confirm('共有を解除しますか？')" class="text-xs px-2 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50 transition">
+                                                        解除
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <a href="{{ route('share-preview.personality-assessment', ['id' => $assessment->id]) }}" class="text-xs px-2 py-1 rounded border border-[#2E5C8A] text-[#2E5C8A] hover:bg-[#2E5C8A]/5 transition">
+                                                    管理者に共有
+                                                </a>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                         @empty
