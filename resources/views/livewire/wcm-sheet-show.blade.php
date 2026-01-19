@@ -139,6 +139,7 @@
         </div>
 
         {{-- バージョン一覧 --}}
+        @if(!$isAdminView)
         <div class="card-refined p-8">
             <div class="heading-3 text-xl mb-6">保存済み（最新10件）</div>
             <div class="space-y-3">
@@ -161,5 +162,6 @@
                 @endforeach
             </div>
         </div>
+        @endif
     </div>
 </div>

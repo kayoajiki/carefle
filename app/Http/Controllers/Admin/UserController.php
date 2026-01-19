@@ -92,6 +92,8 @@ class UserController extends Controller
         
         $wcmSheets = WcmSheet::where('user_id', $user->id)
             ->where('is_admin_visible', true)
+            ->where('is_draft', false)
+            ->orderBy('version', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -269,6 +271,48 @@ class UserController extends Controller
             'events' => $events,
             'years' => $years,
             'eventsByYear' => $eventsByYear,
+        ]);
+    }
+
+    public function viewMyGoal(User $user)
+    {
+        if (!$user->goal_is_admin_visible || !$user->goal_image) {
+            abort(403, 'このユーザーのマイゴールは共有されていません。');
+        }
+
+        return view('admin.users.my-goal', [
+            'user' => $user,
+        ]);
+    }
+
+    public function viewMilestone(User $user, $id)
+    {
+        $milestone = CareerMilestone::with(['actionItems' => function ($query) {
+                $query->orderByRaw('CASE WHEN due_date IS NULL THEN 1 ELSE 0 END')
+                    ->orderBy('due_date')
+                    ->orderBy('title');
+            }])
+            ->where('id', $id)
+            ->where('user_id', $user->id)
+            ->where('is_admin_visible', true)
+            ->firstOrFail();
+
+        return view('admin.users.milestone', [
+            'user' => $user,
+            'milestone' => $milestone,
+        ]);
+    }
+
+    public function viewPersonalityAssessment(User $user, $id)
+    {
+        $assessment = PersonalityAssessment::where('id', $id)
+            ->where('user_id', $user->id)
+            ->where('is_admin_visible', true)
+            ->firstOrFail();
+
+        return view('admin.users.personality-assessment', [
+            'user' => $user,
+            'assessment' => $assessment,
         ]);
     }
 

@@ -5,36 +5,11 @@
                 <div class="card-refined surface-blue p-8">
                     <h1 class="heading-2 mb-6">管理者への共有確認</h1>
                     
-                    <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <p class="body-text text-[#1E3A5F]">
-                            @if(auth()->user()->life_history_is_admin_visible && !$event->is_admin_visible)
-                                この内容を管理者の閲覧に「含める」ようにしますか？<br>
-                                全体共有が有効なため、この項目を共有に含めることで管理者が閲覧できるようになります。
-                            @else
-                                以下の内容を管理者が閲覧できるようにしますか？<br>
-                                共有を許可すると、管理者はこの内容を確認できるようになります。
-                            @endif
+                    <div class="mb-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p class="body-text text-[#1E3A5F] text-center">
+                            この人生史の出来事を管理者に共有して良いですか？<br>
+                            <span class="text-sm">共有を許可すると、管理者はこの出来事を確認できるようになります。</span>
                         </p>
-                    </div>
-
-                    <div class="mb-8">
-                        <h2 class="heading-3 text-xl mb-4">共有する内容</h2>
-                        <div class="bg-white rounded-xl p-6 border border-[#2E5C8A]/20">
-                            <div class="mb-2">
-                                <span class="font-semibold text-[#2E5C8A]">{{ $event->year }}年</span>
-                            </div>
-                            <h3 class="font-semibold text-[#1E3A5F] mb-2">{{ $event->title }}</h3>
-                            
-                            @if($event->description)
-                            <p class="body-text text-[#1E3A5F] whitespace-pre-wrap mb-3">{{ $event->description }}</p>
-                            @endif
-
-                            <div class="text-sm text-[#1E3A5F]">
-                                <span class="px-2 py-1 rounded-lg bg-[#F0F7FF] border border-[#2E5C8A]/10">
-                                    モチベーション: {{ $event->motivation }}
-                                </span>
-                            </div>
-                        </div>
                     </div>
 
                     <form action="{{ route('share-preview.confirm') }}" method="POST" class="space-y-4">

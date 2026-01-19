@@ -92,7 +92,12 @@
                                     <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
-                                                <p class="font-semibold text-[#2E5C8A] mb-1">{{ $sheet->title }}</p>
+                                                <div class="flex items-center gap-2 mb-1">
+                                                    <p class="font-semibold text-[#2E5C8A]">{{ $sheet->title }}</p>
+                                                    <span class="text-xs px-2 py-0.5 rounded bg-[#F0F7FF] border border-[#2E5C8A]/20 text-[#2E5C8A] font-medium">
+                                                        v{{ $sheet->version }}
+                                                    </span>
+                                                </div>
                                                 <p class="body-small text-[#1E3A5F]/70">作成日: {{ $sheet->created_at->format('Y年n月j日') }}</p>
                                                 @if($sheet->will_text)
                                                 <p class="body-small text-[#1E3A5F] mt-2">Will: {{ mb_substr($sheet->will_text, 0, 50) }}...</p>
@@ -129,9 +134,9 @@
                             @endif
                         </div>
 
-                        <!-- 診断結果 -->
+                        <!-- 現職満足度診断結果 -->
                         <div>
-                            <h3 class="heading-3 text-lg mb-3">診断結果 (共有中: {{ $diagnoses->count() }}件)</h3>
+                            <h3 class="heading-3 text-lg mb-3">現職満足度診断結果 (共有中: {{ $diagnoses->count() }}件)</h3>
                             <div class="space-y-3">
                                 @forelse($diagnoses as $diagnosis)
                                     <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
@@ -146,14 +151,14 @@
                                         </div>
                                     </div>
                                 @empty
-                                    <p class="body-text text-[#1E3A5F]/70">共有された診断結果がありません</p>
+                                    <p class="body-text text-[#1E3A5F]/70">共有された職業満足度診断結果がありません</p>
                                 @endforelse
                             </div>
                         </div>
 
-                        <!-- 現職満足度診断結果 -->
+                        <!-- 職業満足度診断結果 -->
                         <div>
-                            <h3 class="heading-3 text-lg mb-3">現職満足度診断結果 (共有中: {{ $careerSatisfactionDiagnoses->count() }}件)</h3>
+                            <h3 class="heading-3 text-lg mb-3">職業満足度診断結果 (共有中: {{ $careerSatisfactionDiagnoses->count() }}件)</h3>
                             <div class="space-y-3">
                                 @forelse($careerSatisfactionDiagnoses as $diagnosis)
                                     <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">
@@ -168,7 +173,7 @@
                                         </div>
                                     </div>
                                 @empty
-                                    <p class="body-text text-[#1E3A5F]/70">共有された現職満足度診断結果がありません</p>
+                                    <p class="body-text text-[#1E3A5F]/70">共有された職業満足度診断結果がありません</p>
                                 @endforelse
                             </div>
                         </div>
@@ -205,7 +210,7 @@
                                             <p class="font-semibold text-[#2E5C8A] mb-2">マイゴール</p>
                                             <p class="body-text text-[#1E3A5F]">{{ mb_substr($user->goal_image, 0, 100) }}...</p>
                                         </div>
-                                        <a href="{{ route('my-goal') }}" class="btn-secondary text-xs ml-4">
+                                        <a href="{{ route('admin.users.view-my-goal', ['user' => $user->id]) }}" class="btn-secondary text-xs ml-4">
                                             詳細を見る
                                         </a>
                                     </div>
@@ -229,7 +234,7 @@
                                                 <p class="body-small text-[#1E3A5F] mt-2">{{ mb_substr($milestone->description, 0, 100) }}...</p>
                                                 @endif
                                             </div>
-                                            <a href="{{ route('career.milestones') }}" class="btn-secondary text-xs ml-4">
+                                            <a href="{{ route('admin.users.view-milestone', ['user' => $user->id, 'id' => $milestone->id]) }}" class="btn-secondary text-xs ml-4">
                                                 詳細を見る
                                             </a>
                                         </div>
@@ -251,7 +256,7 @@
                                                 <p class="font-semibold text-[#2E5C8A] mb-1">{{ $assessment->assessment_name ?? strtoupper($assessment->assessment_type) }}</p>
                                                 <p class="body-small text-[#1E3A5F]/70">記録日: {{ $assessment->completed_at ? $assessment->completed_at->format('Y年n月j日') : $assessment->created_at->format('Y年n月j日') }}</p>
                                             </div>
-                                            <a href="{{ route('assessments.visualization') }}" class="btn-secondary text-xs ml-4">
+                                            <a href="{{ route('admin.users.view-personality-assessment', ['user' => $user->id, 'id' => $assessment->id]) }}" class="btn-secondary text-xs ml-4">
                                                 詳細を見る
                                             </a>
                                         </div>

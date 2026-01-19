@@ -206,6 +206,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('users/{user}/career-satisfaction/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewCareerSatisfaction'])->name('admin.users.view-career-satisfaction');
     Route::get('users/{user}/strengths-report/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewStrengthsReport'])->name('admin.users.view-strengths-report');
     Route::get('users/{user}/life-history', [\App\Http\Controllers\Admin\UserController::class, 'viewLifeHistory'])->name('admin.users.view-life-history');
+    Route::get('users/{user}/my-goal', [\App\Http\Controllers\Admin\UserController::class, 'viewMyGoal'])->name('admin.users.view-my-goal');
+    Route::get('users/{user}/milestone/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewMilestone'])->name('admin.users.view-milestone');
+    Route::get('users/{user}/personality-assessment/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewPersonalityAssessment'])->name('admin.users.view-personality-assessment');
     
     Route::get('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
     Route::get('activity-logs/export', [\App\Http\Controllers\Admin\ActivityLogController::class, 'export'])->name('admin.activity-logs.export');

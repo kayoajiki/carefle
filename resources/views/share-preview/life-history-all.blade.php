@@ -5,35 +5,11 @@
                 <div class="card-refined surface-blue p-8">
                     <h1 class="heading-2 mb-6">管理者への共有確認</h1>
                     
-                    <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <p class="body-text text-[#1E3A5F]">
-                            人生史全体を管理者が閲覧できるようにしますか？<br>
-                            共有を許可すると、管理者はあなたの人生史を確認できるようになります。
+                    <div class="mb-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p class="body-text text-[#1E3A5F] text-center">
+                            人生史全体（{{ $events->count() }}件）を管理者に共有して良いですか？<br>
+                            <span class="text-sm">共有を許可すると、管理者はあなたの人生史全体を確認できるようになります。</span>
                         </p>
-                    </div>
-
-                    <div class="mb-8">
-                        <h2 class="heading-3 text-xl mb-4">共有する内容（{{ $events->count() }}件）</h2>
-                        <div class="space-y-4 max-h-96 overflow-y-auto">
-                            @foreach($events as $event)
-                                <div class="bg-white rounded-xl p-6 border border-[#2E5C8A]/20">
-                                    <div class="mb-2">
-                                        <span class="font-semibold text-[#2E5C8A]">{{ $event->year }}年</span>
-                                    </div>
-                                    <h3 class="font-semibold text-[#1E3A5F] mb-2">{{ $event->title }}</h3>
-                                    
-                                    @if($event->description)
-                                    <p class="body-text text-[#1E3A5F] whitespace-pre-wrap mb-3">{{ mb_substr($event->description, 0, 100) }}{{ mb_strlen($event->description) > 100 ? '...' : '' }}</p>
-                                    @endif
-
-                                    <div class="text-sm text-[#1E3A5F]">
-                                        <span class="px-2 py-1 rounded-lg bg-[#F0F7FF] border border-[#2E5C8A]/10">
-                                            モチベーション: {{ $event->motivation }}
-                                        </span>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
                     </div>
 
                     <form action="{{ route('share-preview.confirm') }}" method="POST" class="space-y-4">
