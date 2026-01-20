@@ -13,6 +13,11 @@ use App\Models\LifeEvent;
 use App\Models\CareerSatisfactionDiagnosis;
 use App\Models\StrengthsReport;
 use App\Models\CareerMilestone;
+use App\Models\CareerHug;
+use App\Models\CareerHugLevelDate;
+use App\Models\CareerHugContactLog;
+use App\Models\CareerHugLevelTransition;
+use App\Models\CareerHugWeapon;
 use App\Services\OnboardingProgressService;
 use Illuminate\Http\Request;
 
@@ -128,6 +133,64 @@ class UserController extends Controller
         // Onboarding progress
         $onboardingProgress = $this->onboardingProgressService->getOrCreateProgress($user->id);
 
+        // Career Hug data
+        $careerHug = CareerHug::with(['levelDates', 'contactLogs', 'levelTransitions', 'weapons', 'assignedAdmin'])
+            ->where('user_id', $user->id)
+            ->first();
+        
+        // Career Hug data for JSON (prepare data structure)
+        $careerHugData = null;
+        if ($careerHug) {
+            $careerHugData = [
+                'usage_type' => $careerHug->usage_type,
+                'assigned_admin_id' => $careerHug->assigned_admin_id,
+                'start_date' => $careerHug->start_date ? $careerHug->start_date->format('Y-m-d') : null,
+                'current_level' => $careerHug->current_level,
+                'main_purpose' => $careerHug->main_purpose,
+                'entry_trigger' => $careerHug->entry_trigger,
+                'session_density' => $careerHug->session_density,
+                'current_phase' => $careerHug->current_phase,
+                'status' => $careerHug->status ?? 'not_started',
+                'last_session_date' => $careerHug->last_session_date ? $careerHug->last_session_date->format('Y-m-d') : null,
+                'next_session_date' => $careerHug->next_session_date ? $careerHug->next_session_date->format('Y-m-d') : null,
+                'priority' => $careerHug->priority,
+                'contract_rules' => $careerHug->contract_rules,
+                'ng_actions' => $careerHug->ng_actions ?? [],
+                'handover_memo' => $careerHug->handover_memo,
+                'admin_summary' => $careerHug->admin_summary,
+                'weapons' => $careerHug->weapons->pluck('weapon')->toArray(),
+                'levelDates' => $careerHug->levelDates->map(function($date) {
+                    return [
+                        'id' => $date->id,
+                        'level' => $date->level,
+                        'date' => $date->date->format('Y-m-d'),
+                    ];
+                })->toArray(),
+                'contactLogs' => $careerHug->contactLogs->map(function($log) {
+                    return [
+                        'id' => $log->id,
+                        'contact_date' => $log->contact_date->format('Y-m-d'),
+                        'contact_type' => $log->contact_type,
+                        'theme' => $log->theme,
+                        'decided_matters' => $log->decided_matters,
+                        'next_action' => $log->next_action,
+                    ];
+                })->toArray(),
+                'levelTransitions' => $careerHug->levelTransitions->map(function($transition) {
+                    return [
+                        'id' => $transition->id,
+                        'from_level' => $transition->from_level,
+                        'to_level' => $transition->to_level,
+                        'transition_reason' => $transition->transition_reason,
+                        'reason_note' => $transition->reason_note,
+                        'created_at' => $transition->created_at->format('Y-m-d H:i:s'),
+                    ];
+                })->toArray(),
+            ];
+        }
+        
+        $adminUsers = User::where('is_admin', true)->orderBy('name')->get();
+
         return view('admin.users.show', [
             'user' => $user,
             'loginHistory' => $loginHistory,
@@ -142,6 +205,9 @@ class UserController extends Controller
             'milestones' => $milestones,
             'myGoalShared' => $myGoalShared,
             'onboardingProgress' => $onboardingProgress,
+            'careerHug' => $careerHug,
+            'careerHugData' => $careerHugData,
+            'adminUsers' => $adminUsers,
         ]);
     }
 
@@ -657,5 +723,206 @@ class UserController extends Controller
             'gapSummary' => $gapSummary,
             'stateType' => $stateType,
         ]);
+    }
+
+    /**
+     * キャリハグ情報を保存・更新
+     */
+    public function updateCareerHug(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'usage_type' => ['nullable', 'in:paid,free'],
+            'assigned_admin_id' => ['nullable', 'exists:users,id'],
+            'start_date' => ['nullable', 'date'],
+            'current_level' => ['nullable', 'in:level1,level2,level3'],
+            'main_purpose' => ['nullable', 'in:judgment_organization,action_design,continuation_adjustment'],
+            'entry_trigger' => ['nullable', 'string', 'max:255'],
+            'session_density' => ['nullable', 'in:low,medium,high'],
+            'current_phase' => ['nullable', 'in:state_understanding,verbalization,judgment_organization,action,continuation_adjustment'],
+            'status' => ['nullable', 'in:not_started,in_use,paused,completed'],
+            'last_session_date' => ['nullable', 'date'],
+            'next_session_date' => ['nullable', 'date'],
+            'priority' => ['nullable', 'in:high,medium,low'],
+            'contract_rules' => ['nullable', 'string'],
+            'ng_actions' => ['nullable', 'array'],
+            'handover_memo' => ['nullable', 'string'],
+            'admin_summary' => ['nullable', 'string', 'max:255'],
+            'weapons' => ['nullable', 'array'],
+            'weapons.*' => ['in:career_satisfaction_diagnosis,wcm,life_history,judgment_organization_frame'],
+        ]);
+
+        // 担当者が管理者か確認
+        if (isset($validated['assigned_admin_id'])) {
+            $assignedUser = User::find($validated['assigned_admin_id']);
+            if (!$assignedUser || !$assignedUser->is_admin) {
+                return back()->withErrors(['assigned_admin_id' => '担当者は管理者である必要があります。']);
+            }
+        }
+
+        $careerHug = CareerHug::firstOrNew(['user_id' => $user->id]);
+        
+        // 武器の処理
+        $weapons = $validated['weapons'] ?? [];
+        unset($validated['weapons']);
+        
+        $careerHug->fill($validated);
+        $careerHug->save();
+
+        // 武器を更新
+        $careerHug->weapons()->delete();
+        foreach ($weapons as $weapon) {
+            $careerHug->weapons()->create(['weapon' => $weapon]);
+        }
+
+        return back()->with('success', 'キャリハグ情報を保存しました。');
+    }
+
+    /**
+     * レベル日付を追加
+     */
+    public function storeCareerHugLevelDate(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'level' => ['required', 'in:level1,level2,level3'],
+            'date' => ['required', 'date'],
+        ]);
+
+        $careerHug = CareerHug::firstOrCreate(['user_id' => $user->id]);
+        
+        $levelDate = $careerHug->levelDates()->create($validated);
+
+        return response()->json([
+            'success' => true,
+            'levelDate' => [
+                'id' => $levelDate->id,
+                'level' => $levelDate->level,
+                'date' => $levelDate->date->format('Y-m-d'),
+            ],
+        ]);
+    }
+
+    /**
+     * レベル日付を削除
+     */
+    public function deleteCareerHugLevelDate(User $user, $id)
+    {
+        $careerHug = CareerHug::where('user_id', $user->id)->firstOrFail();
+        $levelDate = $careerHug->levelDates()->findOrFail($id);
+        $levelDate->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * 接点ログを追加
+     */
+    public function storeCareerHugContactLog(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'contact_date' => ['required', 'date'],
+            'contact_type' => ['required', 'in:session,chat,follow_up'],
+            'theme' => ['nullable', 'string'],
+            'decided_matters' => ['nullable', 'string'],
+            'next_action' => ['nullable', 'string'],
+        ]);
+
+        $careerHug = CareerHug::firstOrCreate(['user_id' => $user->id]);
+        
+        $contactLog = $careerHug->contactLogs()->create($validated);
+
+        return response()->json([
+            'success' => true,
+            'contactLog' => [
+                'id' => $contactLog->id,
+                'contact_date' => $contactLog->contact_date->format('Y-m-d'),
+                'contact_type' => $contactLog->contact_type,
+                'theme' => $contactLog->theme,
+                'decided_matters' => $contactLog->decided_matters,
+                'next_action' => $contactLog->next_action,
+            ],
+        ]);
+    }
+
+    /**
+     * 接点ログを更新
+     */
+    public function updateCareerHugContactLog(Request $request, User $user, $id)
+    {
+        $validated = $request->validate([
+            'contact_date' => ['required', 'date'],
+            'contact_type' => ['required', 'in:session,chat,follow_up'],
+            'theme' => ['nullable', 'string'],
+            'decided_matters' => ['nullable', 'string'],
+            'next_action' => ['nullable', 'string'],
+        ]);
+
+        $careerHug = CareerHug::where('user_id', $user->id)->firstOrFail();
+        $contactLog = $careerHug->contactLogs()->findOrFail($id);
+        $contactLog->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'contactLog' => [
+                'id' => $contactLog->id,
+                'contact_date' => $contactLog->contact_date->format('Y-m-d'),
+                'contact_type' => $contactLog->contact_type,
+                'theme' => $contactLog->theme,
+                'decided_matters' => $contactLog->decided_matters,
+                'next_action' => $contactLog->next_action,
+            ],
+        ]);
+    }
+
+    /**
+     * 接点ログを削除
+     */
+    public function deleteCareerHugContactLog(User $user, $id)
+    {
+        $careerHug = CareerHug::where('user_id', $user->id)->firstOrFail();
+        $contactLog = $careerHug->contactLogs()->findOrFail($id);
+        $contactLog->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * レベル移行履歴を追加
+     */
+    public function storeCareerHugLevelTransition(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'from_level' => ['required', 'in:level0,level1,level2,level3,cf_continuation'],
+            'to_level' => ['required', 'in:level0,level1,level2,level3,cf_continuation,graduation'],
+            'transition_reason' => ['required', 'in:self_sufficient,judgment_organization_completed,continuation_needed,timing_off'],
+            'reason_note' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $careerHug = CareerHug::firstOrCreate(['user_id' => $user->id]);
+        
+        $levelTransition = $careerHug->levelTransitions()->create($validated);
+
+        return response()->json([
+            'success' => true,
+            'levelTransition' => [
+                'id' => $levelTransition->id,
+                'from_level' => $levelTransition->from_level,
+                'to_level' => $levelTransition->to_level,
+                'transition_reason' => $levelTransition->transition_reason,
+                'reason_note' => $levelTransition->reason_note,
+                'created_at' => $levelTransition->created_at->format('Y-m-d H:i:s'),
+            ],
+        ]);
+    }
+
+    /**
+     * レベル移行履歴を削除
+     */
+    public function deleteCareerHugLevelTransition(User $user, $id)
+    {
+        $careerHug = CareerHug::where('user_id', $user->id)->firstOrFail();
+        $levelTransition = $careerHug->levelTransitions()->findOrFail($id);
+        $levelTransition->delete();
+
+        return response()->json(['success' => true]);
     }
 }

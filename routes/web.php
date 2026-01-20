@@ -210,6 +210,16 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('users/{user}/milestone/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewMilestone'])->name('admin.users.view-milestone');
     Route::get('users/{user}/personality-assessment/{id}', [\App\Http\Controllers\Admin\UserController::class, 'viewPersonalityAssessment'])->name('admin.users.view-personality-assessment');
     
+    // キャリハグ関連ルート
+    Route::post('users/{user}/career-hug', [\App\Http\Controllers\Admin\UserController::class, 'updateCareerHug'])->name('admin.users.career-hug.update');
+    Route::post('users/{user}/career-hug/level-dates', [\App\Http\Controllers\Admin\UserController::class, 'storeCareerHugLevelDate'])->name('admin.users.career-hug.level-dates.store');
+    Route::delete('users/{user}/career-hug/level-dates/{id}', [\App\Http\Controllers\Admin\UserController::class, 'deleteCareerHugLevelDate'])->name('admin.users.career-hug.level-dates.delete');
+    Route::post('users/{user}/career-hug/contact-logs', [\App\Http\Controllers\Admin\UserController::class, 'storeCareerHugContactLog'])->name('admin.users.career-hug.contact-logs.store');
+    Route::put('users/{user}/career-hug/contact-logs/{id}', [\App\Http\Controllers\Admin\UserController::class, 'updateCareerHugContactLog'])->name('admin.users.career-hug.contact-logs.update');
+    Route::delete('users/{user}/career-hug/contact-logs/{id}', [\App\Http\Controllers\Admin\UserController::class, 'deleteCareerHugContactLog'])->name('admin.users.career-hug.contact-logs.delete');
+    Route::post('users/{user}/career-hug/level-transitions', [\App\Http\Controllers\Admin\UserController::class, 'storeCareerHugLevelTransition'])->name('admin.users.career-hug.level-transitions.store');
+    Route::delete('users/{user}/career-hug/level-transitions/{id}', [\App\Http\Controllers\Admin\UserController::class, 'deleteCareerHugLevelTransition'])->name('admin.users.career-hug.level-transitions.delete');
+    
     Route::get('activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
     Route::get('activity-logs/export', [\App\Http\Controllers\Admin\ActivityLogController::class, 'export'])->name('admin.activity-logs.export');
     Route::get('profile-stats', [\App\Http\Controllers\Admin\ProfileStatsController::class, 'index'])->name('admin.profile-stats.index');
