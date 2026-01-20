@@ -29,6 +29,7 @@ class CareerHug extends Model
         'ng_actions',
         'handover_memo',
         'admin_summary',
+        'notes',
     ];
 
     protected $casts = [

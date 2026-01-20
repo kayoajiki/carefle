@@ -412,23 +412,6 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-[#2E5C8A] mb-1">セッション濃度</label>
-                                        <div class="space-y-2">
-                                            <label class="flex items-center">
-                                                <input type="radio" name="session_density" value="low" x-model="formData.session_density" class="mr-2">
-                                                <span class="body-text">低：整理中心</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="radio" name="session_density" value="medium" x-model="formData.session_density" class="mr-2">
-                                                <span class="body-text">中：対話＋構造化</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="radio" name="session_density" value="high" x-model="formData.session_density" class="mr-2">
-                                                <span class="body-text">高：判断整理（※覚悟ではない）</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div>
                                         <label class="block text-sm font-medium text-[#2E5C8A] mb-1">現在の思考フェーズ</label>
                                         <div class="space-y-2">
                                             <label class="flex items-center">
@@ -558,106 +541,12 @@
                                 </div>
                             </div>
 
-                            <!-- ⑦ レベル移行・分岐履歴 -->
-                            <div class="border-b border-[#2E5C8A]/20 pb-6">
-                                <h3 class="heading-3 text-lg mb-4">⑦ レベル移行・分岐履歴</h3>
-                                <div class="space-y-4">
-                                    <template x-for="(transition, index) in levelTransitions" :key="transition.id || index">
-                                        <div class="bg-white p-4 rounded-lg border border-[#2E5C8A]/20">
-                                            <div class="flex justify-between items-start mb-3">
-                                                <div>
-                                                    <p class="body-text font-semibold" x-text="getTransitionLabel(transition.from_level) + ' → ' + getTransitionLabel(transition.to_level)"></p>
-                                                    <p class="body-small text-[#1E3A5F]/70" x-text="getTransitionReasonLabel(transition.transition_reason)"></p>
-                                                    <p class="body-small text-[#1E3A5F]/70" x-text="transition.reason_note || ''"></p>
-                                                    <p class="body-small text-[#1E3A5F]/70" x-text="transition.created_at"></p>
-                                                </div>
-                                                <button type="button" @click="deleteLevelTransition(index)" class="btn-secondary text-xs">削除</button>
-                                            </div>
-                                        </div>
-                                    </template>
-                                    <div class="bg-white p-4 rounded-lg border border-[#2E5C8A]/20">
-                                        <h4 class="font-semibold text-[#2E5C8A] mb-3">新規分岐履歴を追加</h4>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label class="block text-sm font-medium text-[#2E5C8A] mb-1">分岐元</label>
-                                                <select x-model="newTransition.from_level" class="w-full px-3 py-2 border border-[#2E5C8A]/20 rounded-lg">
-                                                    <option value="level0">レベル0</option>
-                                                    <option value="level1">レベル1</option>
-                                                    <option value="level2">レベル2</option>
-                                                    <option value="level3">レベル3</option>
-                                                    <option value="cf_continuation">CF継続</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-[#2E5C8A] mb-1">分岐先</label>
-                                                <select x-model="newTransition.to_level" class="w-full px-3 py-2 border border-[#2E5C8A]/20 rounded-lg">
-                                                    <option value="level0">レベル0</option>
-                                                    <option value="level1">レベル1</option>
-                                                    <option value="level2">レベル2</option>
-                                                    <option value="level3">レベル3</option>
-                                                    <option value="cf_continuation">CF継続</option>
-                                                    <option value="graduation">卒業</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-[#2E5C8A] mb-1">分岐理由</label>
-                                                <select x-model="newTransition.transition_reason" class="w-full px-3 py-2 border border-[#2E5C8A]/20 rounded-lg">
-                                                    <option value="self_sufficient">自走可能</option>
-                                                    <option value="judgment_organization_completed">判断整理完了</option>
-                                                    <option value="continuation_needed">継続が必要と本人が判断</option>
-                                                    <option value="timing_off">タイミング外</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-[#2E5C8A] mb-1">一言メモ</label>
-                                                <input type="text" x-model="newTransition.reason_note" class="w-full px-3 py-2 border border-[#2E5C8A]/20 rounded-lg">
-                                            </div>
-                                            <div class="md:col-span-2">
-                                                <button type="button" @click="addLevelTransition" class="btn-secondary">追加</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ⑧ ルール・注意点 -->
-                            <div class="border-b border-[#2E5C8A]/20 pb-6">
-                                <h3 class="heading-3 text-lg mb-4">⑧ ルール・注意点</h3>
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-[#2E5C8A] mb-1">契約・運用ルール</label>
-                                        <textarea name="contract_rules" x-model="formData.contract_rules" rows="3" class="w-full px-3 py-2 border border-[#2E5C8A]/20 rounded-lg"></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-[#2E5C8A] mb-2">NG対応（チェック式）</label>
-                                        <div class="space-y-2">
-                                            <label class="flex items-center">
-                                                <input type="checkbox" name="ng_actions[]" value="no_immediate_decision" x-model="formData.ng_actions" class="mr-2">
-                                                <span class="body-text">即断を促さない</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" name="ng_actions[]" value="no_excessive_push" x-model="formData.ng_actions" class="mr-2">
-                                                <span class="body-text">過剰な背中押し禁止</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" name="ng_actions[]" value="no_level3_advance" x-model="formData.ng_actions" class="mr-2">
-                                                <span class="body-text">レベル3の先出し禁止</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-[#2E5C8A] mb-1">引き継ぎメモ</label>
-                                        <textarea name="handover_memo" x-model="formData.handover_memo" rows="4" placeholder="対応上の注意点のみ（評価・感情は書かない）" class="w-full px-3 py-2 border border-[#2E5C8A]/20 rounded-lg"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ⑨ 管理者用サマリ -->
+                            <!-- フリー記述欄 -->
                             <div>
-                                <h3 class="heading-3 text-lg mb-4">⑨ 管理者用サマリ</h3>
+                                <h3 class="heading-3 text-lg mb-4">フリー記述</h3>
                                 <div>
-                                    <label class="block text-sm font-medium text-[#2E5C8A] mb-1">管理サマリ（1行）</label>
-                                    <input type="text" name="admin_summary" x-model="formData.admin_summary" placeholder="例：L2判断整理（転職）／初動整理完了・卒業予定" class="w-full px-3 py-2 border border-[#2E5C8A]/20 rounded-lg">
+                                    <label class="block text-sm font-medium text-[#2E5C8A] mb-1">メモ・備考</label>
+                                    <textarea name="notes" x-model="formData.notes" rows="8" placeholder="自由にメモを記入してください" class="w-full px-3 py-2 border border-[#2E5C8A]/20 rounded-lg"></textarea>
                                 </div>
                             </div>
 
@@ -693,27 +582,16 @@
                     current_level: careerHugData?.current_level ?? null,
                     main_purpose: careerHugData?.main_purpose ?? null,
                     entry_trigger: careerHugData?.entry_trigger ?? null,
-                    session_density: careerHugData?.session_density ?? null,
                     current_phase: careerHugData?.current_phase ?? null,
                     status: careerHugData?.status ?? 'not_started',
                     last_session_date: careerHugData?.last_session_date ?? null,
                     next_session_date: careerHugData?.next_session_date ?? null,
                     priority: careerHugData?.priority ?? null,
-                    contract_rules: careerHugData?.contract_rules ?? null,
-                    ng_actions: careerHugData?.ng_actions ?? [],
-                    handover_memo: careerHugData?.handover_memo ?? null,
-                    admin_summary: careerHugData?.admin_summary ?? null,
                     weapons: careerHugData?.weapons ?? [],
+                    notes: careerHugData?.notes ?? null,
                 },
                 levelDates: (careerHugData?.levelDates ?? []).map(date => ({ ...date })),
                 contactLogs: (careerHugData?.contactLogs ?? []).map(log => ({ ...log, editing: false })),
-                levelTransitions: careerHugData?.levelTransitions ?? [],
-                newTransition: {
-                    from_level: 'level0',
-                    to_level: 'level1',
-                    transition_reason: 'self_sufficient',
-                    reason_note: '',
-                },
                 getCsrfToken() {
                     return document.querySelector('input[name="_token"]')?.value || 
                            document.querySelector('meta[name="csrf-token"]')?.content || 
@@ -813,41 +691,6 @@
                         this.contactLogs.splice(index, 1);
                     }
                 },
-                async addLevelTransition() {
-                    const response = await fetch(`{{ route('admin.users.career-hug.level-transitions.store', $user->id) }}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.getCsrfToken(),
-                        },
-                        body: JSON.stringify(this.newTransition),
-                    });
-                    
-                    const data = await response.json();
-                    if (data.success) {
-                        this.levelTransitions.unshift(data.levelTransition);
-                        this.newTransition = {
-                            from_level: 'level0',
-                            to_level: 'level1',
-                            transition_reason: 'self_sufficient',
-                            reason_note: '',
-                        };
-                    }
-                },
-                async deleteLevelTransition(index) {
-                    const transition = this.levelTransitions[index];
-                    const url = `{{ url('admin/users/' . $user->id . '/career-hug/level-transitions') }}/${transition.id}`;
-                    const response = await fetch(url, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': this.getCsrfToken(),
-                        },
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        this.levelTransitions.splice(index, 1);
-                    }
-                },
                 async saveCareerHug(event) {
                     event.preventDefault();
                     const form = event.target;
@@ -860,7 +703,7 @@
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'X-CSRF-TOKEN': this.getCsrfToken(),
                                 },
                                 body: JSON.stringify({
                                     level: levelDate.level,
@@ -880,26 +723,6 @@
                         'follow_up': 'フォロー連絡',
                     };
                     return labels[type] || type;
-                },
-                getTransitionLabel(level) {
-                    const labels = {
-                        'level0': 'レベル0',
-                        'level1': 'レベル1',
-                        'level2': 'レベル2',
-                        'level3': 'レベル3',
-                        'cf_continuation': 'CF継続',
-                        'graduation': '卒業',
-                    };
-                    return labels[level] || level;
-                },
-                getTransitionReasonLabel(reason) {
-                    const labels = {
-                        'self_sufficient': '自走可能',
-                        'judgment_organization_completed': '判断整理完了',
-                        'continuation_needed': '継続が必要と本人が判断',
-                        'timing_off': 'タイミング外',
-                    };
-                    return labels[reason] || reason;
                 },
             };
         }

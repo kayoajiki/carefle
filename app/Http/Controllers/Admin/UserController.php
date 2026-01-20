@@ -134,7 +134,7 @@ class UserController extends Controller
         $onboardingProgress = $this->onboardingProgressService->getOrCreateProgress($user->id);
 
         // Career Hug data
-        $careerHug = CareerHug::with(['levelDates', 'contactLogs', 'levelTransitions', 'weapons', 'assignedAdmin'])
+        $careerHug = CareerHug::with(['levelDates', 'contactLogs', 'weapons', 'assignedAdmin'])
             ->where('user_id', $user->id)
             ->first();
         
@@ -148,17 +148,13 @@ class UserController extends Controller
                 'current_level' => $careerHug->current_level,
                 'main_purpose' => $careerHug->main_purpose,
                 'entry_trigger' => $careerHug->entry_trigger,
-                'session_density' => $careerHug->session_density,
                 'current_phase' => $careerHug->current_phase,
                 'status' => $careerHug->status ?? 'not_started',
                 'last_session_date' => $careerHug->last_session_date ? $careerHug->last_session_date->format('Y-m-d') : null,
                 'next_session_date' => $careerHug->next_session_date ? $careerHug->next_session_date->format('Y-m-d') : null,
                 'priority' => $careerHug->priority,
-                'contract_rules' => $careerHug->contract_rules,
-                'ng_actions' => $careerHug->ng_actions ?? [],
-                'handover_memo' => $careerHug->handover_memo,
-                'admin_summary' => $careerHug->admin_summary,
                 'weapons' => $careerHug->weapons->pluck('weapon')->toArray(),
+                'notes' => $careerHug->notes,
                 'levelDates' => $careerHug->levelDates->map(function($date) {
                     return [
                         'id' => $date->id,
@@ -174,16 +170,6 @@ class UserController extends Controller
                         'theme' => $log->theme,
                         'decided_matters' => $log->decided_matters,
                         'next_action' => $log->next_action,
-                    ];
-                })->toArray(),
-                'levelTransitions' => $careerHug->levelTransitions->map(function($transition) {
-                    return [
-                        'id' => $transition->id,
-                        'from_level' => $transition->from_level,
-                        'to_level' => $transition->to_level,
-                        'transition_reason' => $transition->transition_reason,
-                        'reason_note' => $transition->reason_note,
-                        'created_at' => $transition->created_at->format('Y-m-d H:i:s'),
                     ];
                 })->toArray(),
             ];
@@ -737,17 +723,13 @@ class UserController extends Controller
             'current_level' => ['nullable', 'in:level1,level2,level3'],
             'main_purpose' => ['nullable', 'in:judgment_organization,action_design,continuation_adjustment'],
             'entry_trigger' => ['nullable', 'string', 'max:255'],
-            'session_density' => ['nullable', 'in:low,medium,high'],
             'current_phase' => ['nullable', 'in:state_understanding,verbalization,judgment_organization,action,continuation_adjustment'],
             'status' => ['nullable', 'in:not_started,in_use,paused,completed'],
             'last_session_date' => ['nullable', 'date'],
             'next_session_date' => ['nullable', 'date'],
             'priority' => ['nullable', 'in:high,medium,low'],
-            'contract_rules' => ['nullable', 'string'],
-            'ng_actions' => ['nullable', 'array'],
-            'handover_memo' => ['nullable', 'string'],
-            'admin_summary' => ['nullable', 'string', 'max:255'],
             'weapons' => ['nullable', 'array'],
+            'notes' => ['nullable', 'string'],
             'weapons.*' => ['in:career_satisfaction_diagnosis,wcm,life_history,judgment_organization_frame'],
         ]);
 
