@@ -36,6 +36,7 @@
                     <table class="w-full">
                         <thead>
                             <tr class="border-b border-[#2E5C8A]/20">
+                                <th class="text-left py-3 px-4 text-sm font-semibold text-[#2E5C8A]">ID</th>
                                 <th class="text-left py-3 px-4 text-sm font-semibold text-[#2E5C8A]">名前</th>
                                 <th class="text-left py-3 px-4 text-sm font-semibold text-[#2E5C8A]">メール</th>
                                 <th class="text-left py-3 px-4 text-sm font-semibold text-[#2E5C8A]">登録日</th>
@@ -47,6 +48,7 @@
                         <tbody>
                             @forelse($users as $user)
                                 <tr class="border-b border-[#2E5C8A]/10 hover:bg-[#F0F7FF]">
+                                    <td class="py-3 px-4 text-sm font-mono text-[#1E3A5F]/70">#{{ $user->id }}</td>
                                     <td class="py-3 px-4">{{ $user->name }}</td>
                                     <td class="py-3 px-4">{{ $user->email }}</td>
                                     <td class="py-3 px-4">{{ $user->created_at->format('Y-m-d') }}</td>
@@ -64,7 +66,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="py-8 text-center text-[#1E3A5F]/70">ユーザーが見つかりません</td>
+                                    <td colspan="7" class="py-8 text-center text-[#1E3A5F]/70">ユーザーが見つかりません</td>
                                 </tr>
                             @endforelse
                         </tbody>

@@ -2,13 +2,47 @@
 
 ## 概要
 
-既存ユーザーに管理者権限を付与するためのArtisanコマンドです。
+既存ユーザーに管理者権限を付与するためのArtisanコマンドです。メールアドレス、ID、または環境変数から指定できます。
 
 ## 使用方法
+
+### 1. メールアドレスで指定
 
 ```bash
 php artisan admin:assign user@example.com
 ```
+
+### 2. IDで指定
+
+```bash
+php artisan admin:assign --id=1
+```
+
+または、引数として数値を指定：
+
+```bash
+php artisan admin:assign 1
+```
+
+### 3. 環境変数から自動設定（推奨）
+
+`.env`ファイルに`ADMIN_USER_ID`を設定：
+
+```env
+# 開発環境
+ADMIN_USER_ID=1
+
+# 本番環境
+ADMIN_USER_ID=2
+```
+
+その後、以下のコマンドで環境変数から自動的に管理者権限を付与：
+
+```bash
+php artisan admin:assign --env
+```
+
+これにより、開発環境と本番環境で異なるIDに管理者権限を付与できます。
 
 ## セキュリティ
 
@@ -45,19 +79,89 @@ php artisan admin:assign user@example.com
 
 ## 本番環境での実行手順
 
-### ステップ1: SSH接続
+### 方法1: 環境変数を使用（推奨）
+
+本番環境の`.env`ファイルに`ADMIN_USER_ID`を設定し、環境変数から自動的に管理者権限を付与します。
+
+#### ステップ1: 本番サーバーにSSH接続
 
 ```bash
-ssh user@your-production-server.com
+ssh ec2-user@your-production-server.com
 ```
 
-### ステップ2: プロジェクトディレクトリに移動
+#### ステップ2: プロジェクトディレクトリに移動
 
 ```bash
 cd /path/to/carefle
 ```
 
-### ステップ3: コマンド実行
+#### ステップ3: `.env`ファイルを編集
+
+```bash
+nano .env
+```
+
+以下の行を追加（または既存の値を変更）：
+
+```env
+ADMIN_USER_ID=2
+```
+
+**重要**: 開発環境の`.env`には設定しないでください。本番環境の`.env`にのみ設定します。
+
+#### ステップ4: コマンド実行
+
+```bash
+php artisan admin:assign --env
+```
+
+これで、本番環境の`.env`に設定されたIDのユーザーに管理者権限が付与されます。
+
+### 方法2: IDを直接指定
+
+本番環境で直接IDを指定して管理者権限を付与します。
+
+#### ステップ1: 本番サーバーにSSH接続
+
+```bash
+ssh ec2-user@your-production-server.com
+```
+
+#### ステップ2: プロジェクトディレクトリに移動
+
+```bash
+cd /path/to/carefle
+```
+
+#### ステップ3: コマンド実行（IDを指定）
+
+```bash
+php artisan admin:assign --id=2
+```
+
+または、引数として数値を指定：
+
+```bash
+php artisan admin:assign 2
+```
+
+### 方法3: メールアドレスで指定
+
+本番環境のユーザーのメールアドレスを指定して管理者権限を付与します。
+
+#### ステップ1: 本番サーバーにSSH接続
+
+```bash
+ssh ec2-user@your-production-server.com
+```
+
+#### ステップ2: プロジェクトディレクトリに移動
+
+```bash
+cd /path/to/carefle
+```
+
+#### ステップ3: コマンド実行（メールアドレスを指定）
 
 ```bash
 php artisan admin:assign admin@example.com
@@ -66,6 +170,43 @@ php artisan admin:assign admin@example.com
 ### ステップ4: 確認
 
 実行結果を確認し、管理者権限が正しく付与されたことを確認してください。
+
+```bash
+php artisan tinker
+>>> \App\Models\User::find(2)->is_admin;
+=> true
+```
+
+## ユーザーIDの確認方法
+
+### 方法1: 管理者画面で確認（推奨）
+
+1. 管理者画面にログイン
+2. 「ユーザー管理」ページにアクセス
+3. ユーザー一覧の「ID」列でユーザーIDを確認
+4. または、ユーザーの「詳細」をクリックして、基本情報タブでユーザーIDを確認
+
+### 方法2: メールアドレスからIDを確認
+
+メールアドレスがわかっている場合、以下のコマンドでIDを確認できます：
+
+```bash
+php artisan tinker
+>>> $user = \App\Models\User::where('email', 'user@example.com')->first();
+>>> echo "ユーザーID: " . $user->id . "\n";
+>>> echo "名前: " . $user->name . "\n";
+>>> echo "メール: " . $user->email . "\n";
+```
+
+### 方法3: コマンド実行時に確認
+
+メールアドレスでコマンドを実行すると、ユーザーIDも表示されます：
+
+```bash
+php artisan admin:assign user@example.com
+```
+
+実行結果にユーザーIDが表示されます。
 
 ## トラブルシューティング
 

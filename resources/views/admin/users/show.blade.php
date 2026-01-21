@@ -26,6 +26,10 @@
                 <div id="tab-basic" class="tab-content">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
+                            <label class="block text-sm font-medium text-[#2E5C8A] mb-1">ユーザーID</label>
+                            <p class="body-text font-mono">#{{ $user->id }}</p>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-[#2E5C8A] mb-1">名前</label>
                             <p class="body-text">{{ $user->name }}</p>
                         </div>
