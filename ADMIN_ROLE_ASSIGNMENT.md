@@ -39,7 +39,7 @@ ADMIN_USER_ID=2
 その後、以下のコマンドで環境変数から自動的に管理者権限を付与：
 
 ```bash
-php artisan admin:assign --env
+php artisan admin:assign --use-env
 ```
 
 これにより、開発環境と本番環境で異なるIDに管理者権限を付与できます。
@@ -112,7 +112,7 @@ ADMIN_USER_ID=2
 #### ステップ4: コマンド実行
 
 ```bash
-php artisan admin:assign --env
+php artisan admin:assign --use-env
 ```
 
 これで、本番環境の`.env`に設定されたIDのユーザーに管理者権限が付与されます。

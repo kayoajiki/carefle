@@ -12,22 +12,22 @@ class AssignAdminRole extends Command
      *
      * @var string
      */
-    protected $signature = 'admin:assign {identifier?} {--id=} {--env}';
+    protected $signature = 'admin:assign {identifier?} {--id=} {--use-env}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = '指定されたメールアドレスまたはIDの既存ユーザーに管理者権限を付与します。--envオプションで環境変数から自動設定も可能';
+    protected $description = '指定されたメールアドレスまたはIDの既存ユーザーに管理者権限を付与します。--use-envオプションで環境変数から自動設定も可能';
 
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
-        // --envオプションが指定された場合、環境変数からIDを取得
-        if ($this->option('env')) {
+        // --use-envオプションが指定された場合、環境変数からIDを取得
+        if ($this->option('use-env')) {
             $userId = env('ADMIN_USER_ID');
             if (!$userId) {
                 $this->error('環境変数 ADMIN_USER_ID が設定されていません。');
@@ -58,11 +58,11 @@ class AssignAdminRole extends Command
                 // 引数が指定された場合（メールアドレスまたはID）
                 $identifier = $this->argument('identifier');
                 if (!$identifier) {
-                    $this->error('メールアドレス、ID、または --id オプション、--env オプションを指定してください。');
+                    $this->error('メールアドレス、ID、または --id オプション、--use-env オプションを指定してください。');
                     $this->info('使用例:');
                     $this->info('  php artisan admin:assign user@example.com');
                     $this->info('  php artisan admin:assign --id=1');
-                    $this->info('  php artisan admin:assign --env');
+                    $this->info('  php artisan admin:assign --use-env');
                     return 1;
                 }
                 
