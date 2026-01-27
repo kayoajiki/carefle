@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
-use App\Models\Diagnosis;
+use App\Models\CareerSatisfactionDiagnosis;
 use App\Models\LifeEvent;
 use App\Models\WcmSheet;
 use App\Models\Diary;
@@ -20,15 +20,21 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // 診断の状態を取得
-        $latestDiagnosis = Diagnosis::where('user_id', $user->id)
+        // 【新バージョン】職業満足度診断の状態を取得
+        $latestDiagnosis = CareerSatisfactionDiagnosis::where('user_id', $user->id)
             ->where('is_completed', true)
             ->latest()
             ->first();
         
-        $draftDiagnosis = Diagnosis::where('user_id', $user->id)
+        $draftDiagnosis = CareerSatisfactionDiagnosis::where('user_id', $user->id)
             ->where('is_draft', true)
             ->where('is_completed', false)
+            ->latest()
+            ->first();
+
+        // 【旧バージョン】現職満足度診断（アーカイブ用）
+        $oldLatestDiagnosis = Diagnosis::where('user_id', $user->id)
+            ->where('is_completed', true)
             ->latest()
             ->first();
 
@@ -160,6 +166,7 @@ class DashboardController extends Controller
         return view('dashboard', [
             'user' => $user,
             'latestDiagnosis' => $latestDiagnosis,
+            'oldLatestDiagnosis' => $oldLatestDiagnosis,
             'draftDiagnosis' => $draftDiagnosis,
             'hasLifeHistory' => $hasLifeHistory,
             'lifeEventCount' => $lifeEventCount,

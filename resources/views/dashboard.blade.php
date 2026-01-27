@@ -3,7 +3,7 @@
         @php
             $diagnosisStatus = $latestDiagnosis
                 ? '最終診断: '.$latestDiagnosis->updated_at?->format('n月j日')
-                : ($draftDiagnosis ? '途中保存があります' : 'まだ診断を実施していません');
+                : ($draftDiagnosis ? '途中保存があります' : '未受診');
             $wcmStatus = $latestWcmSheet
                 ? '更新日: '.$latestWcmSheet->updated_at?->format('n月j日')
                 : 'まだ作成されていません';
@@ -210,7 +210,7 @@
 
                 <!-- メイン機能カード -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- 現職満足度診断 -->
+                    <!-- 職業満足度診断 -->
                     <div class="card-refined soft-shadow-refined-hover overflow-hidden h-full">
                         <div class="p-4 sm:p-6 md:p-8 flex flex-col h-full">
                             <div class="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -220,29 +220,43 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#2E5C8A] mb-1">現職満足度診断</h3>
-                                    <p class="text-xs sm:text-sm text-[#1E3A5F]/75">{{ $diagnosisStatus }}</p>
+                                    <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#2E5C8A] mb-1">職業満足度診断</h3>
+                                    <p class="text-xs sm:text-sm text-[#1E3A5F]/75">
+                                        @if($latestDiagnosis)
+                                            最終診断: {{ $latestDiagnosis->updated_at?->format('n月j日') }}
+                                        @else
+                                            未受診
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                             <p class="text-sm sm:text-base text-[#1E3A5F] mb-4 sm:mb-6 flex-1">
-                                仕事と暮らしの満足度バランスをレーダーチャートで把握できます。
+                                今の仕事との距離感を詳細に分析し、納得感のあるキャリアを考えるための進捗レポートを作成します。
                             </p>
                             <div class="flex flex-col gap-2 sm:gap-3">
                                 @if($latestDiagnosis)
-                                    <a href="{{ route('diagnosis.result', $latestDiagnosis->id) }}" class="btn-primary text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
-                                        結果を見る
+                                    <a href="{{ route('career-satisfaction-diagnosis.result', $latestDiagnosis->id) }}" class="btn-primary text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
+                                        診断結果を見る
                                     </a>
-                                    <a href="{{ route('diagnosis.start') }}" class="btn-secondary text-center text-xs sm:text-sm px-4 sm:px-6 py-2 sm:py-3">
+                                    <a href="{{ route('career-satisfaction-diagnosis.start') }}" class="btn-secondary text-center text-xs sm:text-sm px-4 sm:px-6 py-2 sm:py-3">
                                         再診断する
                                     </a>
                                 @elseif($draftDiagnosis)
-                                    <a href="{{ route('diagnosis.start') }}" class="btn-primary text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
+                                    <a href="{{ route('career-satisfaction-diagnosis.start') }}" class="btn-primary text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
                                         続きから再開
                                     </a>
                                 @else
-                                    <a href="{{ route('diagnosis.start') }}" class="btn-primary text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
+                                    <a href="{{ route('career-satisfaction-diagnosis.start') }}" class="btn-primary text-center text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3">
                                         診断を始める
                                     </a>
+                                @endif
+
+                                @if($oldLatestDiagnosis)
+                                    <div class="mt-4 pt-4 border-t border-dashed border-[#6BB6FF]/20 text-center">
+                                        <a href="{{ route('diagnosis.result', $oldLatestDiagnosis->id) }}" class="text-xs text-[#4B7BB5] underline underline-offset-4">
+                                            過去の診断結果（旧バージョン）はこちら
+                                        </a>
+                                    </div>
                                 @endif
                             </div>
                         </div>

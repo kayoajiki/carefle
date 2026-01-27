@@ -1,4 +1,4 @@
-# 現職満足度診断 Next.js移行ガイド
+# 職業満足度診断 Next.js移行ガイド
 
 ## 概要
 
@@ -175,12 +175,8 @@ GET /api/career-satisfaction-diagnosis/{id}/result
   pillarLabels: Record<string, string>;
   stuckPoints: string[];
   stuckPointCount: number;
-  stuckPointDetails: Record<string, {
-    label: string;
-    satisfaction: number;
-    importance: number;
-    diff: number;
-  }>;
+  stuckPointDetails: Record<string, PillarDetail>;
+  safeZoneDetails: Record<string, PillarDetail>;
   maxDiff: number | null;
   gapSummary: {
     mild: string[];
@@ -188,6 +184,9 @@ GET /api/career-satisfaction-diagnosis/{id}/result
     severe: string[];
   };
   stateType: 'A' | 'B' | 'C' | null;
+  relationshipPattern: string;
+  summaryPattern: string;
+  continuationPosition: number;
 }
 ```
 

@@ -76,7 +76,7 @@ class ProfileSetup extends Component
         
         // プロフィールが既に完了している場合は診断ページにリダイレクト
         if ($user->profile_completed) {
-            $this->redirect(route('diagnosis.start'));
+            $this->redirect(route('career-satisfaction-diagnosis.start'));
             return;
         }
         
@@ -133,7 +133,7 @@ class ProfileSetup extends Component
         $activityLogService = app(ActivityLogService::class);
         $activityLogService->logProfileCompleted($user->id);
 
-        return $this->redirect(route('diagnosis.start'));
+        return $this->redirect(route('career-satisfaction-diagnosis.start'));
     }
 
     public function render()

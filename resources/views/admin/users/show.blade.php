@@ -139,9 +139,9 @@
                             @endif
                         </div>
 
-                        <!-- 現職満足度診断結果 -->
+                        <!-- 職業満足度診断結果 -->
                         <div>
-                            <h3 class="heading-3 text-lg mb-3">現職満足度診断結果 (共有中: {{ $diagnoses->count() }}件)</h3>
+                            <h3 class="heading-3 text-lg mb-3">職業満足度診断結果 (共有中: {{ $diagnoses->count() }}件)</h3>
                             <div class="space-y-3">
                                 @forelse($diagnoses as $diagnosis)
                                     <div class="bg-white rounded-lg p-4 border border-[#2E5C8A]/20">

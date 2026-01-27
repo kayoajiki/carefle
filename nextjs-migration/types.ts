@@ -53,6 +53,14 @@ export interface Question {
   order: number;
 }
 
+export interface PillarDetail {
+  label: string;
+  satisfaction: number;
+  importance: number | null;
+  diff?: number;
+  memos: string[];
+}
+
 export interface DiagnosisResult {
   diagnosis: CareerSatisfactionDiagnosis;
   workScore: number;
@@ -64,12 +72,8 @@ export interface DiagnosisResult {
   pillarLabels: Record<string, string>;
   stuckPoints: string[];
   stuckPointCount: number;
-  stuckPointDetails: Record<string, {
-    label: string;
-    satisfaction: number;
-    importance: number;
-    diff: number;
-  }>;
+  stuckPointDetails: Record<string, PillarDetail>;
+  safeZoneDetails: Record<string, PillarDetail>;
   maxDiff: number | null;
   gapSummary: {
     mild: string[];
@@ -77,6 +81,9 @@ export interface DiagnosisResult {
     severe: string[];
   };
   stateType: 'A' | 'B' | 'C' | null;
+  relationshipPattern: string;
+  summaryPattern: string;
+  continuationPosition: number;
 }
 
 export interface AnswerData {

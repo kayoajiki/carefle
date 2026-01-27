@@ -196,7 +196,7 @@ class WcmAutoGenerationService
 
         // 診断結果の情報
         if (count($context['diagnoses']) > 0) {
-            $prompt .= "【現職満足度診断結果】\n";
+            $prompt .= "【職業満足度診断結果】\n";
             foreach ($context['diagnoses'] as $diagnosisData) {
                 $diagnosis = $diagnosisData['diagnosis'];
                 $prompt .= "- Workスコア: {$diagnosis->work_score}点、Lifeスコア: {$diagnosis->life_score}点\n";

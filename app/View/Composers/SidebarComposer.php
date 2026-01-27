@@ -2,7 +2,7 @@
 
 namespace App\View\Composers;
 
-use App\Models\Diagnosis;
+use App\Models\CareerSatisfactionDiagnosis;
 use App\Models\WcmSheet;
 use App\Services\FeatureDiscoveryService;
 use Illuminate\View\View;
@@ -28,8 +28,8 @@ class SidebarComposer
 
         $user = Auth::user();
 
-        // 最新の完了済み診断を取得
-        $latestDiagnosis = Diagnosis::where('user_id', $user->id)
+        // 最新の完了済み診断（新バージョン）を取得
+        $latestDiagnosis = CareerSatisfactionDiagnosis::where('user_id', $user->id)
             ->where('is_completed', true)
             ->latest()
             ->first();

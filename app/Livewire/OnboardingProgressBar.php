@@ -53,9 +53,9 @@ class OnboardingProgressBar extends Component
         // ステップ定義
         $steps = [
             'diagnosis' => [
-                'label' => '現職満足度診断',
+                'label' => '職業満足度診断',
                 'icon' => 'chart-bar',
-                'route' => 'diagnosis.start',
+                'route' => 'career-satisfaction-diagnosis.start',
             ],
             'diary_first' => [
                 'label' => '初回日記',

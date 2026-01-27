@@ -12,14 +12,7 @@ class DiagnosisController extends Controller
 {
     public function start()
     {
-        $user = Auth::user();
-        
-        // プロフィールが未完了の場合は、プロフィール登録画面にリダイレクト
-        if (!$user->profile_completed) {
-            return redirect()->route('profile.setup');
-        }
-        
-        return view('diagnosis.start');
+        return redirect()->route('career-satisfaction-diagnosis.start');
     }
 
     public function result($id)

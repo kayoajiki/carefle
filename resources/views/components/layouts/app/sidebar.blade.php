@@ -21,9 +21,9 @@
                 
                 <flux:navlist.group heading="診断・分析" class="grid">
                     @if(isset($latestDiagnosisId))
-                        <flux:navlist.item icon="chart-bar" :href="route('diagnosis.result', $latestDiagnosisId)" :current="request()->routeIs('diagnosis.*')" wire:navigate>現職満足度診断</flux:navlist.item>
+                        <flux:navlist.item icon="chart-bar" :href="route('career-satisfaction-diagnosis.result', $latestDiagnosisId)" :current="request()->routeIs('career-satisfaction-diagnosis.*')" wire:navigate>職業満足度診断</flux:navlist.item>
                     @else
-                        <flux:navlist.item icon="chart-bar" :href="route('diagnosis.start')" :current="request()->routeIs('diagnosis.*')" wire:navigate>現職満足度診断</flux:navlist.item>
+                        <flux:navlist.item icon="chart-bar" :href="route('career-satisfaction-diagnosis.start')" :current="request()->routeIs('career-satisfaction-diagnosis.*')" wire:navigate>職業満足度診断</flux:navlist.item>
                     @endif
                     <flux:navlist.item icon="user-circle" :href="route('assessments.index')" :current="request()->routeIs('assessments.*')" wire:navigate>自己診断結果</flux:navlist.item>
                     <flux:navlist.item icon="clock" :href="route('life-history.timeline')" :current="request()->routeIs('life-history.*')" wire:navigate>人生史</flux:navlist.item>

@@ -26,7 +26,7 @@
                     </svg>
                 </div>
                 
-                <h3 class="heading-3 text-xl text-[#2E5C8A]">現職満足度診断を完了しましょう</h3>
+                <h3 class="heading-3 text-xl text-[#2E5C8A]">職業満足度診断を完了しましょう</h3>
                 
                 <p class="body-text text-[#1E3A5F]/70">
                     診断を完了すると、あなたの満足度を可視化し、次のステップが見えてきます。
