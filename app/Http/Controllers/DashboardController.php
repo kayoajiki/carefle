@@ -162,7 +162,8 @@ class DashboardController extends Controller
             ->get();
 
         // 過去の記録へのアクセス（Phase 8.1）
-        $pastRecords = $this->getPastRecords($user->id, $latestDiagnosis);
+        // 比較対象として使うのは旧バージョンの現職満足度診断（Diagnosis）
+        $pastRecords = $this->getPastRecords($user->id, $oldLatestDiagnosis);
 
         return view('dashboard', [
             'user' => $user,
