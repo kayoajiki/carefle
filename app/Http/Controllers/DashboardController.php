@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\CareerSatisfactionDiagnosis;
+use App\Models\Diagnosis;
 use App\Models\LifeEvent;
 use App\Models\WcmSheet;
 use App\Models\Diary;
