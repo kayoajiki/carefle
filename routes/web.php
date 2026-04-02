@@ -27,6 +27,18 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
+// When enabled, show only migration notice and disable old app routes.
+$migrationNoticeMode = filter_var(env('APP_MIGRATION_NOTICE_MODE', false), FILTER_VALIDATE_BOOL);
+if ($migrationNoticeMode) {
+    Route::any('{any?}', function () {
+        return response()->view('service-migration-notice', [
+            'newUrl' => env('APP_MIGRATION_NEW_URL', 'https://example.com'),
+        ]);
+    })->where('any', '.*')->name('migration.notice');
+
+    return;
+}
+
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
